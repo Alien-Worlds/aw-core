@@ -1,4 +1,4 @@
-import { Result } from '@core/architecture/domain/result';
+import { Result } from '../architecture/domain/result';
 import { Socket } from 'net';
 
 export type Response<T = unknown> = {

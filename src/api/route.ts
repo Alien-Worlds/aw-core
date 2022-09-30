@@ -1,5 +1,6 @@
-import { RequestMethod } from './api.enums';
 import { RouteHandler, RouteOptions } from './api.types';
+
+import { RequestMethod } from './api.enums';
 
 export class Route {
   constructor(
@@ -7,7 +8,7 @@ export class Route {
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
     public readonly options?: RouteOptions
-  ) {}
+  ) { }
 }
 
 export class GetRoute extends Route {
