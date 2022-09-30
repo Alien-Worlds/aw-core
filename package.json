@@ -1,6 +1,6 @@
 {
   "name": "@alien-worlds/api-core",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "",
   "engines": {
     "node": ">=17.3.0 <18.0.0",
