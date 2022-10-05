@@ -1,6 +1,8 @@
 # Build
 build
 
+.DS_Store
+
 # Logs
 logs
 *.log

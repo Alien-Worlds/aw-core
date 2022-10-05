@@ -1,5 +1,8 @@
 import 'reflect-metadata';
 
+export { Route } from './api/route';
+export * from './api/api.enums';
+export * from './api/api.types';
 export { InsertManyError } from './storage/domain/errors/insert-many.error';
 export { InsertError } from './storage/domain/errors/insert.error';
 export { OperationErrorType } from './architecture/data/errors/data-source-operation.error';
