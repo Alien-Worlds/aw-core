@@ -1,6 +1,6 @@
 {
   "name": "@alien-worlds/api-core",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "",
   "engines": {
     "node": ">=17.3.0 <18.0.0",
@@ -9,7 +9,9 @@
   "packageManager": "yarn@3.2.3",
   "main": "build/index.js",
   "types": "build/index.d.ts",
-  "files": ["build"],
+  "files": [
+    "build"
+  ],
   "scripts": {
     "test:unit": "jest --config=jest.config.unit.js",
     "clean": "rm -rf ./build",
