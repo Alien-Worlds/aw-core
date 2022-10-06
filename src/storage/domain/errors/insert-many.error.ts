@@ -1,4 +1,5 @@
-import { DataSourceOperationError } from '../../../architecture/data/errors/data-source-operation.error';
+import { DataSourceOperationError } from "./data-source-operation.error";
+
 
 /**
  * Represents an error thrown by the insertMany operation

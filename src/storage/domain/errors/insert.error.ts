@@ -1,4 +1,5 @@
-import { OperationErrorType } from '../../../architecture/data/errors/data-source-operation.error';
+import { OperationErrorType } from "./data-source-operation.error";
+
 
 /**
  * Represents an error thrown by the insertOne operation

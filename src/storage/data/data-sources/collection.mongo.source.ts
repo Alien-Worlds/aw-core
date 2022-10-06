@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { DataSourceBulkWriteError } from '../../../architecture/data/errors/data-source-bulk-write.error';
-import { DataSourceOperationError } from '../../../architecture/data/errors/data-source-operation.error';
+import { DataSourceBulkWriteError } from '../../domain/errors/data-source-bulk-write.error';
+
 import {
   AggregateOptions,
   Collection,
@@ -14,6 +14,7 @@ import {
   WithId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
+import { DataSourceOperationError } from '../../domain/errors/data-source-operation.error';
 
 /**
  * Represents MongoDB data source.

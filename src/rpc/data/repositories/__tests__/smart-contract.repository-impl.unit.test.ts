@@ -8,7 +8,7 @@ import { SmartContractRepositoryImpl } from "../smart-contract.repository-impl";
 
 let repository: SmartContractRepositoryImpl<any, any>;
 const source: EosRpcSource = {
-  getTableRows: async () => ({} as any),
+  getTableRows: async () => ({ rows:[] } as any),
 };
 
 describe('SmartContractRepositoryImpl unit tests', () => {
@@ -50,7 +50,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
     const dto = { foo: 1 };
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
     repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
-    getTableRowsMock.mockResolvedValue(dto as any);
+    getTableRowsMock.mockResolvedValue( {rows: [dto]} as any);
     // @ts-ignore
     const result = await repository.getOneRowBy('', '');
 
@@ -62,7 +62,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
   it('"getOneRowBy" should throw SmartContractDataNotFoundError when expected object was not found', async () => {
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
     repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
-    getTableRowsMock.mockResolvedValue({} as any);
+    getTableRowsMock.mockResolvedValue({ rows: [] } as any);
 
     try {
       // @ts-ignore

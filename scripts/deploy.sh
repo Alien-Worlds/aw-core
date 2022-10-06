@@ -26,6 +26,9 @@ fi
 # Build package
 yarn prepublish || error_exit "Prepublish failed"
 
+# Pull latest changes
+git pull || error_exit "Pulling failed"
+
 # Update version and commit
 npm version $TYPE || error_exit "Failed to set a new version of the package"
 

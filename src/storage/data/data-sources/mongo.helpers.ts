@@ -1,5 +1,5 @@
 import { Db, MongoClient } from 'mongodb';
-import { MongoConfig } from '../../../core.config';
+import { MongoConfig } from '../../../config';
 
 /**
  * Connect to mongo database

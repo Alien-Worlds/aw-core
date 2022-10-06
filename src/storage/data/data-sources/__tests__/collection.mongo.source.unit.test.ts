@@ -3,8 +3,8 @@ import 'reflect-metadata';
 import * as mongoDB from 'mongodb';
 import { CollectionMongoSource } from '../collection.mongo.source';
 import { MongoSource } from '../mongo.source';
-import { DataSourceOperationError } from '../../../../architecture/data/errors/data-source-operation.error';
-import { DataSourceBulkWriteError } from '../../../../architecture/data/errors/data-source-bulk-write.error';
+import { DataSourceBulkWriteError } from '../../../domain/errors/data-source-bulk-write.error';
+import { DataSourceOperationError } from '../../../domain/errors/data-source-operation.error';
 
 jest.mock('mongodb');
 let findMock;

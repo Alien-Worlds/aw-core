@@ -10,6 +10,7 @@ module.exports = {
     'src/**/*.ts',
     '!src/**/index.ts',
     '!src/**/*.config.ts',
+    '!src/**/config.ts',
     '!**/query-model.ts',
     '!**/use-case.ts',
     '!**/*.repository.ts',
@@ -22,5 +23,6 @@ module.exports = {
     '!src/**/*.dtos.ts',
     '!src/**/*.types.ts',
     '!src/**/worker.ts',
+    '!src/api/*',
   ],
 };
