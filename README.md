@@ -107,6 +107,7 @@ sh scripts/deploy.sh major
 ```
 This script will:
 - start the typeScript compiler
+- pull latest changes from the repository
 - bump the version in the `package.json` file
 - create a commit and push it to the repository
 - publish the new version to the registry (if all the previous steps have been completed successfully)
