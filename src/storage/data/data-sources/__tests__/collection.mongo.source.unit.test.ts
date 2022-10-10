@@ -10,6 +10,7 @@ jest.mock('mongodb');
 let findMock;
 let countMock;
 let deleteOneMock;
+let deleteManyMock;
 let aggregateMock;
 let findOneMock;
 let updateOneMock;
@@ -27,6 +28,7 @@ const db = {
     insertOne: jest.fn(() => insertOneMock()),
     insertMany: jest.fn(() => insertManyMock()),
     deleteOne: jest.fn(() => deleteOneMock()),
+    deleteMany: jest.fn(() => deleteManyMock()),
   })) as any,
 };
 
@@ -46,10 +48,49 @@ describe('CollectionMongoSource Unit tests', () => {
     countMock = null;
     aggregateMock = null;
     deleteOneMock = null;
+    deleteManyMock = null;
     findOneMock = null;
     updateOneMock = null;
     insertOneMock = null;
     insertManyMock = null;
+  });
+
+  it('"removeMany" should convert documents list to the objectId list', async () => {
+    const expectedResult = true;
+    deleteManyMock = () => ({ deletedCount: 2 });
+    const result = await collectionSource.removeMany([
+      { _id: 'foo'}, { _id: new mongoDB.ObjectId('bar')}
+    ]);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+
+  it('"removeMany" should return true when deletion was successful', async () => {
+    const expectedResult = true;
+    deleteManyMock = () => ({ deletedCount: 1 });
+    const result = await collectionSource.removeMany({});
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('"removeMany" should return false when document was not found and removeManyd', async () => {
+    const expectedResult = false;
+    deleteManyMock = () => ({ deletedCount: 0 });
+    const result = await collectionSource.removeMany({});
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('"removeMany" should throw an error when fetching has failed', async () => {
+    deleteManyMock = () => {
+      throw new Error('deleteMany error');
+    };
+    try {
+      await collectionSource.removeMany({});
+    } catch (error) {
+      expect(error).toBeInstanceOf(DataSourceOperationError);
+    }
   });
 
   it('"remove" should return true when deletion was successful', async () => {
