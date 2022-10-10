@@ -13,6 +13,7 @@ import {
   MatchKeysAndValues,
   ObjectId,
   OptionalUnlessRequiredId,
+  UpdateFilter,
   WithId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
@@ -126,18 +127,21 @@ export class CollectionMongoSource<T extends Document = Document> {
    * Send updated document to the data source.
    *
    * @async
-   * @param {T} dto
-   * @returns {T} ID of added document
+   * @param {T} data
+   * @param {Filter<T>} filter
+   * @returns {T}
    * @throws {DataSourceWriteError}
    */
-  public async update(dto: T): Promise<T> {
-    const { _id, ...dtoWithoutId } = dto as T & Document;
+  public async update(data: T, filter?: UpdateFilter<T>): Promise<T> {
     try {
+      const { _id, ...dtoWithoutId } = data as T & Document;
+
       await this.collection.updateOne(
-        { _id },
+        filter || { _id },
         { $set: dtoWithoutId as MatchKeysAndValues<T> }
       );
-      return dto;
+
+      return data;
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
     }
