@@ -24,8 +24,8 @@ export class RepositoryImpl<EntityType, DocumentType> {
    * @param {MongoSource} mongoSource
    */
   constructor(
-    private mongoSource: CollectionMongoSource,
-    private mapper: Mapper<EntityType, DocumentType>
+    protected mongoSource: CollectionMongoSource<DocumentType>,
+    protected mapper: Mapper<EntityType, DocumentType>
   ) {}
 
   /**
@@ -58,7 +58,7 @@ export class RepositoryImpl<EntityType, DocumentType> {
 
       return dtos && dtos.length > 0
         ? Result.withContent(
-            dtos.map(dto => this.mapper.createEntityFromDocument(dto as DocumentType))
+            dtos.map(dto => this.mapper.createEntityFromDocument(dto ))
           )
         : Result.withFailure(
             Failure.fromError(new EntityNotFoundError(this.mongoSource.collectionName))
@@ -106,7 +106,7 @@ export class RepositoryImpl<EntityType, DocumentType> {
 
       return dtos && dtos.length > 0
         ? Result.withContent(
-            dtos.map(dto => this.mapper.createEntityFromDocument(dto as DocumentType))
+            dtos.map(dto => this.mapper.createEntityFromDocument(dto ))
           )
         : Result.withFailure(
             Failure.fromError(new EntityNotFoundError(this.mongoSource.collectionName))
