@@ -6,15 +6,19 @@ import {
   AggregateOptions,
   Collection,
   CountDocumentsOptions,
+  DeleteOptions,
   Document,
   Filter,
   FindOptions,
   MatchKeysAndValues,
+  ObjectId,
   OptionalUnlessRequiredId,
   WithId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
 import { DataSourceOperationError } from '../../domain/errors/data-source-operation.error';
+
+export type ObjectWithStringId = { _id: string };
 
 /**
  * Represents MongoDB data source.
@@ -187,17 +191,60 @@ export class CollectionMongoSource<T extends Document = Document> {
 
   /**
    * Remove document from the data source.
+   * If the filter is a document, remember that it should contain the _id field.
+   * If this field is missing, the document will not be deleted.
    *
    * @async
-   * @param {T} dto
+   * @param {T | Filter<T>} filter - can be a document (DTO) or filter params
    * @returns {boolean}
    * @throws {DataSourceWriteError}
    */
-  public async remove(dto: T): Promise<boolean> {
+  public async remove(filter: T | Filter<T>, options?: DeleteOptions): Promise<boolean> {
     try {
-      const { _id } = dto as WithId<T>;
-      const filter = { _id } as unknown as Filter<T>; // TODO Ugly can we fix it?
-      const { deletedCount } = await this.collection.deleteOne(filter);
+      const id = (filter as T)._id;
+      const delFilter = id && typeof id === 'string' ? { _id: new ObjectId(id) } : filter;
+      const { deletedCount } = await this.collection.deleteOne(
+        delFilter as Filter<T>,
+        options
+      );
+
+      return Boolean(deletedCount);
+    } catch (error) {
+      throw DataSourceOperationError.fromError(error);
+    }
+  }
+
+  /**
+   * Remove documents from the data source.
+   * If the filter is an array of documents, remember that these documents must contain the _id field.
+   * If this field is missing, the document will not be deleted.
+   *
+   * @async
+   * @param {T[] | Filter<T>} filter - can be a list of the documents (DTO[]) or filter params
+   * @returns {boolean}
+   * @throws {DataSourceWriteError}
+   */
+  public async removeMany(
+    filter: T[] | Filter<T>,
+    options?: DeleteOptions
+  ): Promise<boolean> {
+    try {
+      let delFilter;
+      if (Array.isArray(filter)) {
+        const ids = { _id: { $in: [] } };
+        for (const entry of filter) {
+          const id = entry._id;
+          if (id && typeof id === 'string') {
+            ids._id.$in.push(new ObjectId(id));
+          } else if (id instanceof ObjectId) {
+            ids._id.$in.push(id);
+          }
+        }
+        delFilter = ids;
+      } else {
+        delFilter = filter;
+      }
+      const { deletedCount } = await this.collection.deleteMany(delFilter, options);
 
       return Boolean(deletedCount);
     } catch (error) {
