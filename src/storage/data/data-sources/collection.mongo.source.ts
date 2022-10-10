@@ -32,7 +32,10 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @constructor
    * @param {MongoSource} mongoSource
    */
-  constructor(protected mongoSource: MongoSource, protected collectionName: string) {
+  constructor(
+    protected mongoSource: MongoSource,
+    public readonly collectionName: string
+  ) {
     this.collection = this.mongoSource.database.collection<T>(collectionName);
   }
 
@@ -136,10 +139,9 @@ export class CollectionMongoSource<T extends Document = Document> {
     try {
       const { _id, ...dtoWithoutId } = data as T & Document;
 
-      await this.collection.updateOne(
-        filter || { _id },
-        { $set: dtoWithoutId as MatchKeysAndValues<T> }
-      );
+      await this.collection.updateOne(filter || { _id }, {
+        $set: dtoWithoutId as MatchKeysAndValues<T>,
+      });
 
       return data;
     } catch (error) {
