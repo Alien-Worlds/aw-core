@@ -1,4 +1,4 @@
-import { AggregateOptions, Filter, FindOptions } from 'mongodb';
+import { AggregateOptions, DeleteOptions, Filter, FindOptions } from 'mongodb';
 
 export type MongoAggregateParams = {
   pipeline: object[];
@@ -8,4 +8,9 @@ export type MongoAggregateParams = {
 export type MongoFindQueryParams<T = unknown> = {
   filter: Filter<T>;
   options?: FindOptions;
+};
+
+export type MongoDeleteQueryParams<T = unknown> = {
+  filter: Filter<T>;
+  options?: DeleteOptions;
 };
