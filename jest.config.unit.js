@@ -12,6 +12,7 @@ module.exports = {
     '!src/**/*.config.ts',
     '!src/**/config.ts',
     '!**/query-model.ts',
+    '!**/mapper.ts',
     '!**/use-case.ts',
     '!**/*.repository.ts',
     '!**/*.fixture.ts',

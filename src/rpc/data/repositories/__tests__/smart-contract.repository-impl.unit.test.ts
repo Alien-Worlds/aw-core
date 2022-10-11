@@ -73,4 +73,60 @@ describe('SmartContractRepositoryImpl unit tests', () => {
 
     getTableRowsMock.mockClear();
   });
+
+  it('"getOneRow" should call source.getTableRows and return an object', async () => {
+    const dto = { foo: 1 };
+    const getTableRowsMock = jest.spyOn(source, 'getTableRows');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    getTableRowsMock.mockResolvedValue( {rows: [dto]} as any);
+    // @ts-ignore
+    const result = await repository.getOneRow({});
+
+    expect(getTableRowsMock).toBeCalled();
+    expect(result).toEqual(dto);
+    getTableRowsMock.mockClear();
+  });
+
+  it('"getOneRow" should throw SmartContractDataNotFoundError when expected object was not found', async () => {
+    const getTableRowsMock = jest.spyOn(source, 'getTableRows');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    getTableRowsMock.mockResolvedValue({ rows: [] } as any);
+
+    try {
+      // @ts-ignore
+      await repository.getOneRow({});
+    } catch (error) {
+      expect(error).toBeInstanceOf(SmartContractDataNotFoundError);
+    }
+
+    getTableRowsMock.mockClear();
+  });
+
+  it('"getRows" should call source.getTableRows and return an object', async () => {
+    const dto = { foo: 1 };
+    const getTableRowsMock = jest.spyOn(source, 'getTableRows');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    getTableRowsMock.mockResolvedValue( {rows: [dto]} as any);
+    // @ts-ignore
+    const result = await repository.getRows({});
+
+    expect(getTableRowsMock).toBeCalled();
+    expect(result).toEqual([dto]);
+    getTableRowsMock.mockClear();
+  });
+
+  it('"getRows" should throw SmartContractDataNotFoundError when expected object was not found', async () => {
+    const getTableRowsMock = jest.spyOn(source, 'getTableRows');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    getTableRowsMock.mockResolvedValue({ rows: [] } as any);
+
+    try {
+      // @ts-ignore
+      await repository.getRows({});
+    } catch (error) {
+      expect(error).toBeInstanceOf(SmartContractDataNotFoundError);
+    }
+
+    getTableRowsMock.mockClear();
+  });
 });
