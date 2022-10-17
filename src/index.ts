@@ -35,6 +35,7 @@ export * from './storage/domain/errors/data-source-bulk-write.error';
 export * from './storage/domain/errors/data-source-operation.error';
 export * from './storage/domain/errors/insert-many.error';
 export * from './storage/domain/errors/insert.error';
+export * from './storage/domain/repositories/repository';
 export * from './workers/process';
 export * from './workers/worker-message';
 export * from './workers/worker-orchestrator';
