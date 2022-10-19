@@ -15,3 +15,23 @@ export const connectMongo = async (config: MongoConfig): Promise<Db> => {
   await client.connect();
   return client.db(dbName);
 };
+
+/**
+ *
+ * @param {string} url
+ * @returns {Promise<MongoClient>}
+ */
+export const connectMongoClient = async (url: string): Promise<MongoClient> => {
+  const client = new MongoClient(url);
+
+  await client.connect();
+  return client;
+};
+
+/**
+ *
+ * @param {MongoClient} client
+ * @param {string} name
+ * @returns {Db}
+ */
+export const getDatabase = (client: MongoClient, name: string): Db => client.db(name);

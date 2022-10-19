@@ -39,3 +39,16 @@ export type MongoDeleteQueryParams<T = unknown> = {
   filter: Filter<T>;
   options?: DeleteOptions;
 };
+
+export {
+  AggregateOptions,
+  CountDocumentsOptions,
+  DeleteOptions,
+  Filter,
+  FindOptions,
+  UpdateOptions,
+  Long,
+  FindCursor,
+  MongoClient,
+  Db
+} from 'mongodb';
