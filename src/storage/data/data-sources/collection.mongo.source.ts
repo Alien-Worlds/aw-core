@@ -73,10 +73,10 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {T[]}
    * @throws {DataSourceWriteError}
    */
-  public async find(filter: Filter<T>, options?: FindOptions): Promise<T[]> {
+  public async find<DocumentType = T>(filter: Filter<T>, options?: FindOptions): Promise<DocumentType[]> {
     try {
       const { sort, limit, skip } = options || {};
-      let cursor = this.collection.find<T>(filter);
+      let cursor = this.collection.find<DocumentType>(filter);
 
       if (sort) {
         cursor = cursor.sort(sort);
@@ -124,9 +124,9 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {T[]}
    * @throws {DataSourceWriteError}
    */
-  public async aggregate(pipeline: Document[], options?: AggregateOptions): Promise<T[]> {
+  public async aggregate<DocumentType = T>(pipeline: Document[], options?: AggregateOptions): Promise<DocumentType[]> {
     try {
-      const cursor = this.collection.aggregate<T>(pipeline, options);
+      const cursor = this.collection.aggregate<DocumentType>(pipeline, options);
       const list = await cursor.toArray();
       return list;
     } catch (error) {
