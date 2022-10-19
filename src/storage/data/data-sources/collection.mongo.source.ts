@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { DataSourceBulkWriteError } from '../../domain/errors/data-source-bulk-write.error';
 
 import {
   AggregateOptions,
+  AnyBulkWriteOperation,
+  BulkWriteOptions,
+  BulkWriteResult,
   Collection,
   CountDocumentsOptions,
   DeleteOptions,
@@ -14,10 +18,14 @@ import {
   ObjectId,
   OptionalUnlessRequiredId,
   UpdateFilter,
+  UpdateOptions,
+  UpdateResult,
   WithId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
 import { DataSourceOperationError } from '../../domain/errors/data-source-operation.error';
+import { isUpdateFilter } from '../../../utils';
+import { UpdateManyResult } from '../mongo.types';
 
 export type ObjectWithStringId = { _id: string };
 
@@ -130,20 +138,61 @@ export class CollectionMongoSource<T extends Document = Document> {
    * Send updated document to the data source.
    *
    * @async
-   * @param {T} data
+   * @param {T | UpdateFilter<T>} data
    * @param {Filter<T>} filter
-   * @returns {T}
+   * @param {UpdateOptions} options
+   * @returns {UpdateResult}
    * @throws {DataSourceWriteError}
    */
-  public async update(data: T, filter?: UpdateFilter<T>): Promise<T> {
+  public async update(
+    data: T | UpdateFilter<T>,
+    filter?: Filter<T>,
+    options?: UpdateOptions
+  ): Promise<UpdateResult> {
     try {
-      const { _id, ...dtoWithoutId } = data as T & Document;
+      let updateFilter;
+      let matchFilter;
 
-      await this.collection.updateOne(filter || { _id }, {
-        $set: dtoWithoutId as MatchKeysAndValues<T>,
+      if (isUpdateFilter<T>(data)) {
+        matchFilter = filter;
+        updateFilter = data;
+      } else {
+        const { _id, ...dtoWithoutId } = data as T & Document;
+        matchFilter = filter && Object.keys(filter) ? filter : { _id };
+        updateFilter = { $set: dtoWithoutId as MatchKeysAndValues<T> };
+      }
+
+      return this.collection.updateOne(matchFilter, updateFilter, options);
+    } catch (error) {
+      throw DataSourceOperationError.fromError(error);
+    }
+  }
+
+  /**
+   * Send updated documents to the data source.
+   *
+   * @async
+   * @param {T | UpdateFilter<T>} data
+   * @param {Filter<T>} filter
+   * @param {UpdateOptions} options
+   * @returns {UpdateManyResult}
+   * @throws {DataSourceWriteError}
+   */
+  public async updateMany(data: T[], options?: UpdateOptions): Promise<UpdateManyResult> {
+    try {
+      const operations = data.map(dto => {
+        const { _id, ...dtoWithoutId } = dto as T & Document;
+        return {
+          updateOne: {
+            filter: { _id },
+            update: { $set: dtoWithoutId as MatchKeysAndValues<T> },
+          },
+        };
       });
+      const { modifiedCount, upsertedCount, upsertedIds } =
+        await this.collection.bulkWrite(operations, options);
 
-      return data;
+      return { modifiedCount, upsertedCount, upsertedIds };
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
     }
@@ -253,6 +302,29 @@ export class CollectionMongoSource<T extends Document = Document> {
       const { deletedCount } = await this.collection.deleteMany(delFilter, options);
 
       return Boolean(deletedCount);
+    } catch (error) {
+      throw DataSourceOperationError.fromError(error);
+    }
+  }
+
+  /**
+   * Takes an array of write operations and executes each of them.
+   * By default operations are executed in order.
+   *
+   * @async
+   * @param {AnyBulkWriteOperation<T>[]} operations
+   * @param {BulkWriteOptions} options
+   * @returns {BulkWriteResult}
+   * @throws {DataSourceWriteError}
+   */
+  public async bulkWrite(
+    operations: AnyBulkWriteOperation<T>[],
+    options?: BulkWriteOptions
+  ): Promise<BulkWriteResult> {
+    try {
+      const result = await this.collection.bulkWrite(operations, options);
+
+      return result;
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
     }

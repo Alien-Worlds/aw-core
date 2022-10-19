@@ -14,6 +14,8 @@ let deleteManyMock;
 let aggregateMock;
 let findOneMock;
 let updateOneMock;
+let updateManyMock;
+let bulkWriteMock;
 let insertOneMock;
 let insertManyMock;
 let collectionSource: CollectionMongoSource<any>;
@@ -24,7 +26,9 @@ const db = {
     countDocuments: jest.fn(() => countMock()),
     aggregate: jest.fn(() => aggregateMock()),
     findOne: jest.fn(() => findOneMock()),
+    bulkWrite: jest.fn(() => bulkWriteMock()),
     updateOne: jest.fn(() => updateOneMock()),
+    updateMany: jest.fn(() => updateManyMock()),
     insertOne: jest.fn(() => insertOneMock()),
     insertMany: jest.fn(() => insertManyMock()),
     deleteOne: jest.fn(() => deleteOneMock()),
@@ -211,12 +215,40 @@ describe('CollectionMongoSource Unit tests', () => {
     expect(result).toEqual(dto);
   });
 
+  it('"update" should use provided UpdateFilter object', async () => {
+    const dto = { foo: 1 };
+    const filter = { $set: { foo: 1 } };
+    updateOneMock = () => dto;
+    const result = await collectionSource.update(filter);
+
+    expect(result).toEqual(dto);
+  });
+
   it('"update" should throw an error when operation has failed', async () => {
     updateOneMock = () => {
       throw new Error('update error');
     };
     try {
       await collectionSource.update({});
+    } catch (error) {
+      expect(error).toBeInstanceOf(DataSourceOperationError);
+    }
+  });
+
+  it('"updateMany" should call mongoDB updateMany and return DTO', async () => {
+    const dto = { foo: 1 };
+    bulkWriteMock = () => ({ modifiedCount: 1, upsertedCount: 0, upsertedIds: [] });
+    const result = await collectionSource.updateMany([dto]);
+
+    expect(result).toEqual({ modifiedCount: 1, upsertedCount: 0, upsertedIds: [] });
+  });
+
+  it('"updateMany" should throw an error when operation has failed', async () => {
+    bulkWriteMock = () => {
+      throw new Error('updateMany error');
+    };
+    try {
+      await collectionSource.updateMany([]);
     } catch (error) {
       expect(error).toBeInstanceOf(DataSourceOperationError);
     }
@@ -257,6 +289,39 @@ describe('CollectionMongoSource Unit tests', () => {
       await collectionSource.insertMany([{}]);
     } catch (error) {
       expect(error).toBeInstanceOf(DataSourceBulkWriteError);
+    }
+  });
+
+  it('"bulkWrite" should return operation result object', async () => {
+    const expectedResult = {
+      insertedCount: 0, 
+      result: {
+        ok: 1,
+        writeErrors: [],
+        writeConcernErrors: [],
+        insertedIds: [],
+        nInserted: 0,
+        nUpserted: 0,
+        nMatched: 0,
+        nModified: 0,
+        nRemoved: 0,
+        upserted: [],
+      }
+    };
+    bulkWriteMock = () => expectedResult;
+    const result = await collectionSource.bulkWrite([]);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('"bulkWrite" should throw an error when operation has failed', async () => {
+    bulkWriteMock = () => {
+      throw new Error('bulkWrite error');
+    };
+    try {
+      await collectionSource.bulkWrite([]);
+    } catch (error) {
+      expect(error).toBeInstanceOf(DataSourceOperationError);
     }
   });
 });

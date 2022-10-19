@@ -24,6 +24,7 @@ module.exports = {
     '!src/**/*.dtos.ts',
     '!src/**/*.types.ts',
     '!src/**/worker.ts',
+    '!src/**/repository.ts',
     '!src/api/*',
   ],
 };

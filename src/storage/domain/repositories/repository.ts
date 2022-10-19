@@ -2,9 +2,12 @@ import { QueryModel } from '../../../architecture/domain/query-model';
 import { Result } from '../../../architecture/domain/result';
 import {
   MongoAggregateParams,
+  MongoCountQueryParams,
   MongoDeleteQueryParams,
   MongoFindQueryParams,
+  MongoUpdateQueryParams,
 } from '../../data/mongo.types';
+import { UpdateResult } from '../storage.enums';
 
 /**
  * @abstract
@@ -14,9 +17,42 @@ export abstract class Repository<EntityType, DocumentType> {
   /**
    * @abstract
    * @param {EntityType} entity
+   * @param {QueryModel<MongoUpdateQueryParams<DocumentType>>} model
+   * @returns {Promise<Result<UpdateResult.Success | UpdateResult.Failure>}
+   */
+  public abstract update(
+    entity: EntityType,
+    model?: QueryModel<MongoUpdateQueryParams<DocumentType>>
+  ): Promise<Result<UpdateResult.Success | UpdateResult.Failure>>;
+
+  /**
+   * @abstract
+   * @param {EntityType[]} entities
+   * @returns {Promise<Result<UpdateResult>}
+   */
+  public abstract updateMany(entities: EntityType[]): Promise<Result<UpdateResult>>;
+
+  /**
+   * @abstract
+   * @param {EntityType} entity
    * @returns {Promise<Result<EntityType>}
    */
   public abstract add(entity: EntityType): Promise<Result<EntityType>>;
+
+  /**
+   * @abstract
+   * @param {EntityType} entity
+   * @returns {Promise<Result<EntityType>}
+   */
+  public abstract addOnce(entity: EntityType): Promise<Result<EntityType>>;
+
+  /**
+   * @abstract
+   * @param {QueryModel<MongoFindQueryParams<DocumentType>>} model
+   */
+  public abstract count(
+    model: QueryModel<MongoCountQueryParams<DocumentType>>
+  ): Promise<Result<number>>;
 
   /**
    *
