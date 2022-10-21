@@ -4,6 +4,10 @@ A set of classes, functions used in both API and history tools. Designed not to 
 
 ## Components
 
+### IOC
+
+Our packages use `inversify`, which is lightweight inversion of control container. To avoid conflicts, every package using `api-core` and IOC should use Inversfy. However, it is not necessary to import yet another dpenedency in your package because `api-core` exports **all** Inversify components.
+
 ### API
 
 Contains elements (types, errors, enums and classes) used in the API. The most important are the `Route` classes which are used as the basis for creating specific routes in the API code.

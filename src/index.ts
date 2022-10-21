@@ -1,5 +1,7 @@
 import 'reflect-metadata';
 
+export * from 'inversify';
+
 export * from './api/route';
 export * from './api/api.enums';
 export * from './api/api.types';
