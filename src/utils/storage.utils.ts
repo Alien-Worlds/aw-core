@@ -1,5 +1,5 @@
 import { UpdateFilter } from 'mongodb';
-import { QueryModel } from '../architecture/domain/query-model';
+import { QueryModel } from '../architecture';
 
 export const isQueryModel = (value: unknown): value is QueryModel =>
   (<QueryModel>value).toQueryParams !== undefined;

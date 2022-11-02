@@ -1,5 +1,5 @@
-import { Result } from '../architecture/domain/result';
 import { Socket } from 'net';
+import { Result } from '../architecture';
 
 export type Response<T = unknown> = {
   body?: T;

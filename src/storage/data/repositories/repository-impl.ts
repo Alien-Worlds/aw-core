@@ -1,6 +1,4 @@
-import { Failure } from '../../../architecture/domain/failure';
-import { QueryModel } from '../../../architecture/domain/query-model';
-import { Result } from '../../../architecture/domain/result';
+import { Failure, QueryModel, Result } from '../../../architecture';
 import { isQueryModel } from '../../../utils';
 import { EntityAlreadyExistsError } from '../../domain/errors/entity-already-exists.error';
 import { EntityNotFoundError } from '../../domain/errors/entity-not-found.error';

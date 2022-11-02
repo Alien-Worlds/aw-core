@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ObjectId } from "mongodb";
-import { Failure } from "../../../../architecture/domain/failure";
-import { QueryModel } from "../../../../architecture/domain/query-model";
+import { Failure, QueryModel } from "../../../../architecture";
 import { EntityAlreadyExistsError } from "../../../domain/errors/entity-already-exists.error";
 import { EntityNotFoundError } from "../../../domain/errors/entity-not-found.error";
 import { InsertOnceError } from "../../../domain/errors/insert-once.error";

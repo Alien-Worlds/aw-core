@@ -1,5 +1,4 @@
-import { QueryModel } from '../../../architecture/domain/query-model';
-import { Result } from '../../../architecture/domain/result';
+import { QueryModel, Result } from '../../../architecture';
 import {
   MongoAggregateParams,
   MongoCountQueryParams,
