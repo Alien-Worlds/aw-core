@@ -1,0 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { JsonRpc } from 'eosjs';
+import { GetTableRowsResult } from 'eosjs/dist/eosjs-rpc-interfaces';
+import { EosRpcSource, GetTableRowsOptions } from './eos-rpc.source';
+import fetch from 'node-fetch';
+
+export class EosJsRpcSource implements EosRpcSource {
+  private rpc: JsonRpc;
+
+  constructor(url: string) {
+    this.rpc = new JsonRpc(url, { fetch });
+  }
+  public async getTableRows(options: GetTableRowsOptions): Promise<GetTableRowsResult> {
+    return this.rpc.get_table_rows(options);
+  }
+}
