@@ -1,4 +1,4 @@
 export abstract class Mapper<EntityType, DocumentType> {
-  public abstract createEntityFromDocument<T = EntityType>(document: DocumentType): T;
+  public abstract createEntityFromDocument(document: DocumentType): EntityType;
   public abstract createDocumentFromEntity(entity: EntityType): DocumentType;
 }
