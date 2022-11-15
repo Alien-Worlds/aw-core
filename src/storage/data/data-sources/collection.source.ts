@@ -41,7 +41,7 @@ export abstract class CollectionSource<DocumentType> {
    * @returns {DocumentType[]}
    * @throws {DataSourceWriteError}
    */
-  public abstract aggregate(params: unknown): Promise<DocumentType[]>;
+  public abstract aggregate<T = DocumentType>(params: unknown): Promise<T[]>;
 
   /**
    * Send updated document to the data source.

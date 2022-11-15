@@ -84,7 +84,7 @@ export class CollectionBigQuerySource<DocumentType = unknown>
     }
   }
 
-  public aggregate(params: unknown): Promise<DocumentType[]> {
+  public aggregate<T = DocumentType>(params: unknown): Promise<T[]> {
     throw new Error('Method not implemented.');
   }
 

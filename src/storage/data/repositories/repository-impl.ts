@@ -159,12 +159,14 @@ export class RepositoryImpl<EntityType, DocumentType>
    * @param {QueryModel} model
    * @returns {Promise<Result<EntityType[]>>}
    */
-  public async aggregate(model: QueryModel): Promise<Result<EntityType[]>> {
+  public async aggregate<T = EntityType>(model: QueryModel): Promise<Result<T[]>> {
     try {
       const dtos = await this.source.aggregate(model.toQueryParams());
 
       return dtos && dtos.length > 0
-        ? Result.withContent(dtos.map(dto => this.mapper.createEntityFromDocument(dto)))
+        ? Result.withContent(
+            dtos.map(dto => this.mapper.createEntityFromDocument<T>(dto))
+          )
         : Result.withFailure(
             Failure.fromError(new EntityNotFoundError(this.source.collectionName))
           );
