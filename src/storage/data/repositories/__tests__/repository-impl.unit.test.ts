@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { ObjectId } from "mongodb";
 import { Failure, QueryModel } from "../../../../architecture";
-import { EntityAlreadyExistsError } from "../../../domain/errors/entity-already-exists.error";
-import { EntityNotFoundError } from "../../../domain/errors/entity-not-found.error";
-import { InsertOnceError } from "../../../domain/errors/insert-once.error";
 import { UpdateResult } from "../../../domain/storage.enums";
+import { DataSourceOperationError, EntityNotFoundError, UpdateOneError } from "../../../domain/storage.errors";
 import { CollectionMongoSource } from "../../data-sources/collection.mongo.source";
 import { MongoDeleteQueryParams } from "../../mongo.types";
 import { RepositoryImpl } from "../repository-impl";
@@ -89,57 +86,6 @@ describe('RepositoryImpl unit tests', () => {
 
     findMock.mockClear();
   });
-
-  it('"addOnce" should return entity with new id', async () => {
-    const updateMock = jest.spyOn(source, 'update').mockResolvedValue({
-      acknowledged: true,
-      modifiedCount: 2,
-      upsertedId: new ObjectId(0),
-      upsertedCount: 0,
-      matchedCount: 2
-    });
-    mapper.createEntityFromDocument = () => ({"data": "fake data", "id": ""}) as any;
-    repository = new RepositoryImpl(source, mapper as any);
-    const entity = FakeEntity.fromDocument(dto);
-    const result = await repository.addOnce(entity);
-    expect(result.content).toEqual(entity);
-    expect(result.failure).toBeUndefined();
-
-    updateMock.mockClear();
-  });
-
-  it('"addOnce" should return a Failure with the EntityAlreadyExistsError when found matched document', async () => {
-    const updateMock = jest.spyOn(source, 'update').mockResolvedValue({
-      acknowledged: true,
-      modifiedCount: 2,
-      upsertedId: null,
-      upsertedCount: 0,
-      matchedCount: 1
-    });
-    repository = new RepositoryImpl(source, mapper as any);
-    const entity = FakeEntity.fromDocument(dto);
-    const result = await repository.addOnce(entity);
-    expect(result.failure.error).toBeInstanceOf(EntityAlreadyExistsError);
-
-    updateMock.mockClear();
-  });
-
-  it('"addOnce" should return a Failure with the InsertOnceError when upsert failed', async () => {
-    const updateMock = jest.spyOn(source, 'update').mockResolvedValue({
-      acknowledged: true,
-      modifiedCount: 2,
-      upsertedId: null,
-      upsertedCount: 0,
-      matchedCount: 0
-    });
-    repository = new RepositoryImpl(source, mapper as any);
-    const entity = FakeEntity.fromDocument(dto);
-    const result = await repository.addOnce(entity);
-    expect(result.failure.error).toBeInstanceOf(InsertOnceError);
-
-    updateMock.mockClear();
-  });
-
 
   it('"find" should return failure when no documents were found', async () => {
     const findMock = jest.spyOn(source, 'find').mockResolvedValue([]);
@@ -273,7 +219,7 @@ describe('RepositoryImpl unit tests', () => {
 
   it('"add" should return data object', async () => {
     const fakeId = 'fake_id';
-    const addMock = jest.spyOn(source, 'insert').mockResolvedValue(fakeId);
+    const addMock = jest.spyOn(source, 'insert').mockResolvedValue({});
     const createEntityMock = jest.spyOn(mapper, 'createEntityFromDocument')
       .mockImplementation(() => FakeEntity.create(fakeId, dto.data) as any);
     repository = new RepositoryImpl(source, mapper as any);
@@ -362,7 +308,7 @@ describe('RepositoryImpl unit tests', () => {
   });
 
   it('"update" should return UpdateResult.Failure when document update failed', async () => {
-    const updateMock = jest.spyOn(source, 'update').mockResolvedValue({acknowledged: false, modifiedCount: 0, upsertedCount: 0} as any);
+    const updateMock = jest.spyOn(source, 'update').mockResolvedValue(null);
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.update(FakeEntity.create('foo', 'bar'), new TestQueryModel());

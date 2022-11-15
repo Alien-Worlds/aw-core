@@ -23,9 +23,9 @@ export type MongoUpdateQueryParams<T = unknown> = {
 };
 
 export type UpdateManyResult = {
-  modifiedCount: number;
-  upsertedCount: number;
-  upsertedIds: {
+  modifiedCount?: number;
+  upsertedCount?: number;
+  upsertedIds?: {
     [key: number]: unknown;
   };
 };
@@ -50,5 +50,5 @@ export {
   Long,
   FindCursor,
   MongoClient,
-  Db
+  Db,
 } from 'mongodb';

@@ -37,27 +37,12 @@ Contains elements (types, errors, enums and classes) used in the API. The most i
 | `Failure`    | **_class_** |   _domain_    | Failure represents one of the Result data types. Failure contains an error object                                                                                                        |
 | `QueryModel` | **_class_** | _domain/data_ | Defines a data model which is on top of the specific data base query. Contains `toQueryParams` method which returns the parameters needed to execute the query in the specified database |
 
-### Messaging
-
-| Name                              |      Type      |  Layer   | Description    |
-| :-------------------------------- | :------------: | :------: | -------------- |
-| `Message`                         |  **_class_**   | _domain_ |                |
-| `MessageRepository`               |  **_class_**   | _domain_ |                |
-| `MessageRepositoryImpl`           |  **_class_**   |  _data_  |                |
-| `MessagingAmqSource`              |  **_class_**   |  _data_  |                |
-| `ConnectionState`                 |   **_enum_**   | _domain_ |                |
-| `MessageDto`                      |   **_type_**   |  _data_  | `Amq.Message`  |
-| `wait`                            | **_function_** |  _data_  | sleep function |
-| `InvalidMessageQueueError`        |  **_error_**   | _domain_ |                |
-| `MessageKeyAlreadyTakenError`     |  **_error_**   | _domain_ |                |
-| `MessageNotFoundError`            |  **_error_**   | _domain_ |                |
-| `UndefinedMessageRepositoryError` |  **_error_**   | _domain_ |                |
-
 ### RPC
 
 | Name                              |    Type     |  Layer   |
 | :-------------------------------- | :---------: | :------: |
 | `EosRpcSource`                    | **_class_** |  _data_  |
+| `EosJsRpcSource`                  | **_class_** |  _data_  |
 | `SmartContractRepository`         | **_class_** | _domain_ |
 | `SmartContractRepositoryImpl`     | **_class_** |  _data_  |
 | `SmartContractDataNotFoundError`  | **_error_** | _domain_ |
@@ -69,7 +54,9 @@ Contains elements (types, errors, enums and classes) used in the API. The most i
 
 | Name                       |      Type      |  Layer   |
 | :------------------------- | :------------: | :------: |
+| `CollectionBigQuerySource` |  **_class_**   |  _data_  |
 | `CollectionMongoSource`    |  **_class_**   |  _data_  |
+| `CollectionSource`         |  **_class_**   |  _data_  |
 | `MongoSource`              |  **_class_**   |  _data_  |
 | `Repository`               |  **_class_**   | _domain_ |
 | `RepositoryImpl`           |  **_class_**   |  _data_  |
@@ -77,6 +64,7 @@ Contains elements (types, errors, enums and classes) used in the API. The most i
 | `MongoFindQueryParams`     |   **_type_**   | _domain_ |
 | `MongoAggregateParams`     |   **_type_**   | _domain_ |
 | `connectMongo`             | **_function_** |  _data_  |
+| `buildSqlQuery`            | **_function_** |  _data_  |
 | `DataSourceBulkWriteError` |  **_error_**   | _domain_ |
 | `DataSourceOperationError` |  **_error_**   | _domain_ |
 | `InsertManyError`          |  **_error_**   | _domain_ |
@@ -85,17 +73,7 @@ Contains elements (types, errors, enums and classes) used in the API. The most i
 | `EntityAlreadyExistsError` |  **_error_**   | _domain_ |
 | `EntityNotFoundError`      |  **_error_**   | _domain_ |
 | `UpdateResult`             |   **_enum_**   | _domain_ |
-
-### Workers
-
-| Name                   |    Type     |     Layer     |
-| :--------------------- | :---------: | :-----------: |
-| `Process`              | **_class_** | _application_ |
-| `WorkerMessage`        | **_class_** | _application_ |
-| `WorkerOrchestrator`   | **_class_** | _application_ |
-| `WorkerMessageHandler` | **_type_**  | _application_ |
-| `WorkerMessageOptions` | **_type_**  | _application_ |
-| `WorkerMessageType`    | **_enum_**  | _application_ |
+| `SqlQueryType`             |   **_enum_**   | _domain_ |
 
 ## Usage
 

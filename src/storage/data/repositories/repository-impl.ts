@@ -1,23 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Failure, QueryModel, Result } from '../../../architecture';
 import { isQueryModel } from '../../../utils';
-import { EntityAlreadyExistsError } from '../../domain/errors/entity-already-exists.error';
-import { EntityNotFoundError } from '../../domain/errors/entity-not-found.error';
-import { InsertOnceError } from '../../domain/errors/insert-once.error';
 import { Repository } from '../../domain/repositories/repository';
 import { UpdateResult } from '../../domain/storage.enums';
-import { CollectionMongoSource } from '../data-sources/collection.mongo.source';
+import { EntityNotFoundError } from '../../domain/storage.errors';
+import { CollectionSource } from '../data-sources/collection.source';
 import { Mapper } from '../mappers/mapper';
-import {
-  MongoAggregateParams,
-  MongoCountQueryParams,
-  MongoDeleteQueryParams,
-  MongoFindQueryParams,
-  MongoUpdateQueryParams,
-} from '../mongo.types';
-
-type ObjectWithStringId = {
-  _id: string;
-};
 
 /**
  * @class
@@ -27,39 +15,30 @@ export class RepositoryImpl<EntityType, DocumentType>
 {
   /**
    * @constructor
-   * @param {MongoSource} mongoSource
+   * @param {MongoSource} source
    */
   constructor(
-    protected mongoSource: CollectionMongoSource<DocumentType>,
+    protected source: CollectionSource<DocumentType>,
     protected mapper: Mapper<EntityType, DocumentType>
   ) {}
 
   /**
    *
    * @param {EntityType} entity
-   * @param {QueryModel<MongoUpdateQueryParams<DocumentType>>} model
+   * @param {QueryModel} model
    * @returns {Promise<Result<UpdateResult.Success | UpdateResult.Failure, Error>>}
    */
   public async update(
     entity: EntityType,
-    model?: QueryModel<MongoUpdateQueryParams<DocumentType>>
+    model?: QueryModel
   ): Promise<Result<UpdateResult.Success | UpdateResult.Failure>> {
     try {
       const data = this.mapper.createDocumentFromEntity(entity);
+      const params = model ? model.toQueryParams() : {};
 
-      let filter = {};
-      let options = {};
+      const document = await this.source.update(data, params);
 
-      if (model) {
-        const params = model.toQueryParams();
-        filter = params.filter;
-        options = params.options;
-      }
-
-      const { acknowledged, modifiedCount, upsertedCount } =
-        await this.mongoSource.update(data, filter, options);
-
-      return acknowledged && (modifiedCount || upsertedCount)
+      return document
         ? Result.withContent(UpdateResult.Success)
         : Result.withContent(UpdateResult.Failure);
     } catch (error) {
@@ -76,9 +55,7 @@ export class RepositoryImpl<EntityType, DocumentType>
       const documents = entities.map(entity =>
         this.mapper.createDocumentFromEntity(entity)
       );
-      const { modifiedCount, upsertedCount } = await this.mongoSource.updateMany(
-        documents
-      );
+      const { modifiedCount, upsertedCount } = await this.source.updateMany(documents);
 
       const operationsCount = modifiedCount + upsertedCount;
 
@@ -97,11 +74,9 @@ export class RepositoryImpl<EntityType, DocumentType>
    * @param {QueryModel<MongoCountQueryParams<DocumentType>>} model
    * @returns {number}
    */
-  public async count(
-    model: QueryModel<MongoCountQueryParams<DocumentType>>
-  ): Promise<Result<number>> {
+  public async count(model: QueryModel): Promise<Result<number>> {
     try {
-      const count = await this.mongoSource.count(model.toQueryParams());
+      const count = await this.source.count(model.toQueryParams());
 
       return Result.withContent(count);
     } catch (error) {
@@ -117,9 +92,8 @@ export class RepositoryImpl<EntityType, DocumentType>
   public async add(entity: EntityType): Promise<Result<EntityType>> {
     try {
       const dto = this.mapper.createDocumentFromEntity(entity);
-      const id = await this.mongoSource.insert(dto);
-      (dto as ObjectWithStringId)._id = id;
-      return Result.withContent(this.mapper.createEntityFromDocument(dto));
+      const insertedDocument = await this.source.insert(dto);
+      return Result.withContent(this.mapper.createEntityFromDocument(insertedDocument));
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
     }
@@ -132,24 +106,11 @@ export class RepositoryImpl<EntityType, DocumentType>
   public async addOnce(entity: EntityType): Promise<Result<EntityType>> {
     try {
       const dto = this.mapper.createDocumentFromEntity(entity);
-      const result = await this.mongoSource.update(
-        dto,
-        {
-          $setOnInsert: dto,
-        },
-        { upsert: true }
-      );
+      const result = await this.source.update(dto);
 
-      if (result.upsertedId) {
-        (dto as ObjectWithStringId)._id = result.upsertedId.toString();
-        return Result.withContent(this.mapper.createEntityFromDocument(dto));
+      if (result) {
+        return Result.withContent(this.mapper.createEntityFromDocument(result));
       }
-
-      if (result.matchedCount > 0) {
-        return Result.withFailure(Failure.fromError(new EntityAlreadyExistsError()));
-      }
-
-      return Result.withFailure(Failure.fromError(new InsertOnceError()));
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
     }
@@ -157,20 +118,17 @@ export class RepositoryImpl<EntityType, DocumentType>
 
   /**
    *
-   * @param {QueryModel<MongoFindQueryParams<DocumentType>>} model
+   * @param {QueryModel} model
    * @returns {Promise<Result<EntityType[]>>}
    */
-  public async find(
-    model: QueryModel<MongoFindQueryParams<DocumentType>>
-  ): Promise<Result<EntityType[]>> {
+  public async find(model: QueryModel): Promise<Result<EntityType[]>> {
     try {
-      const { filter, options } = model.toQueryParams();
-      const dtos = await this.mongoSource.find(filter, options);
+      const dtos = await this.source.find(model.toQueryParams());
 
       return dtos && dtos.length > 0
         ? Result.withContent(dtos.map(dto => this.mapper.createEntityFromDocument(dto)))
         : Result.withFailure(
-            Failure.fromError(new EntityNotFoundError(this.mongoSource.collectionName))
+            Failure.fromError(new EntityNotFoundError(this.source.collectionName))
           );
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
@@ -179,20 +137,17 @@ export class RepositoryImpl<EntityType, DocumentType>
 
   /**
    *
-   * @param {QueryModel<MongoFindQueryParams<DocumentType>>} model
+   * @param {QueryModel} model
    * @returns {Promise<Result<EntityType>>}
    */
-  public async findOne(
-    model: QueryModel<MongoFindQueryParams<DocumentType>>
-  ): Promise<Result<EntityType>> {
+  public async findOne(model: QueryModel): Promise<Result<EntityType>> {
     try {
-      const { filter, options } = model.toQueryParams();
-      const dto = await this.mongoSource.findOne(filter, options);
+      const dto = await this.source.findOne(model.toQueryParams());
 
       return dto
         ? Result.withContent(this.mapper.createEntityFromDocument(dto as DocumentType))
         : Result.withFailure(
-            Failure.fromError(new EntityNotFoundError(this.mongoSource.collectionName))
+            Failure.fromError(new EntityNotFoundError(this.source.collectionName))
           );
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
@@ -201,22 +156,17 @@ export class RepositoryImpl<EntityType, DocumentType>
 
   /**
    *
-   * @param {QueryModel<MongoAggregateParams>} model
+   * @param {QueryModel} model
    * @returns {Promise<Result<EntityType[]>>}
    */
-  public async aggregate(
-    model: QueryModel<MongoAggregateParams>
-  ): Promise<Result<EntityType[]>> {
+  public async aggregate(model: QueryModel): Promise<Result<EntityType[]>> {
     try {
-      const { pipeline, options } = model.toQueryParams();
-      options.allowDiskUse = true;
-
-      const dtos = await this.mongoSource.aggregate(pipeline, options);
+      const dtos = await this.source.aggregate(model.toQueryParams());
 
       return dtos && dtos.length > 0
         ? Result.withContent(dtos.map(dto => this.mapper.createEntityFromDocument(dto)))
         : Result.withFailure(
-            Failure.fromError(new EntityNotFoundError(this.mongoSource.collectionName))
+            Failure.fromError(new EntityNotFoundError(this.source.collectionName))
           );
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
@@ -225,20 +175,17 @@ export class RepositoryImpl<EntityType, DocumentType>
 
   /**
    *
-   * @param {QueryModel<MongoDeleteQueryParams<DocumentType>> | DocumentType} data
+   * @param {QueryModel | DocumentType} data
    * @returns {Promise<Result<boolean>>}
    */
-  public async remove(
-    data: QueryModel<MongoDeleteQueryParams<DocumentType>> | DocumentType
-  ): Promise<Result<boolean>> {
+  public async remove(data: QueryModel | DocumentType): Promise<Result<boolean>> {
     try {
       let removed = false;
 
       if (isQueryModel(data)) {
-        const { filter, options } = data.toQueryParams();
-        removed = await this.mongoSource.remove(filter, options);
+        removed = await this.source.remove(data.toQueryParams());
       } else {
-        removed = await this.mongoSource.remove(data);
+        removed = await this.source.remove(data);
       }
 
       return Result.withContent(removed);
@@ -249,19 +196,16 @@ export class RepositoryImpl<EntityType, DocumentType>
 
   /**
    *
-   * @param {QueryModel<MongoDeleteQueryParams<DocumentType>> | DocumentType[]} data
+   * @param {QueryModel | DocumentType[]} data
    * @returns {Promise<Result<boolean>>}
    */
-  public async removeMany(
-    data: QueryModel<MongoDeleteQueryParams<DocumentType>> | DocumentType[]
-  ): Promise<Result<boolean>> {
+  public async removeMany(data: QueryModel | DocumentType[]): Promise<Result<boolean>> {
     try {
       let removed = false;
       if (Array.isArray(data)) {
-        removed = await this.mongoSource.removeMany(data);
+        removed = await this.source.removeMany(data);
       } else {
-        const { filter, options } = data.toQueryParams();
-        removed = await this.mongoSource.removeMany(filter, options);
+        removed = await this.source.removeMany(data.toQueryParams());
       }
 
       return Result.withContent(removed);

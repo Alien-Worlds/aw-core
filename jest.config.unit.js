@@ -18,6 +18,7 @@ module.exports = {
     '!**/*.fixture.ts',
     '!**/*.mock.ts',
     '!**/*.error.ts',
+    '!**/*.errors.ts',
     '!**/__tests__/**',
     '!**/__mocks__/**',
     '!src/**/*.enums.ts',
@@ -25,6 +26,7 @@ module.exports = {
     '!src/**/*.types.ts',
     '!src/**/worker.ts',
     '!src/**/repository.ts',
+    '!src/**/collection.source.ts',
     '!src/api/*',
   ],
 };

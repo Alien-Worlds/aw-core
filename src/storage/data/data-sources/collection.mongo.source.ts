@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { DataSourceBulkWriteError } from '../../domain/errors/data-source-bulk-write.error';
 
 import {
   AggregateOptions,
@@ -17,15 +16,14 @@ import {
   MatchKeysAndValues,
   ObjectId,
   OptionalUnlessRequiredId,
-  UpdateFilter,
-  UpdateOptions,
-  UpdateResult,
-  WithId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
-import { DataSourceOperationError } from '../../domain/errors/data-source-operation.error';
-import { isUpdateFilter } from '../../../utils';
 import { UpdateManyResult } from '../mongo.types';
+import { CollectionSource, UpdateParams } from './collection.source';
+import {
+  DataSourceBulkWriteError,
+  DataSourceOperationError,
+} from '../../domain/storage.errors';
 
 export type ObjectWithStringId = { _id: string };
 
@@ -33,7 +31,9 @@ export type ObjectWithStringId = { _id: string };
  * Represents MongoDB data source.
  * @class
  */
-export class CollectionMongoSource<T extends Document = Document> {
+export class CollectionMongoSource<T extends Document = Document>
+  implements CollectionSource<T>
+{
   protected collection: Collection<T>;
 
   /**
@@ -56,9 +56,13 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {T}
    * @throws {DataSourceWriteError}
    */
-  public async findOne(filter: Filter<T>, options?: FindOptions): Promise<WithId<T>> {
+  public async findOne<DocumentType = T>(params: {
+    filter: Filter<T>;
+    options?: FindOptions;
+  }): Promise<DocumentType> {
     try {
-      return this.collection.findOne(filter, options);
+      const { filter, options } = params;
+      return this.collection.findOne<DocumentType>(filter, options);
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
     }
@@ -73,8 +77,12 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {T[]}
    * @throws {DataSourceWriteError}
    */
-  public async find<DocumentType = T>(filter: Filter<T>, options?: FindOptions): Promise<DocumentType[]> {
+  public async find<DocumentType = T>(params: {
+    filter: Filter<T>;
+    options?: FindOptions;
+  }): Promise<DocumentType[]> {
     try {
+      const { filter, options } = params;
       const { sort, limit, skip } = options || {};
       let cursor = this.collection.find<DocumentType>(filter);
 
@@ -106,10 +114,11 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {T[]}
    * @throws {DataSourceWriteError}
    */
-  public async count(
-    filter: Filter<T>,
-    options?: CountDocumentsOptions
-  ): Promise<number> {
+  public async count(params: {
+    filter?: Filter<T>;
+    options?: CountDocumentsOptions;
+  }): Promise<number> {
+    const { filter, options } = params;
     try {
       return this.collection.countDocuments(filter, options);
     } catch (error) {
@@ -124,8 +133,15 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {T[]}
    * @throws {DataSourceWriteError}
    */
-  public async aggregate<DocumentType = T>(pipeline: Document[], options?: AggregateOptions): Promise<DocumentType[]> {
+  public async aggregate<DocumentType = T>(params: {
+    pipeline: Document[];
+    options?: AggregateOptions;
+  }): Promise<DocumentType[]> {
     try {
+      const { pipeline, options } = params;
+      if (options) {
+        options.allowDiskUse = true;
+      }
       const cursor = this.collection.aggregate<DocumentType>(pipeline, options);
       const list = await cursor.toArray();
       return list;
@@ -138,31 +154,37 @@ export class CollectionMongoSource<T extends Document = Document> {
    * Send updated document to the data source.
    *
    * @async
-   * @param {T | UpdateFilter<T>} data
-   * @param {Filter<T>} filter
-   * @param {UpdateOptions} options
-   * @returns {UpdateResult}
+   * @param {DocumentType} data
+   * @param {UpdateParams} params
+   * @returns {DocumentType}
    * @throws {DataSourceWriteError}
    */
-  public async update(
-    data: T | UpdateFilter<T>,
-    filter?: Filter<T>,
-    options?: UpdateOptions
-  ): Promise<UpdateResult> {
+  public async update<DocumentType = T>(
+    data: DocumentType,
+    params?: { where?: Filter<T>; options?: unknown }
+  ): Promise<DocumentType> {
     try {
-      let updateFilter;
-      let matchFilter;
+      const { where, options } = params || {};
+      const { _id, ...dtoWithoutId } = data as T & Document;
+      const filter = { $set: dtoWithoutId as MatchKeysAndValues<T> };
+      const match = where ? where : _id ? { _id } : {};
 
-      if (isUpdateFilter<T>(data)) {
-        matchFilter = filter;
-        updateFilter = data;
-      } else {
-        const { _id, ...dtoWithoutId } = data as T & Document;
-        matchFilter = filter && Object.keys(filter) ? filter : { _id };
-        updateFilter = { $set: dtoWithoutId as MatchKeysAndValues<T> };
+      const { upsertedId, modifiedCount } = await this.collection.updateOne(
+        match,
+        filter,
+        options || { upsert: true }
+      );
+
+      if (upsertedId) {
+        (data as ObjectWithStringId)._id = upsertedId.toString();
+        return data;
       }
 
-      return this.collection.updateOne(matchFilter, updateFilter, options);
+      if (modifiedCount > 0) {
+        return data;
+      }
+
+      return null;
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
     }
@@ -172,26 +194,29 @@ export class CollectionMongoSource<T extends Document = Document> {
    * Send updated documents to the data source.
    *
    * @async
-   * @param {T | UpdateFilter<T>} data
-   * @param {Filter<T>} filter
-   * @param {UpdateOptions} options
+   * @param {DocuemntType[]} data
+   * @param {UpdateOptions} params
    * @returns {UpdateManyResult}
    * @throws {DataSourceWriteError}
    */
-  public async updateMany(data: T[], options?: UpdateOptions): Promise<UpdateManyResult> {
+  public async updateMany<DocumentType = T>(
+    data: DocumentType[],
+    params?: { where?: Filter<T>; options?: unknown }
+  ): Promise<UpdateManyResult> {
     try {
+      const { where, options } = params || {};
       const operations = data.map(dto => {
-        const { _id, ...dtoWithoutId } = dto as T & Document;
+        const { _id, ...dtoWithoutId } = dto as unknown as T & Document;
+        const filter = where ? where : _id ? { _id } : {};
         return {
           updateOne: {
-            filter: { _id },
+            filter,
             update: { $set: dtoWithoutId as MatchKeysAndValues<T> },
           },
         };
       });
       const { modifiedCount, upsertedCount, upsertedIds } =
         await this.collection.bulkWrite(operations, options);
-
       return { modifiedCount, upsertedCount, upsertedIds };
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
@@ -206,12 +231,13 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {string} ID of added document
    * @throws {DataSourceWriteError}
    */
-  public async insert(dto: T): Promise<string> {
+  public async insert(dto: T): Promise<T> {
     try {
       const { insertedId } = await this.collection.insertOne(
         dto as OptionalUnlessRequiredId<T>
       );
-      return insertedId.toString();
+      (dto as unknown as ObjectWithStringId)._id = insertedId.toString();
+      return dto;
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
     }
@@ -230,7 +256,7 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {string[]} IDs of added documents
    * @throws {DataSourceBulkWriteError}
    */
-  public async insertMany(dtos: T[]): Promise<string[]> {
+  public async insertMany(dtos: T[]): Promise<T[]> {
     try {
       const inserted = await this.collection.insertMany(
         dtos as OptionalUnlessRequiredId<T>[],
@@ -238,7 +264,10 @@ export class CollectionMongoSource<T extends Document = Document> {
           ordered: false,
         }
       );
-      return Object.values(inserted.insertedIds).map(objectId => objectId.toString());
+      return dtos.map((dto, i) => {
+        (dto as unknown as ObjectWithStringId)._id = inserted.insertedIds[i].toString();
+        return dto;
+      });
     } catch (error) {
       throw DataSourceBulkWriteError.create(error);
     }
@@ -250,18 +279,25 @@ export class CollectionMongoSource<T extends Document = Document> {
    * If this field is missing, the document will not be deleted.
    *
    * @async
-   * @param {T | Filter<T>} filter - can be a document (DTO) or filter params
+   * @param {T | Filter<T>} data - can be a document (DTO) or filter params
    * @returns {boolean}
    * @throws {DataSourceWriteError}
    */
-  public async remove(filter: T | Filter<T>, options?: DeleteOptions): Promise<boolean> {
+  public async remove(
+    data: T | { filter: T | Filter<T>; options?: DeleteOptions }
+  ): Promise<boolean> {
     try {
-      const id = (filter as T)._id;
-      const delFilter = id && typeof id === 'string' ? { _id: new ObjectId(id) } : filter;
-      const { deletedCount } = await this.collection.deleteOne(
-        delFilter as Filter<T>,
-        options
-      );
+      const id = (data as T)._id;
+      let filter: Filter<T>;
+      let options: DeleteOptions;
+      if (id && typeof id === 'string') {
+        filter = { _id: new ObjectId(id) } as unknown as Filter<T>;
+      } else {
+        filter = data.filter;
+        options = data.options;
+      }
+
+      const { deletedCount } = await this.collection.deleteOne(filter, options);
 
       return Boolean(deletedCount);
     } catch (error) {
@@ -275,19 +311,19 @@ export class CollectionMongoSource<T extends Document = Document> {
    * If this field is missing, the document will not be deleted.
    *
    * @async
-   * @param {T[] | Filter<T>} filter - can be a list of the documents (DTO[]) or filter params
+   * @param {T[] | Filter<T>} data - can be a list of the documents (DTO[]) or filter params
    * @returns {boolean}
    * @throws {DataSourceWriteError}
    */
   public async removeMany(
-    filter: T[] | Filter<T>,
-    options?: DeleteOptions
+    data: T[] | { filter?: Filter<T>; options?: DeleteOptions }
   ): Promise<boolean> {
     try {
-      let delFilter;
-      if (Array.isArray(filter)) {
+      let filter;
+      let options: DeleteOptions;
+      if (Array.isArray(data)) {
         const ids = { _id: { $in: [] } };
-        for (const entry of filter) {
+        for (const entry of data) {
           const id = entry._id;
           if (id && typeof id === 'string') {
             ids._id.$in.push(new ObjectId(id));
@@ -295,11 +331,12 @@ export class CollectionMongoSource<T extends Document = Document> {
             ids._id.$in.push(id);
           }
         }
-        delFilter = ids;
+        filter = ids;
       } else {
-        delFilter = filter;
+        filter = data.filter;
+        options = data.options;
       }
-      const { deletedCount } = await this.collection.deleteMany(delFilter, options);
+      const { deletedCount } = await this.collection.deleteMany(filter, options);
 
       return Boolean(deletedCount);
     } catch (error) {
@@ -317,7 +354,7 @@ export class CollectionMongoSource<T extends Document = Document> {
    * @returns {BulkWriteResult}
    * @throws {DataSourceWriteError}
    */
-  public async bulkWrite(
+  public async composedOperation(
     operations: AnyBulkWriteOperation<T>[],
     options?: BulkWriteOptions
   ): Promise<BulkWriteResult> {

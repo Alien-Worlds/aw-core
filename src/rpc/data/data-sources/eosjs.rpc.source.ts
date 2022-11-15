@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import fetch from 'node-fetch';
 import { JsonRpc } from 'eosjs';
 import { GetTableRowsResult } from 'eosjs/dist/eosjs-rpc-interfaces';
 import { EosRpcSource, GetTableRowsOptions } from './eos-rpc.source';
-import fetch from 'node-fetch';
 
 export class EosJsRpcSource implements EosRpcSource {
   private rpc: JsonRpc;
