@@ -12,7 +12,7 @@ import { SqlQueryType } from '../sql.enums';
 import { CollectionSource } from './collection.source';
 import { buildSqlQuery, stringifyData, stringifyMultiCondition } from './sql.helpers';
 
-export type CollectionOptions = {
+export type BigQueryCollectionOptions = {
   projectId: string;
   datasetId: string;
   tableName: string;
@@ -30,7 +30,7 @@ export class CollectionBigQuerySource<DocumentType = unknown>
   protected collection: Table;
   protected label: string;
 
-  constructor(protected client: BigQuery, protected options: CollectionOptions) {
+  constructor(protected client: BigQuery, protected options: BigQueryCollectionOptions) {
     const { projectId, datasetId, tableName } = options;
     this.label = `${projectId}.${datasetId}.${tableName}`;
     this.collection = this.client.dataset(datasetId, options).table(tableName);
