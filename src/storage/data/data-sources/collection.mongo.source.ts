@@ -18,12 +18,14 @@ import {
   OptionalUnlessRequiredId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
-import { UpdateManyResult } from '../mongo.types';
-import { CollectionSource, UpdateParams } from './collection.source';
+import { CollectionOptions, UpdateManyResult } from '../mongo.types';
+import { CollectionSource } from './collection.source';
 import {
+  CustomIndexesNotSetError,
   DataSourceBulkWriteError,
   DataSourceOperationError,
 } from '../../domain/storage.errors';
+import { containsSpecialKeys } from '../../../utils';
 
 export type ObjectWithStringId = { _id: string };
 
@@ -42,9 +44,21 @@ export class CollectionMongoSource<T extends Document = Document>
    */
   constructor(
     protected mongoSource: MongoSource,
-    public readonly collectionName: string
+    public readonly collectionName: string,
+    protected options?: CollectionOptions
   ) {
     this.collection = this.mongoSource.database.collection<T>(collectionName);
+  }
+
+  public async validate(): Promise<void> {
+    if (this.options?.skipIndexCheck === false || !this.options) {
+      const cursor = this.collection.listIndexes();
+      const indexes = await cursor.toArray();
+
+      if (indexes.length === 1) {
+        throw new CustomIndexesNotSetError(this.collectionName);
+      }
+    }
   }
 
   /**
@@ -166,7 +180,9 @@ export class CollectionMongoSource<T extends Document = Document>
     try {
       const { where, options } = params || {};
       const { _id, ...dtoWithoutId } = data as T & Document;
-      const filter = { $set: dtoWithoutId as MatchKeysAndValues<T> };
+      const filter = containsSpecialKeys(data)
+        ? data
+        : { $set: dtoWithoutId as MatchKeysAndValues<T> };
       const match = where ? where : _id ? { _id } : {};
 
       const { upsertedId, modifiedCount } = await this.collection.updateOne(

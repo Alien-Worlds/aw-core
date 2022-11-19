@@ -249,3 +249,9 @@ export class MissingArgumentsError extends Error {
     super(`Missing arguments [${names.join(',')}] to execute the command`);
   }
 }
+
+export class CustomIndexesNotSetError extends Error {
+  constructor(collection: string) {
+    super(`No additional indexes were created in collection "${collection}".`);
+  }
+}

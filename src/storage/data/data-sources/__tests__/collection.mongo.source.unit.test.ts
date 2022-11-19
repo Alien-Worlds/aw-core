@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import * as mongoDB from 'mongodb';
 import { CollectionMongoSource } from '../collection.mongo.source';
 import { MongoSource } from '../mongo.source';
-import { DataSourceBulkWriteError, DataSourceOperationError } from '../../../domain/storage.errors';
+import { CustomIndexesNotSetError, DataSourceBulkWriteError, DataSourceOperationError } from '../../../domain/storage.errors';
 
 jest.mock('mongodb');
 let findMock;
@@ -17,6 +17,7 @@ let updateManyMock;
 let bulkWriteMock;
 let insertOneMock;
 let insertManyMock;
+let listIndexesMock = { toArray: jest.fn() };
 let collectionSource: CollectionMongoSource<any>;
 const db = {
   databaseName: 'TestDB',
@@ -32,10 +33,13 @@ const db = {
     insertMany: jest.fn(() => insertManyMock()),
     deleteOne: jest.fn(() => deleteOneMock()),
     deleteMany: jest.fn(() => deleteManyMock()),
+    listIndexes: jest.fn(() => listIndexesMock),
   })) as any,
 };
 
 const mongoSource = new MongoSource(db as mongoDB.Db);
+
+const options = {}
 
 describe('CollectionMongoSource Unit tests', () => {
   afterAll(() => {
@@ -43,7 +47,7 @@ describe('CollectionMongoSource Unit tests', () => {
   });
 
   beforeEach(() => {
-    collectionSource = new CollectionMongoSource<any>(mongoSource, 'test');
+    collectionSource = new CollectionMongoSource<any>(mongoSource, 'test', options);
   });
 
   afterEach(() => {
@@ -56,6 +60,19 @@ describe('CollectionMongoSource Unit tests', () => {
     updateOneMock = null;
     insertOneMock = null;
     insertManyMock = null;
+  });
+
+  it('Should throw an error if no additional indexes are set when checkIndexes option is true', async () => {
+    listIndexesMock.toArray.mockResolvedValue([1]);
+    try {
+      let coll = new CollectionMongoSource<any>(mongoSource, 'test', { skipIndexCheck: false });
+      await coll.validate();
+
+      coll = new CollectionMongoSource<any>(mongoSource, 'test');
+      await coll.validate();
+    } catch (error) {
+      expect(error).toBeTruthy();
+    }
   });
 
   it('"removeMany" should convert documents list to the objectId list', async () => {

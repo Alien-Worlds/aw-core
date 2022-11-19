@@ -7,6 +7,10 @@ import {
   UpdateOptions,
 } from 'mongodb';
 
+export type CollectionOptions = {
+  skipIndexCheck?: boolean;
+};
+
 export type MongoAggregateParams = {
   pipeline: object[];
   options?: AggregateOptions;
