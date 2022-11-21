@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Failure, QueryModel, Result } from '../../../architecture';
-import { isQueryModel } from '../../../utils';
+import { getParams, isQueryModel } from '../../../utils';
 import { Repository } from '../../domain/repositories/repository';
 import { UpdateResult } from '../../domain/storage.enums';
 import { EntityNotFoundError } from '../../domain/storage.errors';
@@ -30,11 +30,11 @@ export class RepositoryImpl<EntityType, DocumentType>
    */
   public async update(
     entity: EntityType,
-    model?: QueryModel
+    model?: QueryModel | DocumentType
   ): Promise<Result<UpdateResult.Success | UpdateResult.Failure>> {
     try {
       const data = this.mapper.createDocumentFromEntity(entity);
-      const params = model ? model.toQueryParams() : {};
+      const params = getParams(model);
 
       const document = await this.source.update(data, params);
 
@@ -74,9 +74,10 @@ export class RepositoryImpl<EntityType, DocumentType>
    * @param {QueryModel<MongoCountQueryParams<DocumentType>>} model
    * @returns {number}
    */
-  public async count(model: QueryModel): Promise<Result<number>> {
+  public async count(model: QueryModel | DocumentType): Promise<Result<number>> {
     try {
-      const count = await this.source.count(model.toQueryParams());
+      const params = getParams(model);
+      const count = await this.source.count(params);
 
       return Result.withContent(count);
     } catch (error) {
@@ -121,9 +122,10 @@ export class RepositoryImpl<EntityType, DocumentType>
    * @param {QueryModel} model
    * @returns {Promise<Result<EntityType[]>>}
    */
-  public async find(model: QueryModel): Promise<Result<EntityType[]>> {
+  public async find(model: QueryModel | DocumentType): Promise<Result<EntityType[]>> {
     try {
-      const dtos = await this.source.find(model.toQueryParams());
+      const params = getParams(model);
+      const dtos = await this.source.find(params);
 
       return dtos && dtos.length > 0
         ? Result.withContent(dtos.map(dto => this.mapper.createEntityFromDocument(dto)))
@@ -140,9 +142,10 @@ export class RepositoryImpl<EntityType, DocumentType>
    * @param {QueryModel} model
    * @returns {Promise<Result<EntityType>>}
    */
-  public async findOne(model: QueryModel): Promise<Result<EntityType>> {
+  public async findOne(model: QueryModel | DocumentType): Promise<Result<EntityType>> {
     try {
-      const dto = await this.source.findOne(model.toQueryParams());
+      const params = getParams(model);
+      const dto = await this.source.findOne(params);
 
       return dto
         ? Result.withContent(this.mapper.createEntityFromDocument(dto as DocumentType))
@@ -159,9 +162,12 @@ export class RepositoryImpl<EntityType, DocumentType>
    * @param {QueryModel} model
    * @returns {Promise<Result<EntityType[]>>}
    */
-  public async aggregate(model: QueryModel): Promise<Result<EntityType[]>> {
+  public async aggregate(
+    model: QueryModel | DocumentType
+  ): Promise<Result<EntityType[]>> {
     try {
-      const dtos = await this.source.aggregate(model.toQueryParams());
+      const params = getParams(model);
+      const dtos = await this.source.aggregate(params);
 
       return dtos && dtos.length > 0
         ? Result.withContent(dtos.map(dto => this.mapper.createEntityFromDocument(dto)))

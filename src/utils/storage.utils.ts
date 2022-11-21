@@ -36,3 +36,15 @@ export const containsSpecialKeys = (data: unknown): boolean => {
     return false;
   }
 };
+
+export const getParams = (data?: unknown): object => {
+  if (isQueryModel(data)) {
+    return data.toQueryParams() as object;
+  }
+
+  if (typeof data === 'object') {
+    return data;
+  }
+
+  return {};
+};
