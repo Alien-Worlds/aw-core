@@ -16,6 +16,7 @@ import {
   MatchKeysAndValues,
   ObjectId,
   OptionalUnlessRequiredId,
+  WithId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
 import { CollectionOptions, UpdateManyResult } from '../mongo.types';
@@ -27,7 +28,7 @@ import {
 } from '../../domain/storage.errors';
 import { containsSpecialKeys } from '../../../utils';
 
-export type ObjectWithStringId = { _id: string };
+export type ObjectWithId = { _id: ObjectId };
 
 /**
  * Represents MongoDB data source.
@@ -192,7 +193,7 @@ export class CollectionMongoSource<T extends Document = Document>
       );
 
       if (upsertedId) {
-        (data as ObjectWithStringId)._id = upsertedId.toString();
+        (data as unknown as ObjectWithId)._id = upsertedId;
         return data;
       }
 
@@ -254,7 +255,7 @@ export class CollectionMongoSource<T extends Document = Document>
       const { insertedId } = await this.collection.insertOne(
         data as OptionalUnlessRequiredId<T>
       );
-      (dto as unknown as ObjectWithStringId)._id = insertedId.toString();
+      (dto as unknown as ObjectWithId)._id = insertedId;
       return dto;
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
@@ -287,7 +288,7 @@ export class CollectionMongoSource<T extends Document = Document>
         }
       );
       return data.map((dto, i) => {
-        (dto as unknown as ObjectWithStringId)._id = inserted.insertedIds[i].toString();
+        (dto as unknown as ObjectWithId)._id = inserted.insertedIds[i];
         return dto;
       });
     } catch (error) {
