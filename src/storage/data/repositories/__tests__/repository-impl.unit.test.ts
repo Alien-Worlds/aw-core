@@ -2,7 +2,7 @@
 
 import { Failure, QueryModel } from "../../../../architecture";
 import { UpdateResult } from "../../../domain/storage.enums";
-import { DataSourceOperationError, EntityNotFoundError, UpdateOneError } from "../../../domain/storage.errors";
+import { EntityNotFoundError } from "../../../domain/storage.errors";
 import { CollectionMongoSource } from "../../data-sources/collection.mongo.source";
 import { MongoDeleteQueryParams } from "../../mongo.types";
 import { RepositoryImpl } from "../repository-impl";
@@ -233,67 +233,67 @@ describe('RepositoryImpl unit tests', () => {
   });
 
   it('"remove" should call remove and use dto data as a filter', async () => {
-    const addMock = jest.spyOn(source, 'remove').mockResolvedValue(true);
+    const removeMock = jest.spyOn(source, 'remove').mockResolvedValue(true);
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.remove(new TestQueryModel());
     expect(result.content).toEqual(true);
     expect(result.failure).toBeUndefined();
 
-    addMock.mockClear();
+    removeMock.mockClear();
   });
 
   it('"remove" should remove element with given id', async () => {
-    const addMock = jest.spyOn(source, 'remove').mockResolvedValue(true);
+    const removeMock = jest.spyOn(source, 'remove').mockResolvedValue(true);
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.remove({ _id: 'fake_id' });
     expect(result.content).toEqual(true);
     expect(result.failure).toBeUndefined();
 
-    addMock.mockClear();
+    removeMock.mockClear();
   });
 
   it('"remove" should return Failure when removing document fails', async () => {
-    const addMock = jest.spyOn(source, 'remove').mockRejectedValue(new Error());
+    const removeMock = jest.spyOn(source, 'remove').mockRejectedValue(new Error());
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.remove({ _id: 'fake_id' });
     expect(result.failure).toBeInstanceOf(Failure);
 
-    addMock.mockClear();
+    removeMock.mockClear();
   });
 
   it('"removeMany" should call remove and use dto data as a filter', async () => {
-    const addMock = jest.spyOn(source, 'removeMany').mockResolvedValue(true);
+    const removeManyMock = jest.spyOn(source, 'removeMany').mockResolvedValue(true);
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.removeMany(new TestQueryModel());
     expect(result.content).toEqual(true);
     expect(result.failure).toBeUndefined();
 
-    addMock.mockClear();
+    removeManyMock.mockClear();
   });
 
   it('"removeMany" should remove element with given id', async () => {
-    const addMock = jest.spyOn(source, 'removeMany').mockResolvedValue(true);
+    const removeManyMock = jest.spyOn(source, 'removeMany').mockResolvedValue(true);
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.removeMany([{ _id: 'fake_id' }]);
     expect(result.content).toEqual(true);
     expect(result.failure).toBeUndefined();
 
-    addMock.mockClear();
+    removeManyMock.mockClear();
   });
 
   it('"removeMany" should return Failure when removing document fails', async () => {
-    const addMock = jest.spyOn(source, 'removeMany').mockRejectedValue(new Error());
+    const removeManyMock = jest.spyOn(source, 'removeMany').mockRejectedValue(new Error());
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.removeMany([{ _id: 'fake_id' }]);
     expect(result.failure).toBeInstanceOf(Failure);
 
-    addMock.mockClear();
+    removeManyMock.mockClear();
   });
 
   it('"update" should return UpdateResult.Success when document has been updated', async () => {
@@ -323,6 +323,7 @@ describe('RepositoryImpl unit tests', () => {
     repository = new RepositoryImpl(source, mapper as any);
 
     const result = await repository.update(FakeEntity.create('foo', 'bar'));
+
     expect(result.content).toEqual(UpdateResult.Success);
     expect(result.failure).toBeUndefined();
 

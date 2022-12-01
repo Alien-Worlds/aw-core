@@ -19,7 +19,7 @@ const specials = [
 ];
 
 export const isQueryModel = (value: unknown): value is QueryModel =>
-  (<QueryModel>value).toQueryParams !== undefined;
+  (<QueryModel>value)?.toQueryParams !== undefined;
 
 export const containsSpecialKeys = (data: unknown): boolean => {
   try {

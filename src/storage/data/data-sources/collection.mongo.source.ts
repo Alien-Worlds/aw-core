@@ -249,8 +249,10 @@ export class CollectionMongoSource<T extends Document = Document>
    */
   public async insert(dto: T): Promise<T> {
     try {
+      const { _id, ...rest } = dto;
+      const data = _id ? dto : rest;
       const { insertedId } = await this.collection.insertOne(
-        dto as OptionalUnlessRequiredId<T>
+        data as OptionalUnlessRequiredId<T>
       );
       (dto as unknown as ObjectWithStringId)._id = insertedId.toString();
       return dto;
@@ -274,13 +276,17 @@ export class CollectionMongoSource<T extends Document = Document>
    */
   public async insertMany(dtos: T[]): Promise<T[]> {
     try {
+      const data: T[] = dtos.map(dto => {
+        const { _id, ...rest } = dto;
+        return _id ? dto : (rest as T);
+      });
       const inserted = await this.collection.insertMany(
-        dtos as OptionalUnlessRequiredId<T>[],
+        data as OptionalUnlessRequiredId<T>[],
         {
           ordered: false,
         }
       );
-      return dtos.map((dto, i) => {
+      return data.map((dto, i) => {
         (dto as unknown as ObjectWithStringId)._id = inserted.insertedIds[i].toString();
         return dto;
       });
