@@ -1,3 +1,4 @@
+import { Failure, Result } from '../../../architecture';
 import { SmartContractDataNotFoundError } from '../../domain/errors/smart-contract-data-not-found.error';
 import { EosRpcSource, GetTableRowsOptions } from '../data-sources/eos-rpc.source';
 
@@ -17,7 +18,8 @@ export class SmartContractRepositoryImpl<EntityType, DtoType> {
   constructor(
     protected source: EosRpcSource,
     protected code: string,
-    protected table: string
+    protected table: string,
+    protected mapper: (dto: unknown) => EntityType
   ) {}
 
   /**
@@ -91,5 +93,41 @@ export class SmartContractRepositoryImpl<EntityType, DtoType> {
     }
 
     return result.rows as DtoType[];
+  }
+
+  /**
+   * @async
+   * @param {GetTableRowsOptions} options
+   * @returns {Result<EntityType[]>}
+   */
+  public async getMany(options: GetTableRowsOptions): Promise<Result<EntityType[]>> {
+    try {
+      options.table = this.table;
+      options.code = this.code;
+
+      const rows = await this.getRows(options);
+
+      return Result.withContent(rows.map(row => this.mapper(row)));
+    } catch (error) {
+      return Result.withFailure(Failure.fromError(error));
+    }
+  }
+
+  /**
+   * @async
+   * @param {GetTableRowsOptions} options
+   * @returns {Result<CustodianSmartContractData>}
+   */
+  public async getOne(options: GetTableRowsOptions): Promise<Result<EntityType>> {
+    try {
+      options.table = this.table;
+      options.code = this.code;
+
+      const row = await this.getOneRow(options);
+
+      return Result.withContent(this.mapper(row));
+    } catch (error) {
+      return Result.withFailure(Failure.fromError(error));
+    }
   }
 }

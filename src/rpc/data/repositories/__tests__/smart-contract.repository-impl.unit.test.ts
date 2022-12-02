@@ -11,11 +11,13 @@ const source: EosRpcSource = {
   getTableRows: async () => ({ rows:[] } as any),
 };
 
+const mapper = (dto: unknown) => ({})
+
 describe('SmartContractRepositoryImpl unit tests', () => {
   it('"store" should add entity to the storage and return that entity', async () => {
     const entity = { foo: 1 };
     const key = 'foo::bar';
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     // @ts-ignore
     const result = repository.store(key, entity);
 
@@ -30,7 +32,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
     const entity = { foo: 1 };
     const key = 'foo::bar';
     const warnMock = jest.spyOn(console, 'warn');
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     // @ts-ignore
     repository.storage.set(key, { bar: 1 });
     // @ts-ignore
@@ -49,7 +51,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
   it('"getOneRowBy" should call source.getTableRows and return an object', async () => {
     const dto = { foo: 1 };
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     getTableRowsMock.mockResolvedValue( {rows: [dto]} as any);
     // @ts-ignore
     const result = await repository.getOneRowBy('', '');
@@ -61,7 +63,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
 
   it('"getOneRowBy" should throw SmartContractDataNotFoundError when expected object was not found', async () => {
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     getTableRowsMock.mockResolvedValue({ rows: [] } as any);
 
     try {
@@ -77,7 +79,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
   it('"getOneRow" should call source.getTableRows and return an object', async () => {
     const dto = { foo: 1 };
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     getTableRowsMock.mockResolvedValue( {rows: [dto]} as any);
     // @ts-ignore
     const result = await repository.getOneRow({});
@@ -89,7 +91,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
 
   it('"getOneRow" should throw SmartContractDataNotFoundError when expected object was not found', async () => {
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     getTableRowsMock.mockResolvedValue({ rows: [] } as any);
 
     try {
@@ -105,7 +107,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
   it('"getRows" should call source.getTableRows and return an object', async () => {
     const dto = { foo: 1 };
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     getTableRowsMock.mockResolvedValue( {rows: [dto]} as any);
     // @ts-ignore
     const result = await repository.getRows({});
@@ -117,7 +119,7 @@ describe('SmartContractRepositoryImpl unit tests', () => {
 
   it('"getRows" should throw SmartContractDataNotFoundError when expected object was not found', async () => {
     const getTableRowsMock = jest.spyOn(source, 'getTableRows');
-    repository = new SmartContractRepositoryImpl<any, any>(source, '', '');
+    repository = new SmartContractRepositoryImpl<any, any>(source, '', '', mapper);
     getTableRowsMock.mockResolvedValue({ rows: [] } as any);
 
     try {
