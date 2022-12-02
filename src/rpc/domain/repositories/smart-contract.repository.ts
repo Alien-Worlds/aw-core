@@ -1,23 +1,12 @@
-import { GetTableRowsOptions } from "../../data/data-sources/eos-rpc.source";
+import { Result } from '../../../architecture';
+import { GetTableRowsOptions } from '../../data/data-sources/eos-rpc.source';
 
 /**
  * Represents a base class for the smart contracts -set by tables- repositories.
  *
  * @class
  */
-export abstract class SmartContractRepository<DtoType> {
-  
-  /**
-   * @async
-   * @param {GetTableRowsOptions} options
-   * @returns {Promise<DtoType>}
-   */
-  protected abstract getOneRow(options: GetTableRowsOptions): Promise<DtoType[]>;
-
-  /**
-   * @async
-   * @param {GetTableRowsOptions} options
-   * @returns {Promise<DtoType>}
-   */
-  protected abstract getRows(options: GetTableRowsOptions): Promise<DtoType[]>;
+export abstract class SmartContractRepository<EntityType> {
+  public abstract getMany(options: GetTableRowsOptions): Promise<Result<EntityType[]>>;
+  public abstract getOne(options: GetTableRowsOptions): Promise<Result<EntityType>>;
 }
