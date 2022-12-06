@@ -8,7 +8,7 @@ import {
 import { SmartContractService } from './smart-contract-service';
 
 export class SmartContractServiceImpl implements SmartContractService {
-  constructor(private rpcSource: EosRpcSource, private name: string) {
+  constructor(protected rpcSource: EosRpcSource, protected name: string) {
     //
   }
   public async getStats(): Promise<ContractStats> {
