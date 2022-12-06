@@ -12,6 +12,7 @@ module.exports = {
     '!src/**/*.config.ts',
     '!src/**/config.ts',
     '!**/query-model.ts',
+    '!**/smart-contract-service.ts',
     '!**/mapper.ts',
     '!**/use-case.ts',
     '!**/*.repository.ts',

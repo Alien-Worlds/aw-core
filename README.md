@@ -32,6 +32,11 @@ Contains elements (types, errors, enums and classes) used in the API. The most i
 
 | Name         |    Type     |     Layer     | Description                                                                                                                                                                              |
 | :----------- | :---------: | :-----------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `CollectionSource`    | **_class_** |   _data_    |                     |
+| `Mapper`    | **_class_** |   _data_    |                     |
+| `RepositoryImpl`    | **_class_** |   _data_    |                     |
+| `UpdateStatus`, `UpdateManyResult`    | **_type_** |   _data_    |                     |
+| `Repository`    | **_class_** |   _domain_    |                     |
 | `UseCase`    | **_class_** |   _domain_    | Use cases orchestrate the flow of data to and from the entities, and direct those entities to use their Critical Business Rules to achieve the goals of the use case.                    |
 | `Result`     | **_class_** |   _domain_    | Result represents a value of two possible data types. A result is either a defined content type or a Failure.                                                                            |
 | `Failure`    | **_class_** |   _domain_    | Failure represents one of the Result data types. Failure contains an error object                                                                                                        |
@@ -43,12 +48,7 @@ Contains elements (types, errors, enums and classes) used in the API. The most i
 | :-------------------------------- | :---------: | :------: |
 | `EosRpcSource`                    | **_class_** |  _data_  |
 | `EosJsRpcSource`                  | **_class_** |  _data_  |
-| `SmartContractRepository`         | **_class_** | _domain_ |
-| `SmartContractRepositoryImpl`     | **_class_** |  _data_  |
 | `SmartContractDataNotFoundError`  | **_error_** | _domain_ |
-| `MessageKeyAlreadyTakenError`     | **_error_** | _domain_ |
-| `MessageNotFoundError`            | **_error_** | _domain_ |
-| `UndefinedMessageRepositoryError` | **_error_** | _domain_ |
 
 ### Storage
 
@@ -56,11 +56,7 @@ Contains elements (types, errors, enums and classes) used in the API. The most i
 | :------------------------- | :------------: | :------: |
 | `CollectionBigQuerySource` |  **_class_**   |  _data_  |
 | `CollectionMongoSource`    |  **_class_**   |  _data_  |
-| `CollectionSource`         |  **_class_**   |  _data_  |
 | `MongoSource`              |  **_class_**   |  _data_  |
-| `Repository`               |  **_class_**   | _domain_ |
-| `RepositoryImpl`           |  **_class_**   |  _data_  |
-| `Mapper`                   |  **_class_**   |  _data_  |
 | `MongoFindQueryParams`     |   **_type_**   | _domain_ |
 | `MongoAggregateParams`     |   **_type_**   | _domain_ |
 | `connectMongo`             | **_function_** |  _data_  |
