@@ -15,6 +15,39 @@ export class SmartContractServiceImpl implements SmartContractService {
     return this.rpcSource.getContractStats(this.name);
   }
 
+  protected async getAll<DataType>(
+    key: string,
+    options: GetTableRowsOptions
+  ): Promise<Result<DataType[]>> {
+    try {
+      const rows = [];
+      const { code, scope, table, limit } = options;
+      const query: GetTableRowsOptions = { code, scope, table, limit: limit || 100 };
+      let read = true;
+
+      while (read) {
+        const resultSize = rows.length;
+        if (resultSize > 0) {
+          query.lower_bound = rows.at(-1)[key];
+        }
+
+        const table = await this.rpcSource.getTableRows(options);
+
+        if (resultSize === 0) {
+          rows.push(...table.rows);
+        } else if (resultSize > 0 && table.rows.length > 1) {
+          rows.push(...table.rows.slice(1));
+        } else {
+          read = false;
+        }
+      }
+
+      return Result.withContent(rows);
+    } catch (error) {
+      return Result.withFailure(Failure.fromError(error));
+    }
+  }
+
   /**
    * @async
    * @param {GetTableRowsOptions} options
