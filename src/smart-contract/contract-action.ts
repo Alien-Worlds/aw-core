@@ -13,6 +13,24 @@ export type ActionDocument<DataDocumentType = object> = {
   data: DataDocumentType;
 };
 
+export type ActionModel<DataType = unknown> = {
+  account: string;
+  name: string;
+  data: DataType;
+};
+
+export type ContractActionModel<DataType = unknown> = {
+  account: string;
+  name: string;
+  blockTimestamp: Date;
+  blockNumber: bigint;
+  globalSequence: bigint;
+  receiverSequence: bigint;
+  transactionId: string;
+  data: DataType;
+  id?: string;
+};
+
 /**
  *
  * @type
@@ -36,6 +54,19 @@ export class Action<
   DataType extends ContractActionData<DataDocumentType>,
   DataDocumentType = object
 > {
+  /**
+   *
+   * @static
+   * @returns {Action}
+   */
+  public static create<
+    DataType extends ContractActionData<DataDocumentType>,
+    DataDocumentType
+  >(model: ActionModel<DataType>): Action<DataType, DataDocumentType> {
+    const { account, name, data } = model;
+
+    return new Action(account, name, null, data);
+  }
   /**
    *
    * @static
@@ -88,7 +119,45 @@ export class ContractAction<
   /**
    *
    * @static
-   * @returns {Action}
+   * @returns {ContractAction}
+   */
+  public static create<
+    ActionDataType extends ContractActionData<ActionDataDocumentType>,
+    ActionDataDocumentType = object
+  >(
+    model: ContractActionModel<ActionDataType>
+  ): ContractAction<ActionDataType, ActionDataDocumentType> {
+    const {
+      id,
+      blockTimestamp,
+      blockNumber,
+      globalSequence,
+      receiverSequence,
+      transactionId,
+      data,
+      name,
+      account,
+    } = model;
+    const action = Action.create<ActionDataType, ActionDataDocumentType>({
+      name,
+      account,
+      data,
+    });
+
+    return new ContractAction<ActionDataType, ActionDataDocumentType>(
+      id,
+      blockTimestamp,
+      blockNumber,
+      globalSequence,
+      receiverSequence,
+      transactionId,
+      action
+    );
+  }
+  /**
+   *
+   * @static
+   * @returns {ContractAction}
    */
   public static fromDocument<
     ActionDataType extends ContractActionData<ActionDataDocumentType>,
