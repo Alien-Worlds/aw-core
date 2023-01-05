@@ -19,6 +19,24 @@ export type ContractTableRowDocument<DataType = object> = {
   block_timestamp?: Date;
 };
 
+/**
+ *
+ * @type
+ */
+export type ContractTableRowModel<DataType = object> = {
+  id: string;
+  blockNumber: string | bigint;
+  code: string;
+  scope: string;
+  table: string;
+  payer: string;
+  primaryKey: string | bigint;
+  present: number;
+  blockTimestamp: Date;
+  data: DataType;
+  dataHash: string;
+};
+
 export abstract class ContractTableRowData<DocumentType> {
   public abstract toDocument(): DocumentType;
 }
@@ -94,18 +112,21 @@ export class ContractTableRow<
     DataType extends ContractTableRowData<DataDocumentType>,
     DataDocumentType = object
   >(
-    id: string,
-    blockNumber: string | bigint,
-    code: string,
-    scope: string,
-    table: string,
-    payer: string,
-    primaryKey: string | bigint,
-    present: number,
-    blockTimestamp: Date,
-    data: DataType,
-    dataHash: string
+    model: ContractTableRowModel<DataType>
   ): ContractTableRow<DataType, DataDocumentType> {
+    const {
+      id,
+      blockNumber,
+      code,
+      scope,
+      table,
+      dataHash,
+      data,
+      payer,
+      primaryKey,
+      present,
+      blockTimestamp,
+    } = model;
     return new ContractTableRow(
       id,
       parseToBigInt(blockNumber),
