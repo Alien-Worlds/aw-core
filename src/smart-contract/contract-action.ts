@@ -202,9 +202,9 @@ export class ContractAction<
   ) {}
 
   /**
-   * @returns {ActionDocument}
+   * @returns {ContractActionDocument<ActionDataDocumentType>}
    */
-  public toDocument(): ActionDocument<ActionDataDocumentType> {
+  public toDocument(): ContractActionDocument<ActionDataDocumentType> {
     const {
       id,
       blockNumber,
@@ -215,8 +215,7 @@ export class ContractAction<
       action,
     } = this;
 
-    const document = {
-      _id: new ObjectId(id),
+    const document: ContractActionDocument<ActionDataDocumentType> = {
       block_num: Long.fromBigInt(blockNumber),
       recv_sequence: Long.fromBigInt(receiverSequence),
       global_sequence: Long.fromBigInt(globalSequence),
@@ -225,6 +224,12 @@ export class ContractAction<
       block_timestamp: blockTimestamp,
     };
 
-    return removeUndefinedProperties<ActionDocument<ActionDataDocumentType>>(document);
+    if (id) {
+      document._id = new ObjectId(id);
+    }
+
+    return removeUndefinedProperties<ContractActionDocument<ActionDataDocumentType>>(
+      document
+    );
   }
 }

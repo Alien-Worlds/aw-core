@@ -178,8 +178,7 @@ export class ContractTableRow<
       blockTimestamp,
     } = this;
 
-    const document = {
-      _id: new ObjectId(id),
+    const document: ContractTableRowDocument<DataDocumentType> = {
       block_num: Long.fromBigInt(blockNumber),
       code,
       scope,
@@ -191,6 +190,10 @@ export class ContractTableRow<
       present,
       block_timestamp: blockTimestamp,
     };
+
+    if (id) {
+      document._id = new ObjectId(id);
+    }
 
     return removeUndefinedProperties<ContractTableRowDocument<DataDocumentType>>(
       document
