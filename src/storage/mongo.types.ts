@@ -4,11 +4,12 @@ import {
   DeleteOptions,
   Filter,
   FindOptions,
+  IndexDescription,
   UpdateOptions,
 } from 'mongodb';
 
 export type CollectionOptions = {
-  skipIndexCheck?: boolean;
+  indexes: IndexDescription[];
 };
 
 export type MongoAggregateParams = {

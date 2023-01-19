@@ -18,12 +18,12 @@ import {
   OptionalUnlessRequiredId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
+import { DataSourceBulkWriteError, DataSourceOperationError } from './storage.errors';
+import { containsSpecialKeys, log } from '../utils';
 import {
-  DataSourceBulkWriteError,
-  DataSourceOperationError,
-} from './storage.errors';
-import { containsSpecialKeys } from '../utils';
-import { CollectionSource, CustomIndexesNotSetError } from '../architecture';
+  CollectionSource,
+  CreateIndexesError,
+} from '../architecture';
 import { CollectionOptions } from './mongo.types';
 import { UpdateManyResult } from '../architecture/data/collection.types';
 
@@ -48,16 +48,25 @@ export class CollectionMongoSource<T extends Document = Document>
     protected options?: CollectionOptions
   ) {
     this.collection = this.mongoSource.database.collection<T>(collectionName);
+
+    this.createIndexes();
   }
 
-  public async validate(): Promise<void> {
-    if (this.options?.skipIndexCheck === false || !this.options) {
-      const cursor = this.collection.listIndexes();
-      const indexes = await cursor.toArray();
+  private async createIndexes(): Promise<void> {
+    try {
+      if (this.options?.indexes.length > 0) {
+        const {
+          options: { indexes },
+        } = this;
+        const cursor = this.collection.listIndexes();
+        const currentIndexes = await cursor.toArray();
 
-      if (indexes.length === 1) {
-        throw new CustomIndexesNotSetError(this.collectionName);
+        if (currentIndexes.length < 2) {
+          await this.collection.createIndexes(indexes);
+        }
       }
+    } catch (error) {
+      throw new CreateIndexesError(this.collectionName, error.message);
     }
   }
 
@@ -306,17 +315,24 @@ export class CollectionMongoSource<T extends Document = Document>
    * @throws {DataSourceWriteError}
    */
   public async remove(
-    data: T | { filter: T | Filter<T>; options?: DeleteOptions }
+    data: ObjectId | string | T | { filter: T | Filter<T>; options?: DeleteOptions }
   ): Promise<boolean> {
     try {
-      const id = (data as T)._id;
       let filter: Filter<T>;
       let options: DeleteOptions;
-      if (id && typeof id === 'string') {
-        filter = { _id: new ObjectId(id) } as unknown as Filter<T>;
-      } else {
+
+      if (typeof data === 'string') {
+        filter = { _id: new ObjectId(data) } as unknown as Filter<T>;
+      } else if (data instanceof ObjectId) {
+        filter = { _id: data } as unknown as Filter<T>;
+      } else if ((data as T)._id) {
+        const id = (data as T)._id;
+        filter = { _id: new ObjectId(id.toString()) } as unknown as Filter<T>;
+      } else if (data.filter) {
         filter = data.filter;
         options = data.options;
+      } else {
+        filter = data;
       }
 
       const { deletedCount } = await this.collection.deleteOne(filter, options);
@@ -338,7 +354,11 @@ export class CollectionMongoSource<T extends Document = Document>
    * @throws {DataSourceWriteError}
    */
   public async removeMany(
-    data: T[] | { filter?: Filter<T>; options?: DeleteOptions }
+    data:
+      | ObjectId[]
+      | string[]
+      | { _id: ObjectId | string }[]
+      | { filter?: Filter<T>; options?: DeleteOptions }
   ): Promise<boolean> {
     try {
       let filter;
@@ -346,11 +366,16 @@ export class CollectionMongoSource<T extends Document = Document>
       if (Array.isArray(data)) {
         const ids = { _id: { $in: [] } };
         for (const entry of data) {
-          const id = entry._id;
-          if (id && typeof id === 'string') {
-            ids._id.$in.push(new ObjectId(id));
-          } else if (id instanceof ObjectId) {
-            ids._id.$in.push(id);
+          if (entry instanceof ObjectId) {
+            ids._id.$in.push(entry);
+          } else if (typeof entry === 'string') {
+            ids._id.$in.push(new ObjectId(entry));
+          } else if (entry._id) {
+            ids._id.$in.push(new ObjectId(entry._id.toString()));
+          } else {
+            log(
+              `The document could not be removed from the collection "${this.collectionName}". Id not provided.`
+            );
           }
         }
         filter = ids;

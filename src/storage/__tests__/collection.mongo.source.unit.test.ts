@@ -39,15 +39,13 @@ const db = {
 
 const mongoSource = new MongoSource(db as mongoDB.Db);
 
-const options = {}
-
 describe('CollectionMongoSource Unit tests', () => {
   afterAll(() => {
     jest.clearAllMocks();
   });
 
   beforeEach(() => {
-    collectionSource = new CollectionMongoSource<any>(mongoSource, 'test', options);
+    collectionSource = new CollectionMongoSource<any>(mongoSource, 'test');
   });
 
   afterEach(() => {
@@ -60,19 +58,6 @@ describe('CollectionMongoSource Unit tests', () => {
     updateOneMock = null;
     insertOneMock = null;
     insertManyMock = null;
-  });
-
-  it('Should throw an error if no additional indexes are set when checkIndexes option is true', async () => {
-    listIndexesMock.toArray.mockResolvedValue([1]);
-    try {
-      let coll = new CollectionMongoSource<any>(mongoSource, 'test', { skipIndexCheck: false });
-      await coll.validate();
-
-      coll = new CollectionMongoSource<any>(mongoSource, 'test');
-      await coll.validate();
-    } catch (error) {
-      expect(error).toBeTruthy();
-    }
   });
 
   it('"removeMany" should convert documents list to the objectId list', async () => {

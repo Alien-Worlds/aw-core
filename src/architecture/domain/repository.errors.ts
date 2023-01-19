@@ -1,5 +1,3 @@
-
-
 export class EntityNotFoundError extends Error {
   constructor(collection: string) {
     super(`Entity assigned to "${collection}" not found.`);
@@ -21,5 +19,13 @@ export class MissingArgumentsError extends Error {
 export class CustomIndexesNotSetError extends Error {
   constructor(collection: string) {
     super(`No additional indexes were created in collection "${collection}".`);
+  }
+}
+
+export class CreateIndexesError extends Error {
+  constructor(collection: string, message: string) {
+    super(
+      `An error occurred while creating indexes for the collection "${collection}". ${message}`
+    );
   }
 }
