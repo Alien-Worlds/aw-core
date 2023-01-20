@@ -36,7 +36,7 @@ export type ContractDeltaModel<DataType = object> = {
   present: number;
   blockTimestamp: Date;
   data: DataType;
-  dataHash: string;
+  dataHash?: string;
 };
 
 export abstract class ContractDeltaData<DocumentType> {
@@ -95,21 +95,6 @@ export class ContractDelta<
     );
   }
 
-  /**
-   * @static
-   * @param {string} id
-   * @param {string|bigint} block_num
-   * @param {string} code
-   * @param {string} scope
-   * @param {string} table
-   * @param {string} payer
-   * @param {string|bigint} primary_key
-   * @param {number} present
-   * @param {Date} block_timestamp
-   * @param {DataType} data
-   * @param {string} dataHash
-   * @returns
-   */
   public static create<
     DataType extends ContractDeltaData<DataDocumentType>,
     DataDocumentType = object

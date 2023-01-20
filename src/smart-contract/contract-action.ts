@@ -30,6 +30,7 @@ export type ContractActionModel<DataType = unknown> = {
   receiverSequence: bigint;
   transactionId: string;
   data: DataType;
+  actionHash?:string;
   id?: string;
 };
 
