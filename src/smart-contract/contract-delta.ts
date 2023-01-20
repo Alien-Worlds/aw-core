@@ -5,7 +5,7 @@ import { parseToBigInt, removeUndefinedProperties } from '../utils';
  *
  * @type
  */
-export type ContractTableRowDocument<DataType = object> = {
+export type ContractDeltaDocument<DataType = object> = {
   _id?: ObjectId;
   block_num?: Long;
   code?: string;
@@ -23,7 +23,7 @@ export type ContractTableRowDocument<DataType = object> = {
  *
  * @type
  */
-export type ContractTableRowModel<DataType = object> = {
+export type ContractDeltaModel<DataType = object> = {
   id: string;
   blockNumber: string | bigint;
   code: string;
@@ -37,7 +37,7 @@ export type ContractTableRowModel<DataType = object> = {
   dataHash: string;
 };
 
-export abstract class ContractTableRowData<DocumentType> {
+export abstract class ContractDeltaData<DocumentType> {
   public abstract toDocument(): DocumentType;
 }
 
@@ -46,24 +46,24 @@ export abstract class ContractTableRowData<DocumentType> {
  *
  * @class
  */
-export class ContractTableRow<
-  DataType extends ContractTableRowData<DataDocumentType>,
+export class ContractDelta<
+  DataType extends ContractDeltaData<DataDocumentType>,
   DataDocumentType = object
 > {
   /**
    * Get Schema smart contract data based on table row.
    *
    * @static
-   * @param {ContractTableRowDocument} dto
+   * @param {ContractDeltaDocument} dto
    * @returns {VoteSmartContractData}
    */
   public static fromDocument<
-    DataType extends ContractTableRowData<DataDocumentType>,
+    DataType extends ContractDeltaData<DataDocumentType>,
     DataDocumentType = object
   >(
-    dto: ContractTableRowDocument<DataDocumentType>,
+    dto: ContractDeltaDocument<DataDocumentType>,
     dataMapper: (data: DataDocumentType) => DataType
-  ): ContractTableRow<DataType, DataDocumentType> {
+  ): ContractDelta<DataType, DataDocumentType> {
     const {
       _id,
       block_num,
@@ -78,7 +78,7 @@ export class ContractTableRow<
       block_timestamp,
     } = dto;
 
-    return new ContractTableRow<DataType, DataDocumentType>(
+    return new ContractDelta<DataType, DataDocumentType>(
       _id instanceof ObjectId ? _id.toString() : _id,
       parseToBigInt(block_num),
       code,
@@ -109,11 +109,9 @@ export class ContractTableRow<
    * @returns
    */
   public static create<
-    DataType extends ContractTableRowData<DataDocumentType>,
+    DataType extends ContractDeltaData<DataDocumentType>,
     DataDocumentType = object
-  >(
-    model: ContractTableRowModel<DataType>
-  ): ContractTableRow<DataType, DataDocumentType> {
+  >(model: ContractDeltaModel<DataType>): ContractDelta<DataType, DataDocumentType> {
     const {
       id,
       blockNumber,
@@ -127,7 +125,7 @@ export class ContractTableRow<
       present,
       blockTimestamp,
     } = model;
-    return new ContractTableRow(
+    return new ContractDelta(
       id,
       parseToBigInt(blockNumber),
       code,
@@ -161,9 +159,9 @@ export class ContractTableRow<
   ) {}
 
   /**
-   * @returns {ContractTableRowDocument}
+   * @returns {ContractDeltaDocument}
    */
-  public toDocument(): ContractTableRowDocument<DataDocumentType> {
+  public toDocument(): ContractDeltaDocument<DataDocumentType> {
     const {
       id,
       blockNumber,
@@ -178,7 +176,7 @@ export class ContractTableRow<
       blockTimestamp,
     } = this;
 
-    const document: ContractTableRowDocument<DataDocumentType> = {
+    const document: ContractDeltaDocument<DataDocumentType> = {
       block_num: Long.fromBigInt(blockNumber),
       code,
       scope,
@@ -195,8 +193,6 @@ export class ContractTableRow<
       document._id = new ObjectId(id);
     }
 
-    return removeUndefinedProperties<ContractTableRowDocument<DataDocumentType>>(
-      document
-    );
+    return removeUndefinedProperties<ContractDeltaDocument<DataDocumentType>>(document);
   }
 }

@@ -28,6 +28,7 @@ export type ContractActionModel<DataType = unknown> = {
   receiverSequence: bigint;
   transactionId: string;
   data: DataType;
+  actionHash: string;
   id?: string;
 };
 
@@ -43,6 +44,7 @@ export type ContractActionDocument<DataType = object> = {
   recv_sequence?: Long;
   trx_id?: string;
   action?: ActionDocument<DataType>;
+  action_hash?: string;
   [key: string]: unknown;
 };
 
@@ -135,6 +137,7 @@ export class ContractAction<
       receiverSequence,
       transactionId,
       data,
+      actionHash,
       name,
       account,
     } = model;
@@ -151,7 +154,8 @@ export class ContractAction<
       globalSequence,
       receiverSequence,
       transactionId,
-      action
+      action,
+      actionHash
     );
   }
   /**
@@ -173,6 +177,7 @@ export class ContractAction<
       global_sequence,
       trx_id,
       action,
+      action_hash,
       block_timestamp,
     } = dto;
 
@@ -183,7 +188,8 @@ export class ContractAction<
       global_sequence ? parseToBigInt(global_sequence) : null,
       recv_sequence ? parseToBigInt(recv_sequence) : null,
       trx_id,
-      Action.fromDocument(action, dataMapper)
+      Action.fromDocument(action, dataMapper),
+      action_hash
     );
   }
 
@@ -198,7 +204,8 @@ export class ContractAction<
     public readonly globalSequence: bigint,
     public readonly receiverSequence: bigint,
     public readonly transactionId: string,
-    public readonly action: Action<ActionDataType, ActionDataDocumentType>
+    public readonly action: Action<ActionDataType, ActionDataDocumentType>,
+    public readonly actionHash: string
   ) {}
 
   /**
@@ -213,6 +220,7 @@ export class ContractAction<
       globalSequence,
       receiverSequence,
       action,
+      actionHash,
     } = this;
 
     const document: ContractActionDocument<ActionDataDocumentType> = {
@@ -222,6 +230,7 @@ export class ContractAction<
       trx_id: transactionId,
       action: action.toDocument(),
       block_timestamp: blockTimestamp,
+      action_hash: actionHash,
     };
 
     if (id) {
