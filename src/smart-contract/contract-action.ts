@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+import { serialize } from 'v8';
 import { Long, ObjectId } from 'mongodb';
 import { parseToBigInt, removeUndefinedProperties } from '../utils';
 
@@ -28,7 +30,6 @@ export type ContractActionModel<DataType = unknown> = {
   receiverSequence: bigint;
   transactionId: string;
   data: DataType;
-  actionHash: string;
   id?: string;
 };
 
@@ -137,7 +138,6 @@ export class ContractAction<
       receiverSequence,
       transactionId,
       data,
-      actionHash,
       name,
       account,
     } = model;
@@ -146,6 +146,8 @@ export class ContractAction<
       account,
       data,
     });
+    const actionBuffer = serialize({ name, account, data });
+    const actionHash = crypto.createHash('sha1').update(actionBuffer).digest('hex');
 
     return new ContractAction<ActionDataType, ActionDataDocumentType>(
       id,

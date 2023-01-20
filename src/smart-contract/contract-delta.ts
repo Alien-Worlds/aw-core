@@ -1,4 +1,6 @@
+import crypto from 'crypto';
 import { Long, ObjectId } from 'mongodb';
+import { serialize } from 'v8';
 import { parseToBigInt, removeUndefinedProperties } from '../utils';
 
 /**
@@ -118,13 +120,16 @@ export class ContractDelta<
       code,
       scope,
       table,
-      dataHash,
       data,
       payer,
       primaryKey,
       present,
       blockTimestamp,
     } = model;
+
+    const dataBuffer = serialize(data);
+    const dataHash = crypto.createHash('sha1').update(dataBuffer).digest('hex');
+
     return new ContractDelta(
       id,
       parseToBigInt(blockNumber),
