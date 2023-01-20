@@ -20,10 +20,7 @@ import {
 import { MongoSource } from './mongo.source';
 import { DataSourceBulkWriteError, DataSourceOperationError } from './storage.errors';
 import { containsSpecialKeys, log } from '../utils';
-import {
-  CollectionSource,
-  CreateIndexesError,
-} from '../architecture';
+import { CollectionSource, CreateIndexesError } from '../architecture';
 import { CollectionOptions } from './mongo.types';
 import { UpdateManyResult } from '../architecture/data/collection.types';
 
@@ -52,12 +49,25 @@ export class CollectionMongoSource<T extends Document = Document>
     this.createIndexes();
   }
 
+  private async createCollection(): Promise<void> {
+    const {
+      collectionName,
+      mongoSource: { database },
+    } = this;
+    return new Promise(resolve => {
+      database.createCollection(collectionName, () => resolve());
+    });
+  }
+
   private async createIndexes(): Promise<void> {
     try {
       if (this.options?.indexes.length > 0) {
         const {
           options: { indexes },
         } = this;
+
+        await this.createCollection();
+
         const cursor = this.collection.listIndexes();
         const currentIndexes = await cursor.toArray();
 
