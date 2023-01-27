@@ -19,15 +19,15 @@ describe('connectMongo Unit tests', () => {
   });
 
   it('Should reject with error when the connection fails', async () => {
-    connectMongo({ url: '', dbName: '' }).catch(error => {
+    connectMongo({ host: '', database: '' }).catch(error => {
       expect(error).toBeInstanceOf(Error);
     });
   });
 
   it('Should resolve with Db instance when the connection is successful', async () => {
     const db = await connectMongo({
-      url: 'mongodb://localhost:27017',
-      dbName: 'UnitTest',
+      host: 'localhost',
+      database: 'UnitTest',
     });
     expect(db).toBe(mockedDb);
   });
