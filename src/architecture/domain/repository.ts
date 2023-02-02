@@ -6,7 +6,7 @@ import { Result } from './result';
  * @abstract
  * @class
  */
-export abstract class Repository<EntityType, DocumentType> {
+export abstract class Repository<EntityType = unknown, DocumentType = unknown> {
   /**
    * @abstract
    * @param {EntityType} entity
