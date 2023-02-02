@@ -31,7 +31,7 @@ export class SmartContractServiceImpl implements SmartContractService {
           query.lower_bound = rows.at(-1)[key];
         }
 
-        const table = await this.rpcSource.getTableRows(options);
+        const table = await this.rpcSource.getTableRows(query);
 
         if (resultSize === 0) {
           rows.push(...table.rows);
