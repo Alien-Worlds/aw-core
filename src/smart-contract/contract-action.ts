@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { serialize } from 'v8';
 import { Long, ObjectId } from 'mongodb';
 import { parseToBigInt, removeUndefinedProperties } from '../utils';
+import { Entity } from '../architecture/domain/entity';
 
 export type Authorization = {
   actor: string;
@@ -30,7 +31,7 @@ export type ContractActionModel<DataType = unknown> = {
   receiverSequence: bigint;
   transactionId: string;
   data: DataType;
-  actionHash?:string;
+  actionHash?: string;
   id?: string;
 };
 
@@ -50,23 +51,15 @@ export type ContractActionDocument<DataType = object> = {
   [key: string]: unknown;
 };
 
-export abstract class ContractActionData<DocumentType> {
-  public abstract toDocument(): DocumentType;
-}
-
-export class Action<
-  DataType extends ContractActionData<DataDocumentType>,
-  DataDocumentType = object
-> {
+export class Action<DataEntityType extends Entity, DataDocumentType = object> {
   /**
    *
    * @static
    * @returns {Action}
    */
-  public static create<
-    DataType extends ContractActionData<DataDocumentType>,
-    DataDocumentType
-  >(model: ActionModel<DataType>): Action<DataType, DataDocumentType> {
+  public static create<DataEntityType extends Entity, DataDocumentType>(
+    model: ActionModel<DataEntityType>
+  ): Action<DataEntityType, DataDocumentType> {
     const { account, name, data } = model;
 
     return new Action(account, name, null, data);
@@ -76,13 +69,10 @@ export class Action<
    * @static
    * @returns {Action}
    */
-  public static fromDocument<
-    DataType extends ContractActionData<DataDocumentType>,
-    DataDocumentType = object
-  >(
+  public static fromDocument<DataEntityType extends Entity, DataDocumentType = object>(
     dto: ActionDocument<DataDocumentType>,
-    dataMapper: (data: DataDocumentType) => DataType
-  ): Action<DataType, DataDocumentType> {
+    dataMapper: (data: DataDocumentType) => DataEntityType
+  ): Action<DataEntityType, DataDocumentType> {
     const { account, name, authorization, data } = dto;
 
     return new Action(account, name, authorization, dataMapper(data));
@@ -96,7 +86,7 @@ export class Action<
     public readonly account: string,
     public readonly name: string,
     public readonly authorization: Authorization[],
-    public readonly data: DataType
+    public readonly data: DataEntityType
   ) {}
 
   public toDocument(): ActionDocument<DataDocumentType> {
@@ -106,7 +96,7 @@ export class Action<
       account,
       name,
       authorization,
-      data: data.toDocument(),
+      data: (<Entity<DataDocumentType>>data).toDocument(),
     };
   }
 }
@@ -117,7 +107,7 @@ export class Action<
  * @class
  */
 export class ContractAction<
-  ActionDataType extends ContractActionData<ActionDataDocumentType>,
+  ActionDataEntityType extends Entity,
   ActionDataDocumentType = object
 > {
   /**
@@ -126,11 +116,11 @@ export class ContractAction<
    * @returns {ContractAction}
    */
   public static create<
-    ActionDataType extends ContractActionData<ActionDataDocumentType>,
+    ActionDataEntityType extends Entity,
     ActionDataDocumentType = object
   >(
-    model: ContractActionModel<ActionDataType>
-  ): ContractAction<ActionDataType, ActionDataDocumentType> {
+    model: ContractActionModel<ActionDataEntityType>
+  ): ContractAction<ActionDataEntityType, ActionDataDocumentType> {
     const {
       id,
       blockTimestamp,
@@ -142,7 +132,7 @@ export class ContractAction<
       name,
       account,
     } = model;
-    const action = Action.create<ActionDataType, ActionDataDocumentType>({
+    const action = Action.create<ActionDataEntityType, ActionDataDocumentType>({
       name,
       account,
       data,
@@ -150,7 +140,7 @@ export class ContractAction<
     const actionBuffer = serialize({ name, account, data });
     const actionHash = crypto.createHash('sha1').update(actionBuffer).digest('hex');
 
-    return new ContractAction<ActionDataType, ActionDataDocumentType>(
+    return new ContractAction<ActionDataEntityType, ActionDataDocumentType>(
       id,
       blockTimestamp,
       blockNumber,
@@ -167,12 +157,12 @@ export class ContractAction<
    * @returns {ContractAction}
    */
   public static fromDocument<
-    ActionDataType extends ContractActionData<ActionDataDocumentType>,
+    ActionDataEntityType extends Entity,
     ActionDataDocumentType = object
   >(
     dto: ContractActionDocument<ActionDataDocumentType>,
-    dataMapper: (data: ActionDataDocumentType) => ActionDataType
-  ): ContractAction<ActionDataType, ActionDataDocumentType> {
+    dataMapper: (data: ActionDataDocumentType) => ActionDataEntityType
+  ): ContractAction<ActionDataEntityType, ActionDataDocumentType> {
     const {
       _id,
       block_num,
@@ -184,7 +174,7 @@ export class ContractAction<
       block_timestamp,
     } = dto;
 
-    return new ContractAction<ActionDataType, ActionDataDocumentType>(
+    return new ContractAction<ActionDataEntityType, ActionDataDocumentType>(
       _id instanceof ObjectId ? _id.toString() : _id,
       block_timestamp,
       block_num ? parseToBigInt(block_num) : null,
@@ -207,7 +197,7 @@ export class ContractAction<
     public readonly globalSequence: bigint,
     public readonly receiverSequence: bigint,
     public readonly transactionId: string,
-    public readonly action: Action<ActionDataType, ActionDataDocumentType>,
+    public readonly action: Action<ActionDataEntityType, ActionDataDocumentType>,
     public readonly actionHash: string
   ) {}
 

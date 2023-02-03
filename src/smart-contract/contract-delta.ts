@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { Long, ObjectId } from 'mongodb';
 import { serialize } from 'v8';
+import { Entity } from '../architecture/domain/entity';
 import { parseToBigInt, removeUndefinedProperties } from '../utils';
 
 /**
@@ -39,19 +40,12 @@ export type ContractDeltaModel<DataType = object> = {
   dataHash?: string;
 };
 
-export abstract class ContractDeltaData<DocumentType> {
-  public abstract toDocument(): DocumentType;
-}
-
 /**
  * Represents schema smart contract data
  *
  * @class
  */
-export class ContractDelta<
-  DataType extends ContractDeltaData<DataDocumentType>,
-  DataDocumentType = object
-> {
+export class ContractDelta<DataEntityType extends Entity, DataDocumentType = object> {
   /**
    * Get Schema smart contract data based on table row.
    *
@@ -59,13 +53,10 @@ export class ContractDelta<
    * @param {ContractDeltaDocument} dto
    * @returns {VoteSmartContractData}
    */
-  public static fromDocument<
-    DataType extends ContractDeltaData<DataDocumentType>,
-    DataDocumentType = object
-  >(
+  public static fromDocument<DataEntityType extends Entity, DataDocumentType = object>(
     dto: ContractDeltaDocument<DataDocumentType>,
-    dataMapper: (data: DataDocumentType) => DataType
-  ): ContractDelta<DataType, DataDocumentType> {
+    dataMapper: (data: DataDocumentType) => DataEntityType
+  ): ContractDelta<DataEntityType, DataDocumentType> {
     const {
       _id,
       block_num,
@@ -80,7 +71,7 @@ export class ContractDelta<
       block_timestamp,
     } = dto;
 
-    return new ContractDelta<DataType, DataDocumentType>(
+    return new ContractDelta<DataEntityType, DataDocumentType>(
       _id instanceof ObjectId ? _id.toString() : _id,
       parseToBigInt(block_num),
       code,
@@ -95,10 +86,9 @@ export class ContractDelta<
     );
   }
 
-  public static create<
-    DataType extends ContractDeltaData<DataDocumentType>,
-    DataDocumentType = object
-  >(model: ContractDeltaModel<DataType>): ContractDelta<DataType, DataDocumentType> {
+  public static create<DataEntityType extends Entity, DataDocumentType = object>(
+    model: ContractDeltaModel<DataEntityType>
+  ): ContractDelta<DataEntityType, DataDocumentType> {
     const {
       id,
       blockNumber,
@@ -141,7 +131,7 @@ export class ContractDelta<
     public readonly scope: string,
     public readonly table: string,
     public readonly dataHash: string,
-    public readonly data: DataType,
+    public readonly data: DataEntityType,
     public readonly payer: string,
     public readonly primaryKey: bigint,
     public readonly present: number,
@@ -172,7 +162,7 @@ export class ContractDelta<
       scope,
       table,
       data_hash: dataHash,
-      data: data.toDocument(),
+      data: (<Entity<DataDocumentType>>data).toDocument(),
       payer,
       primary_key: Long.fromBigInt(primaryKey),
       present,

@@ -1,6 +1,6 @@
 import { AggregateOptions, MongoSource } from '../../storage';
 import { getParams } from '../../utils';
-import { Compose } from '../domain/compose';
+import { Cluster } from '../domain/cluster';
 import { Failure } from '../domain/failure';
 import { QueryModel } from '../domain/query-model';
 import { Repository } from '../domain/repository';
@@ -9,7 +9,7 @@ import { Result } from '../domain/result';
 /**
  * @class
  */
-export class ComposeImpl implements Compose {
+export class ClusterImpl implements Cluster {
   /**
    * @constructor
    * @param {MongoSource} source

@@ -20,7 +20,7 @@ export class RepositoryImpl<EntityType, DocumentType>
    */
   constructor(
     protected source: CollectionSource<DocumentType>,
-    protected mapper: Mapper<EntityType, DocumentType>
+    protected mapper: Mapper<EntityType, DocumentType>,
   ) {}
 
   /**
