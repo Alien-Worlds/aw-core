@@ -45,7 +45,6 @@ export class CollectionMongoSource<T extends Document = Document>
     protected options?: CollectionOptions
   ) {
     this.collection = this.mongoSource.database.collection<T>(collectionName);
-
     this.createIndexes();
   }
 

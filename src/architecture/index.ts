@@ -4,6 +4,7 @@ export * from './domain/result';
 export * from './domain/use-case';
 export * from './domain/entity';
 export * from './domain/cluster';
+export * from './domain/cluster-query-model';
 export * from './domain/repository';
 export * from './domain/repository.errors';
 

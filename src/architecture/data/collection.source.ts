@@ -4,7 +4,7 @@ import { UpdateManyResult, UpdateParams } from "./collection.types";
  * @abstract
  * @class
  */
-export abstract class CollectionSource<DocumentType> {
+export abstract class CollectionSource<DocumentType = unknown> {
   public collectionName: string;
 
   /**

@@ -37,4 +37,4 @@ export type MongoDeleteQueryParams<T = unknown> = {
   options?: DeleteOptions;
 };
 
-export * from 'mongodb';
+export * as MongoDB from 'mongodb';
