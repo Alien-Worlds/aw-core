@@ -51,13 +51,13 @@ export type ContractActionDocument<DataType = object> = {
   [key: string]: unknown;
 };
 
-export class Action<DataEntityType extends Entity, DataDocumentType = object> {
+export class Action<DataEntityType extends Entity = Entity, DataDocumentType = object> {
   /**
    *
    * @static
    * @returns {Action}
    */
-  public static create<DataEntityType extends Entity, DataDocumentType>(
+  public static create<DataEntityType extends Entity = Entity, DataDocumentType = object>(
     model: ActionModel<DataEntityType>
   ): Action<DataEntityType, DataDocumentType> {
     const { account, name, data } = model;
@@ -69,7 +69,10 @@ export class Action<DataEntityType extends Entity, DataDocumentType = object> {
    * @static
    * @returns {Action}
    */
-  public static fromDocument<DataEntityType extends Entity, DataDocumentType = object>(
+  public static fromDocument<
+    DataEntityType extends Entity = Entity,
+    DataDocumentType = object
+  >(
     dto: ActionDocument<DataDocumentType>,
     dataMapper: (data: DataDocumentType) => DataEntityType
   ): Action<DataEntityType, DataDocumentType> {
@@ -107,7 +110,7 @@ export class Action<DataEntityType extends Entity, DataDocumentType = object> {
  * @class
  */
 export class ContractAction<
-  ActionDataEntityType extends Entity,
+  ActionDataEntityType extends Entity = Entity,
   ActionDataDocumentType = object
 > {
   /**
@@ -116,7 +119,7 @@ export class ContractAction<
    * @returns {ContractAction}
    */
   public static create<
-    ActionDataEntityType extends Entity,
+    ActionDataEntityType extends Entity = Entity,
     ActionDataDocumentType = object
   >(
     model: ContractActionModel<ActionDataEntityType>
@@ -157,7 +160,7 @@ export class ContractAction<
    * @returns {ContractAction}
    */
   public static fromDocument<
-    ActionDataEntityType extends Entity,
+    ActionDataEntityType extends Entity = Entity,
     ActionDataDocumentType = object
   >(
     dto: ContractActionDocument<ActionDataDocumentType>,

@@ -45,7 +45,10 @@ export type ContractDeltaModel<DataType = object> = {
  *
  * @class
  */
-export class ContractDelta<DataEntityType extends Entity, DataDocumentType = object> {
+export class ContractDelta<
+  DataEntityType extends Entity = Entity,
+  DataDocumentType = object
+> {
   /**
    * Get Schema smart contract data based on table row.
    *
@@ -53,7 +56,10 @@ export class ContractDelta<DataEntityType extends Entity, DataDocumentType = obj
    * @param {ContractDeltaDocument} dto
    * @returns {VoteSmartContractData}
    */
-  public static fromDocument<DataEntityType extends Entity, DataDocumentType = object>(
+  public static fromDocument<
+    DataEntityType extends Entity = Entity,
+    DataDocumentType = object
+  >(
     dto: ContractDeltaDocument<DataDocumentType>,
     dataMapper: (data: DataDocumentType) => DataEntityType
   ): ContractDelta<DataEntityType, DataDocumentType> {
@@ -86,7 +92,7 @@ export class ContractDelta<DataEntityType extends Entity, DataDocumentType = obj
     );
   }
 
-  public static create<DataEntityType extends Entity, DataDocumentType = object>(
+  public static create<DataEntityType extends Entity = Entity, DataDocumentType = object>(
     model: ContractDeltaModel<DataEntityType>
   ): ContractDelta<DataEntityType, DataDocumentType> {
     const {
