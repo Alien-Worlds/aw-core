@@ -20,7 +20,7 @@ export class RepositoryImpl<EntityType, DocumentType>
    */
   constructor(
     protected source: CollectionSource<DocumentType>,
-    protected mapper: Mapper<EntityType, DocumentType>,
+    protected mapper: Mapper<EntityType, DocumentType>
   ) {}
 
   /**
@@ -94,6 +94,24 @@ export class RepositoryImpl<EntityType, DocumentType>
       const dto = this.mapper.toDataObject(entity);
       const insertedDocument = await this.source.insert(dto);
       return Result.withContent(this.mapper.toEntity(insertedDocument));
+    } catch (error) {
+      return Result.withFailure(Failure.fromError(error));
+    }
+  }
+
+  /**
+   *
+   * @async
+   * @returns {Promise<Result<EntityType>}
+   */
+  public async addMany(entities: EntityType[]): Promise<Result<EntityType[]>> {
+    try {
+      const insertedDocuments = await this.source.insertMany(
+        entities.map(entity => this.mapper.toDataObject(entity))
+      );
+      return Result.withContent(
+        insertedDocuments.map(document => this.mapper.toEntity(document))
+      );
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
     }
