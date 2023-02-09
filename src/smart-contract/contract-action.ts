@@ -1,8 +1,9 @@
 import crypto from 'crypto';
-import { serialize } from 'v8';
 import { Long, ObjectId } from 'mongodb';
-import { parseToBigInt, removeUndefinedProperties } from '../utils';
+import { serialize } from 'v8';
+
 import { Entity } from '../architecture/domain/entity';
+import { parseToBigInt, removeUndefinedProperties } from '../utils';
 
 export type Authorization = {
   actor: string;
@@ -90,7 +91,7 @@ export class Action<DataEntityType extends Entity = Entity, DataDocumentType = o
     public readonly name: string,
     public readonly authorization: Authorization[],
     public readonly data: DataEntityType
-  ) {}
+  ) { }
 
   public toDocument(): ActionDocument<DataDocumentType> {
     const { account, name, authorization, data } = this;
@@ -202,7 +203,7 @@ export class ContractAction<
     public readonly transactionId: string,
     public readonly action: Action<ActionDataEntityType, ActionDataDocumentType>,
     public readonly actionHash: string
-  ) {}
+  ) { }
 
   /**
    * @returns {ContractActionDocument<ActionDataDocumentType>}
@@ -229,7 +230,7 @@ export class ContractAction<
       action_hash: actionHash,
     };
 
-    if (id) {
+    if (id && ObjectId.isValid(id)) {
       document._id = new ObjectId(id);
     }
 
