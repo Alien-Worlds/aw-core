@@ -1,4 +1,6 @@
 import * as mongoDB from 'mongodb';
+import { MongoConfig } from '../config';
+import { buildMongoUrl } from './mongo.helpers';
 
 /**
  * Represents MongoDB data source.
@@ -7,13 +9,14 @@ import * as mongoDB from 'mongodb';
 export class MongoSource {
   public static Token = 'MONGO_SOURCE';
 
-  constructor(private db: mongoDB.Db) {}
+  public static async create(config: MongoConfig): Promise<MongoSource> {
+    const { database } = config;
+    const client = new mongoDB.MongoClient(buildMongoUrl(config));
 
-  /**
-   *
-   * @returns {Db} - database instance
-   */
-  public get database(): mongoDB.Db | undefined {
-    return this.db;
+    await client.connect();
+
+    return new MongoSource(client.db(database), client);
   }
+
+  constructor(public database: mongoDB.Db, public client?: mongoDB.MongoClient) {}
 }
