@@ -13,8 +13,8 @@ export type MongoConfig = {
 
 export const mongoConfig: MongoConfig = {
   database: process.env.MONGO_DB_NAME,
-  hosts: process.env.MONGO_HOSTS.split(/,\s*/),
-  ports: process.env.MONGO_PORTS.split(/,\s*/),
+  hosts: (process.env.MONGO_HOSTS || '').split(/,\s*/),
+  ports: (process.env.MONGO_PORTS || '').split(/,\s*/),
   user: process.env.MONGO_USER,
   password: process.env.MONGO_PASSWORD,
   authMechanism: process.env.AUTH_MECHANISM,
