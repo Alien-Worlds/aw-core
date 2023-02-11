@@ -3,12 +3,22 @@ import { MongoConfig } from '../config';
 
 /**
  * This function builds a MongoDB URL from a MongoConfig object.
- * It takes the host, user, password, port, authMechanism and ssl 
+ * It takes the host, user, password, port, authMechanism and ssl
  * properties of the MongoConfig object and uses them to build the URL.
  */
 export const buildMongoUrl = (config: MongoConfig) => {
-  const { host, user, password, port, authMechanism, ssl } = config;
-  let url = 'mongodb://';
+  const {
+    hosts,
+    user,
+    password,
+    ports,
+    authMechanism,
+    ssl,
+    replicaSet,
+    srv,
+    authSource,
+  } = config;
+  let url = srv ? 'mongodb+srv://' : 'mongodb://';
   const options = {};
 
   if (user && password) {
@@ -16,14 +26,28 @@ export const buildMongoUrl = (config: MongoConfig) => {
     options['authMechanism'] = authMechanism || 'DEFAULT';
   }
 
-  url += host;
-
-  if (port) {
-    url += `:${port}`;
+  const hostsPortsDiff = hosts.length - ports.length;
+  const defaultPort = ports[0] || '27017';
+  while (hostsPortsDiff > 0) {
+    ports.push(defaultPort);
   }
+
+  const hostsAndPorts = hosts.map((host, i) => {
+    return `${host}:${ports[i]}`;
+  });
+
+  url += hostsAndPorts.join(',');
 
   if (ssl) {
     options['ssl'] = true;
+  }
+
+  if (authSource) {
+    options['authSource'] = authSource;
+  }
+
+  if (replicaSet) {
+    options['replicaSet'] = replicaSet;
   }
 
   const params = Object.keys(options).reduce((list, key) => {

@@ -19,14 +19,14 @@ describe('connectMongo Unit tests', () => {
   });
 
   it('Should reject with error when the connection fails', async () => {
-    connectMongo({ host: '', database: '' }).catch(error => {
+    connectMongo({ hosts: [''], database: '' }).catch(error => {
       expect(error).toBeInstanceOf(Error);
     });
   });
 
   it('Should resolve with Db instance when the connection is successful', async () => {
     const db = await connectMongo({
-      host: 'localhost',
+      hosts: ['localhost'],
       database: 'UnitTest',
     });
     expect(db).toBe(mockedDb);
