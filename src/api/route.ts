@@ -71,19 +71,43 @@ export class Route {
 
     switch (route.method) {
       case 'POST': {
-        (<BasicRequestType>app).post(<string>route.path, routeHandler);
+        if (Array.isArray(route.path)) {
+          route.path.forEach(path => {
+            (<BasicRequestType>app).post(path, routeHandler);
+          });
+        } else {
+          (<BasicRequestType>app).post(<string>route.path, routeHandler);
+        }
         break;
       }
       case 'GET': {
-        (<BasicRequestType>app).get(<string>route.path, routeHandler);
+        if (Array.isArray(route.path)) {
+          route.path.forEach(path => {
+            (<BasicRequestType>app).get(path, routeHandler);
+          });
+        } else {
+          (<BasicRequestType>app).get(<string>route.path, routeHandler);
+        }
         break;
       }
       case 'PUT': {
-        (<BasicRequestType>app).put(<string>route.path, routeHandler);
+        if (Array.isArray(route.path)) {
+          route.path.forEach(path => {
+            (<BasicRequestType>app).put(path, routeHandler);
+          });
+        } else {
+          (<BasicRequestType>app).put(<string>route.path, routeHandler);
+        }
         break;
       }
       case 'DELETE': {
-        (<BasicRequestType>app).delete(<string>route.path, routeHandler);
+        if (Array.isArray(route.path)) {
+          route.path.forEach(path => {
+            (<BasicRequestType>app).delete(path, routeHandler);
+          });
+        } else {
+          (<BasicRequestType>app).delete(<string>route.path, routeHandler);
+        }
         break;
       }
       default: {
