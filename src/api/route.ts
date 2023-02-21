@@ -1,6 +1,5 @@
-import { RouteHandler, RouteOptions } from './api.types';
-
 import { RequestMethod } from './api.enums';
+import { RouteHandler, RouteOptions } from './api.types';
 
 type BasicResponseType = {
   status(code: number | string): BasicResponseType;
@@ -42,10 +41,13 @@ export class Route {
       const { hooks, validators } = route.options || {};
 
       if (validators?.request) {
-        const { valid, message, code } = validators.request(req);
+        const { valid, message, code, errors } = validators.request(req);
 
         if (!valid) {
-          return (<BasicResponseType>res).status(code || 400).send(message);
+          return (<BasicResponseType>res).status(code || 400).send({
+            message,
+            errors,
+          });
         }
       }
 
@@ -123,7 +125,7 @@ export class Route {
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
     public readonly options?: RouteOptions
-  ) {}
+  ) { }
 }
 
 export class GetRoute extends Route {

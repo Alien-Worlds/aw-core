@@ -1,4 +1,5 @@
 import { Socket } from 'net';
+
 import { Result } from '../architecture';
 
 export type Response<T = unknown> = {
@@ -25,6 +26,7 @@ export type ValidationResult = {
   valid: boolean;
   message?: string;
   code?: number;
+  errors?: string[];
 };
 
 export type Validators = {
