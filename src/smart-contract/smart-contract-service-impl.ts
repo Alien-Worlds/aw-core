@@ -59,15 +59,6 @@ export class SmartContractServiceImpl implements SmartContractService {
     try {
       const result = await this.rpcSource.getTableRows(options);
 
-      if (result.rows.length === 0) {
-        const { table, scope, lower_bound } = options;
-        return Result.withFailure(
-          Failure.fromError(
-            new SmartContractDataNotFoundError({ table, bound: lower_bound, scope })
-          )
-        );
-      }
-
       return Result.withContent(result.rows);
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));

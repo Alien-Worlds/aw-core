@@ -7,17 +7,7 @@ import { MongoConfig } from '../config';
  * properties of the MongoConfig object and uses them to build the URL.
  */
 export const buildMongoUrl = (config: MongoConfig) => {
-  const {
-    hosts,
-    user,
-    password,
-    ports,
-    authMechanism,
-    ssl,
-    replicaSet,
-    srv,
-    authSource,
-  } = config;
+  const { user, password, authMechanism, ssl, replicaSet, srv, authSource } = config;
   let url = srv ? 'mongodb+srv://' : 'mongodb://';
   const options = {};
 
@@ -25,9 +15,10 @@ export const buildMongoUrl = (config: MongoConfig) => {
     url += `${user}:${password}@`;
     options['authMechanism'] = authMechanism || 'DEFAULT';
   }
-
+  const hosts = config.hosts || ['localhost'];
+  const ports = config.ports || ['27017'];
   const hostsPortsDiff = hosts.length - ports.length;
-  const defaultPort = ports[0] || '27017';
+  const defaultPort = ports[0];
   while (hostsPortsDiff > 0) {
     ports.push(defaultPort);
   }

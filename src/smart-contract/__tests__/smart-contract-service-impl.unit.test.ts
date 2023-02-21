@@ -23,8 +23,7 @@ describe('Smart Contract Service Unit tests', () => {
     rpc.getTableRows.mockResolvedValue({ rows:[] });
 
     const result = await (service as any).getMany({} as any);
-    expect(result.failure).toBeTruthy();
-    expect(result.content).toBeFalsy();
+    expect(result.content).toEqual([]);
   });
 
   it('"getMany" should return a failure when rpc call fail', async() => {
