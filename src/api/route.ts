@@ -16,6 +16,10 @@ type BasicRequestType = {
     path: string | string[],
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
+  patch(
+    path: string | string[],
+    handler: (...args: unknown[]) => Promise<BasicResponseType>
+  );
   get(
     path: string | string[],
     handler: (...args: unknown[]) => Promise<BasicResponseType>
@@ -82,6 +86,16 @@ export class Route {
         }
         break;
       }
+      case 'PATCH': {
+        if (Array.isArray(route.path)) {
+          route.path.forEach(path => {
+            (<BasicRequestType>app).patch(path, routeHandler);
+          });
+        } else {
+          (<BasicRequestType>app).patch(<string>route.path, routeHandler);
+        }
+        break;
+      }
       case 'GET': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
@@ -145,6 +159,16 @@ export class PostRoute extends Route {
     public readonly options?: RouteOptions
   ) {
     super(RequestMethod.Post, path, handler, options);
+  }
+}
+
+export class PatchRoute extends Route {
+  constructor(
+    public readonly path: string | string[],
+    public readonly handler: RouteHandler,
+    public readonly options?: RouteOptions
+  ) {
+    super(RequestMethod.Patch, path, handler, options);
   }
 }
 
