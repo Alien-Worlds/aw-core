@@ -28,4 +28,5 @@ export const broadcastConfig: BroadcastConfig = {
   host: process.env.BROADCAST_HOST,
   port: Number(process.env.BROADCAST_PORT),
   driver: process.env.BROADCAST_DRIVER,
+  clientName: process.env.BROADCAST_CLIENT_NAME,
 };

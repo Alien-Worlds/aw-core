@@ -6,6 +6,7 @@ export type BroadcastConnectionConfig = {
 
 export type BroadcastConfig = BroadcastConnectionConfig & {
   driver: string;
+  clientName?: string;
   queues?: { [key: string]: OptionalQueueOptions };
 };
 
@@ -71,6 +72,7 @@ export abstract class BroadcastMessageContent {
  * @class
  */
 export abstract class BroadcastClient {
+  public abstract connect(): void;
   public abstract sendMessage<DataType = unknown>(message: {
     channel: string;
     name: string;

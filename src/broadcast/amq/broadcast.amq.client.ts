@@ -81,7 +81,7 @@ export class BroadcastAmqClient implements BroadcastClient {
    *
    * @async
    */
-  public async init(): Promise<void> {
+  public async connect(): Promise<void> {
     if (!this.initialized) {
       await this.connection.connect();
     }
