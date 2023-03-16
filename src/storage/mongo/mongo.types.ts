@@ -37,4 +37,17 @@ export type MongoDeleteQueryParams<T = unknown> = {
   options?: DeleteOptions;
 };
 
+export type MongoConfig = {
+  database: string;
+  hosts: string[];
+  ports?: string[];
+  user?: string;
+  password?: string;
+  authMechanism?: string;
+  authSource?: string;
+  ssl?: boolean;
+  replicaSet?: string;
+  srv?: boolean;
+};
+
 export * as MongoDB from 'mongodb';

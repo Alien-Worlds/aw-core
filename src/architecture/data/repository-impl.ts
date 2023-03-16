@@ -1,4 +1,4 @@
-import { getParams, isQueryModel } from '../../utils';
+import { getParams, isQueryModel } from '../../storage';
 import { Failure } from '../domain/failure';
 import { QueryModel } from '../domain/query-model';
 import { Repository } from '../domain/repository';

@@ -3,11 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { BigQuery, Table } from '@google-cloud/bigquery';
-import { DataSourceOperationError } from './storage.errors';
+import { DataSourceOperationError } from '../storage.errors';
 import { SqlQueryType } from './sql.enums';
-import { CollectionSource } from '../architecture/data/collection.source';
-import { buildSqlQuery, stringifyData, stringifyMultiCondition } from './sql.helpers';
-import { MissingArgumentsError, UpdateManyResult } from '../architecture';
+import { CollectionSource } from '../../architecture/data/collection.source';
+import { buildSqlQuery, stringifyData, stringifyMultiCondition } from './sql.utils';
+import { MissingArgumentsError, UpdateManyResult } from '../../architecture';
 
 export type BigQueryCollectionOptions = {
   projectId: string;

@@ -1,6 +1,6 @@
 import * as mongoDB from 'mongodb';
-import { MongoConfig } from '../config';
-import { buildMongoUrl } from './mongo.helpers';
+import { MongoConfig } from './mongo.types';
+import { buildMongoUrl } from './mongo.utils';
 
 /**
  * Represents MongoDB data source.

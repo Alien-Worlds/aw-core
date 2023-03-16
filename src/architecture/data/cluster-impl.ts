@@ -1,11 +1,10 @@
-import { isQueryModel } from './../../utils/storage.utils';
-import { getParams, log } from '../../utils';
 import { Failure } from '../domain/failure';
 import { Result } from '../domain/result';
 import { CollectionSource } from './collection.source';
 import { ClusterQueryModel } from '../domain/cluster-query-model';
 import { AnyDocumentObject, Cluster, MapFunction } from '../domain/cluster';
-import { MongoDB } from '../../storage';
+import { getParams, isQueryModel, MongoDB } from '../../storage';
+import { log } from '../../utils';
 
 /**
  * @class

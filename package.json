@@ -2,10 +2,6 @@
   "name": "@alien-worlds/api-core",
   "version": "0.0.73",
   "description": "",
-  "engines": {
-    "node": ">=17.3.0 <=19.7.0",
-    "npm": ">=8.3.0 <9.0.0"
-  },
   "packageManager": "yarn@3.2.3",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -38,10 +34,13 @@
   },
   "dependencies": {
     "@google-cloud/bigquery": "^6.0.3",
+    "amqplib": "^0.10.3",
     "eosjs": "^22.1.0",
     "inversify": "^6.0.1",
     "mongodb": "4.9.1",
+    "nanoid": "^3.0.0",
     "node-fetch": "2",
+    "redis": "^4.6.5",
     "reflect-metadata": "^0.1.13"
   }
 }

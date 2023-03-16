@@ -18,11 +18,12 @@ import {
   OptionalUnlessRequiredId,
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
-import { DataSourceBulkWriteError, DataSourceOperationError } from './storage.errors';
-import { containsSpecialKeys, log } from '../utils';
-import { CollectionSource, CreateIndexesError } from '../architecture';
+import { DataSourceBulkWriteError, DataSourceOperationError } from '../storage.errors';
+import { CollectionSource, CreateIndexesError } from '../../architecture';
 import { CollectionOptions } from './mongo.types';
-import { UpdateManyResult } from '../architecture/data/collection.types';
+import { UpdateManyResult } from '../../architecture/data/collection.types';
+import { containsSpecialKeys } from './mongo.utils';
+import { log } from '../../utils';
 
 export type ObjectWithId = { _id: ObjectId };
 
