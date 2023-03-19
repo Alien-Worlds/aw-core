@@ -11,27 +11,22 @@ type BasicResponseType = {
 type BasicRequestType = {
   post(
     path: string | string[],
-    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   put(
     path: string | string[],
-    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   patch(
     path: string | string[],
-    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   get(
     path: string | string[],
-    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   delete(
     path: string | string[],
-    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
 };
@@ -87,12 +82,12 @@ export class Route {
       case 'POST': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).post(path, route.extensions, routeHandler);
+            (<BasicRequestType>app).post(path, routeHandler);
           });
         } else {
           (<BasicRequestType>app).post(
             <string>route.path,
-            route.extensions,
+
             routeHandler
           );
         }
@@ -101,12 +96,12 @@ export class Route {
       case 'PATCH': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).patch(path, route.extensions, routeHandler);
+            (<BasicRequestType>app).patch(path, routeHandler);
           });
         } else {
           (<BasicRequestType>app).patch(
             <string>route.path,
-            route.extensions,
+
             routeHandler
           );
         }
@@ -115,32 +110,32 @@ export class Route {
       case 'GET': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).get(path, route.extensions, routeHandler);
+            (<BasicRequestType>app).get(path, routeHandler);
           });
         } else {
-          (<BasicRequestType>app).get(<string>route.path, route.extensions, routeHandler);
+          (<BasicRequestType>app).get(<string>route.path, routeHandler);
         }
         break;
       }
       case 'PUT': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).put(path, route.extensions, routeHandler);
+            (<BasicRequestType>app).put(path, routeHandler);
           });
         } else {
-          (<BasicRequestType>app).put(<string>route.path, route.extensions, routeHandler);
+          (<BasicRequestType>app).put(<string>route.path, routeHandler);
         }
         break;
       }
       case 'DELETE': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).delete(path, route.extensions, routeHandler);
+            (<BasicRequestType>app).delete(path, routeHandler);
           });
         } else {
           (<BasicRequestType>app).delete(
             <string>route.path,
-            route.extensions,
+
             routeHandler
           );
         }
@@ -158,8 +153,7 @@ export class Route {
     public readonly method: RequestMethod,
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions,
-    public readonly extensions?: object
+    public readonly options?: RouteOptions
   ) {}
 }
 
@@ -167,10 +161,9 @@ export class GetRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions,
-    public readonly extensions?: object
+    public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Get, path, handler, options, extensions);
+    super(RequestMethod.Get, path, handler, options);
   }
 }
 
@@ -178,10 +171,9 @@ export class PostRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions,
-    public readonly extensions?: object
+    public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Post, path, handler, options, extensions);
+    super(RequestMethod.Post, path, handler, options);
   }
 }
 
@@ -189,10 +181,9 @@ export class PatchRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions,
-    public readonly extensions?: object
+    public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Patch, path, handler, options, extensions);
+    super(RequestMethod.Patch, path, handler, options);
   }
 }
 
@@ -200,10 +191,9 @@ export class PutRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions,
-    public readonly extensions?: object
+    public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Put, path, handler, options, extensions);
+    super(RequestMethod.Put, path, handler, options);
   }
 }
 
@@ -211,9 +201,8 @@ export class DeleteRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions,
-    public readonly extensions?: object
+    public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Delete, path, handler, options, extensions);
+    super(RequestMethod.Delete, path, handler, options);
   }
 }
