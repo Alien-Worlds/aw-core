@@ -5,6 +5,7 @@ import {
   BroadcastMessage,
   BroadcastServer,
   ClientMessageHandler,
+  BroadcastMessageContent,
 } from '../broadcast.types';
 import {
   BroadcastTcpSystemMessage,
@@ -217,12 +218,22 @@ export class BroadcastTcpServer implements BroadcastServer {
     this.clientMessageHandler = handler;
   }
 
-  public sendChannelMessage(
+  public sendMessageToChannel(
     channel: string,
-    message: BroadcastMessage<unknown, unknown>
+    data: unknown,
+    name?: string
   ): void {
     if (this.channelsByName.has(channel)) {
-      this.channelsByName.get(channel).sendMessage(<BroadcastTcpMessage>message);
+      BroadcastTcpMessage;
+      this.channelsByName.get(channel).sendMessage(
+        BroadcastTcpMessage.fromContent({
+          sender: 'server',
+          channel,
+          data,
+          name: name || 'server-channel-message',
+          type: BroadcastTcpMessageType.Data,
+        })
+      );
     } else {
       log(
         `Broadcast TCP Server: channel "${channel}" does not exist. Message cannot be sent.`
@@ -230,9 +241,9 @@ export class BroadcastTcpServer implements BroadcastServer {
     }
   }
 
-  public sendDirectMessage(
+  public sendMessageToClients(
     addressesOrNames: string[],
-    message: BroadcastMessage<unknown, unknown>
+    data: unknown
   ): void {
     const recipients = this.clients.filter(
       client =>
@@ -247,7 +258,16 @@ export class BroadcastTcpServer implements BroadcastServer {
     }
 
     recipients.forEach(recipient => {
-      recipient.send(<BroadcastTcpMessage>message);
+      recipient.send(
+        BroadcastTcpMessage.fromContent({
+          sender: 'server',
+          channel: null,
+          data,
+          name: 'server-client-message',
+          type: BroadcastTcpMessageType.Data,
+          receiver: recipient.address
+        })
+      );
     });
   }
 }

@@ -21,7 +21,7 @@ export type BroadcastTcpMessageContent<DataType = unknown> = {
   sender: string;
   channel: string;
   type: string;
-  name: string;
+  name?: string;
   receiver?: string;
   data?: DataType;
 };
@@ -50,6 +50,12 @@ export class BroadcastTcpMessage<ContentType = unknown> implements BroadcastMess
   ): BroadcastTcpMessage<DataType> {
     const content = deserialize(buffer) as BroadcastTcpMessageContent<DataType>;
 
+    return new BroadcastTcpMessage(content);
+  }
+
+  public static fromContent<DataType = unknown>(
+    content: BroadcastTcpMessageContent<DataType>
+  ): BroadcastTcpMessage<DataType> {
     return new BroadcastTcpMessage(content);
   }
 

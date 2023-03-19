@@ -40,6 +40,12 @@ export type ClientMessageHandler<BroadcastMessageType> = (
 
 export type ConnectionStateHandler = (...args: unknown[]) => Promise<void>;
 
+export type BroadcastMessageContent<DataType = unknown> = {
+  channel: string;
+  name: string;
+  data?: DataType;
+};
+
 /**
  * @abstract
  * @class
@@ -59,13 +65,6 @@ export abstract class BroadcastMessageContentMapper<ContentType = unknown> {
   public abstract toBuffer(content: ContentType): Buffer;
 }
 
-/**
- * @abstract
- * @class
- */
-export abstract class BroadcastMessageContent {
-  public abstract toBuffer(): Buffer;
-}
 
 /**
  * @abstract
@@ -73,11 +72,9 @@ export abstract class BroadcastMessageContent {
  */
 export abstract class BroadcastClient {
   public abstract connect(): void;
-  public abstract sendMessage<DataType = unknown>(message: {
-    channel: string;
-    name: string;
-    data?: DataType;
-  }): void;
+  public abstract sendMessage<DataType = unknown>(
+    message: BroadcastMessageContent<DataType>
+  ): void;
   public abstract onMessage(
     channel: string,
     handler: MessageHandler<BroadcastMessage>
@@ -91,10 +88,10 @@ export abstract class BroadcastClient {
 export abstract class BroadcastServer {
   public abstract start(): Promise<void>;
   public abstract onClientMessage(handler: ClientMessageHandler<BroadcastMessage>): void;
-  public abstract sendChannelMessage(channel: string, message: BroadcastMessage): void;
-  public abstract sendDirectMessage(
+  public abstract sendMessageToChannel(channel: string, data: unknown, name?: string): void;
+  public abstract sendMessageToClients(
     clients: BroadcastClientCast[] | string[],
-    message: BroadcastMessage
+    data: unknown
   ): void;
 }
 
