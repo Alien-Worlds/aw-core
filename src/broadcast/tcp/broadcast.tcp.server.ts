@@ -15,7 +15,6 @@ import {
   BroadcastMessageHandlerData,
 } from './broadcast.tcp.message';
 import {
-  writeSocketBuffer,
   getTcpConnectionOptions,
   splitToMessageBuffers,
   getClientAddress,
@@ -216,5 +215,39 @@ export class BroadcastTcpServer implements BroadcastServer {
     handler: ClientMessageHandler<BroadcastMessage<unknown, unknown>>
   ): void {
     this.clientMessageHandler = handler;
+  }
+
+  public sendChannelMessage(
+    channel: string,
+    message: BroadcastMessage<unknown, unknown>
+  ): void {
+    if (this.channelsByName.has(channel)) {
+      this.channelsByName.get(channel).sendMessage(<BroadcastTcpMessage>message);
+    } else {
+      log(
+        `Broadcast TCP Server: channel "${channel}" does not exist. Message cannot be sent.`
+      );
+    }
+  }
+
+  public sendDirectMessage(
+    addressesOrNames: string[],
+    message: BroadcastMessage<unknown, unknown>
+  ): void {
+    const recipients = this.clients.filter(
+      client =>
+        addressesOrNames.includes(client.address) ||
+        addressesOrNames.includes(client.name)
+    );
+
+    if (recipients.length === 0) {
+      log(
+        `Broadcast TCP Server: No clients with given addresses were found. Message cannot be sent.`
+      );
+    }
+
+    recipients.forEach(recipient => {
+      recipient.send(<BroadcastTcpMessage>message);
+    });
   }
 }

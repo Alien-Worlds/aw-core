@@ -1,3 +1,4 @@
+import { log } from '../utils';
 import { RequestMethod } from './api.enums';
 import { RouteHandler, RouteOptions } from './api.types';
 
@@ -10,22 +11,27 @@ type BasicResponseType = {
 type BasicRequestType = {
   post(
     path: string | string[],
+    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   put(
     path: string | string[],
+    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   patch(
     path: string | string[],
+    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   get(
     path: string | string[],
+    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
   delete(
     path: string | string[],
+    config: object,
     handler: (...args: unknown[]) => Promise<BasicResponseType>
   );
 };
@@ -41,6 +47,7 @@ export class Route {
      * @param {RequestType} req
      * @param {ResponseType} res
      */
+
     const routeHandler = async (req: RequestType, res: ResponseType) => {
       const { hooks, validators } = route.options || {};
 
@@ -71,6 +78,7 @@ export class Route {
           (<BasicResponseType>res).status(200).send(result);
         }
       } catch (error) {
+        log(error);
         (<BasicResponseType>res).status(500).send(error);
       }
     };
@@ -79,50 +87,62 @@ export class Route {
       case 'POST': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).post(path, routeHandler);
+            (<BasicRequestType>app).post(path, route.extensions, routeHandler);
           });
         } else {
-          (<BasicRequestType>app).post(<string>route.path, routeHandler);
+          (<BasicRequestType>app).post(
+            <string>route.path,
+            route.extensions,
+            routeHandler
+          );
         }
         break;
       }
       case 'PATCH': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).patch(path, routeHandler);
+            (<BasicRequestType>app).patch(path, route.extensions, routeHandler);
           });
         } else {
-          (<BasicRequestType>app).patch(<string>route.path, routeHandler);
+          (<BasicRequestType>app).patch(
+            <string>route.path,
+            route.extensions,
+            routeHandler
+          );
         }
         break;
       }
       case 'GET': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).get(path, routeHandler);
+            (<BasicRequestType>app).get(path, route.extensions, routeHandler);
           });
         } else {
-          (<BasicRequestType>app).get(<string>route.path, routeHandler);
+          (<BasicRequestType>app).get(<string>route.path, route.extensions, routeHandler);
         }
         break;
       }
       case 'PUT': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).put(path, routeHandler);
+            (<BasicRequestType>app).put(path, route.extensions, routeHandler);
           });
         } else {
-          (<BasicRequestType>app).put(<string>route.path, routeHandler);
+          (<BasicRequestType>app).put(<string>route.path, route.extensions, routeHandler);
         }
         break;
       }
       case 'DELETE': {
         if (Array.isArray(route.path)) {
           route.path.forEach(path => {
-            (<BasicRequestType>app).delete(path, routeHandler);
+            (<BasicRequestType>app).delete(path, route.extensions, routeHandler);
           });
         } else {
-          (<BasicRequestType>app).delete(<string>route.path, routeHandler);
+          (<BasicRequestType>app).delete(
+            <string>route.path,
+            route.extensions,
+            routeHandler
+          );
         }
         break;
       }
@@ -138,17 +158,19 @@ export class Route {
     public readonly method: RequestMethod,
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions
-  ) { }
+    public readonly options?: RouteOptions,
+    public readonly extensions?: object
+  ) {}
 }
 
 export class GetRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions
+    public readonly options?: RouteOptions,
+    public readonly extensions?: object
   ) {
-    super(RequestMethod.Get, path, handler, options);
+    super(RequestMethod.Get, path, handler, options, extensions);
   }
 }
 
@@ -156,9 +178,10 @@ export class PostRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions
+    public readonly options?: RouteOptions,
+    public readonly extensions?: object
   ) {
-    super(RequestMethod.Post, path, handler, options);
+    super(RequestMethod.Post, path, handler, options, extensions);
   }
 }
 
@@ -166,9 +189,10 @@ export class PatchRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions
+    public readonly options?: RouteOptions,
+    public readonly extensions?: object
   ) {
-    super(RequestMethod.Patch, path, handler, options);
+    super(RequestMethod.Patch, path, handler, options, extensions);
   }
 }
 
@@ -176,9 +200,10 @@ export class PutRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions
+    public readonly options?: RouteOptions,
+    public readonly extensions?: object
   ) {
-    super(RequestMethod.Put, path, handler, options);
+    super(RequestMethod.Put, path, handler, options, extensions);
   }
 }
 
@@ -186,8 +211,9 @@ export class DeleteRoute extends Route {
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
-    public readonly options?: RouteOptions
+    public readonly options?: RouteOptions,
+    public readonly extensions?: object
   ) {
-    super(RequestMethod.Delete, path, handler, options);
+    super(RequestMethod.Delete, path, handler, options, extensions);
   }
 }

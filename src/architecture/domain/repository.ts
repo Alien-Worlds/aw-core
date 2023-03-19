@@ -34,6 +34,13 @@ export abstract class Repository<EntityType = unknown, DocumentType = unknown> {
 
   /**
    * @abstract
+   * @param {EntityType[]} entities
+   * @returns {Promise<Result<EntityType[]>}
+   */
+  public abstract addMany(entities: EntityType[]): Promise<Result<EntityType[]>>;
+
+  /**
+   * @abstract
    * @param {EntityType} entity
    * @returns {Promise<Result<EntityType>}
    */

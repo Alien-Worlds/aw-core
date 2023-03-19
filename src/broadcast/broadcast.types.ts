@@ -91,6 +91,11 @@ export abstract class BroadcastClient {
 export abstract class BroadcastServer {
   public abstract start(): Promise<void>;
   public abstract onClientMessage(handler: ClientMessageHandler<BroadcastMessage>): void;
+  public abstract sendChannelMessage(channel: string, message: BroadcastMessage): void;
+  public abstract sendDirectMessage(
+    clients: BroadcastClientCast[] | string[],
+    message: BroadcastMessage
+  ): void;
 }
 
 export abstract class BroadcastClientCast {
