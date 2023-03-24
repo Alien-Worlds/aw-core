@@ -1,6 +1,6 @@
 import { log } from '../utils';
 import { RequestMethod } from './api.enums';
-import { RouteHandler, RouteOptions } from './api.types';
+import { RouteHandler, RouteOptions, Request } from './api.types';
 
 type BasicResponseType = {
   status(code: number | string): BasicResponseType;
@@ -44,7 +44,15 @@ export class Route {
      */
 
     const routeHandler = async (req: RequestType, res: ResponseType) => {
-      const { hooks, validators } = route.options || {};
+      const { hooks, validators, authorization } = route.options || {};
+
+      if (authorization) {
+        const auth = authorization(<Request>req);
+
+        if (auth === false) {
+          return (<BasicResponseType>res).status(401).send('Unauthorized');
+        }
+      }
 
       if (validators?.request) {
         const { valid, message, code, errors } = validators.request(req);

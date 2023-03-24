@@ -10,11 +10,12 @@ export type Response<T = unknown> = {
   socket?: Socket;
 };
 
-export interface Request<T = unknown> {
-  body: T;
-  params: object;
-  query: T;
-  header: object;
+export interface Request<BodyType = unknown, ParamsType = object, QueryType = unknown> {
+  body: BodyType;
+  params: ParamsType;
+  query: QueryType;
+  headers: object;
+  [key: string]: unknown;
 }
 
 export type RequestHooks = {
@@ -39,6 +40,7 @@ export type Validators = {
 export type RouteOptions = {
   hooks?: RequestHooks;
   validators?: Validators;
+  authorization?: (request: Request) => boolean;
 };
 
 export type RouteHandler = (...args: unknown[]) => Result;
