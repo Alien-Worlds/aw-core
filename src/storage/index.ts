@@ -2,7 +2,7 @@ export * from './mongo/collection.mongo.source';
 export * from './mongo/mongo.source';
 export * from './mongo/mongo.types';
 export * from './mongo/mongo.utils';
-export * from './redis/collection.redis.source';
+export * from './redis/sorted-collection.redis.source';
 export * from './redis/redis.source';
 export * from './redis/redis.types';
 export * from './redis/redis.utils';

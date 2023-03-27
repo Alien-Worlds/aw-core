@@ -7,4 +7,10 @@ export type RedisConfig = {
   database?: string | number;
 };
 
+export type RedisSortedDocument = {
+  rank: number;
+  score: number;
+  value: string;
+};
+
 export * as Redis from 'redis';
