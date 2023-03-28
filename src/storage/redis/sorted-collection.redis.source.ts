@@ -61,4 +61,16 @@ export class SortedCollectionRedisSource {
     const { name } = this;
     return this.redisSource.client.zRank(name, value);
   }
+
+  public async clear(): Promise<boolean> {
+    const { name } = this;
+    const result = await this.redisSource.client.sendCommand([
+      'ZREMRANGEBYRANK',
+      name,
+      '0',
+      '-1',
+    ]);
+
+    return result > 0;
+  }
 }
