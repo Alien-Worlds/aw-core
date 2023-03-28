@@ -3,6 +3,7 @@ export * from './mongo/mongo.source';
 export * from './mongo/mongo.types';
 export * from './mongo/mongo.utils';
 export * from './redis/sorted-collection.redis.source';
+export * from './redis/hash-collection.redis.source';
 export * from './redis/redis.source';
 export * from './redis/redis.types';
 export * from './redis/redis.utils';

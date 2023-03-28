@@ -13,4 +13,8 @@ export type RedisSortedDocument = {
   value: string;
 };
 
+export type RedisHashDocument = {
+  [key: string]: string;
+};
+
 export * as Redis from 'redis';
