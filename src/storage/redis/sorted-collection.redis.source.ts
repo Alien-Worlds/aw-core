@@ -16,6 +16,11 @@ export class SortedCollectionRedisSource {
     return this.redisSource.client.zAdd(name, { score, value });
   }
 
+  public addMany(items: RedisSortedDocument[]) {
+    const { name } = this;
+    return this.redisSource.client.zAdd(name, items);
+  }
+
   public async list(
     offset: number,
     limit: number,

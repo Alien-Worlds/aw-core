@@ -1,6 +1,13 @@
 import { RedisSource } from './redis.source';
 import { RedisHashDocument } from './redis.types';
 
+const toString = (value: string | object | number | Buffer) =>
+  value instanceof Buffer
+    ? value.toString()
+    : typeof value === 'object'
+    ? JSON.stringify(value)
+    : String(value);
+
 /**
  * @class
  */
@@ -13,13 +20,18 @@ export class HashCollectionRedisSource {
 
   public add(key: string, value: string | object | number | Buffer) {
     const { name } = this;
-    const val =
-      value instanceof Buffer
-        ? value.toString()
-        : typeof value === 'object'
-        ? JSON.stringify(value)
-        : String(value);
-    return this.redisSource.client.sendCommand(['HSET', name, key, val]);
+    return this.redisSource.client.sendCommand(['HSET', name, key, toString(value)]);
+  }
+
+  public addMany(items: { key: string; value: string | object | number | Buffer }[]) {
+    const { name } = this;
+    const args = [];
+
+    items.forEach(item => {
+      args.push(item.key, toString(item.value));
+    });
+
+    return this.redisSource.client.sendCommand(['HSET', name, ...args]);
   }
 
   public async list(keys?: string[]): Promise<RedisHashDocument> {

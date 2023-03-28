@@ -8,7 +8,7 @@ export type RedisConfig = {
 };
 
 export type RedisSortedDocument = {
-  rank: number;
+  rank?: number;
   score: number;
   value: string;
 };
