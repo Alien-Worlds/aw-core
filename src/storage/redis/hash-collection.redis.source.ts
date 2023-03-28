@@ -18,20 +18,26 @@ export class HashCollectionRedisSource {
    */
   constructor(private readonly redisSource: RedisSource, private readonly name: string) {}
 
-  public add(key: string, value: string | object | number | Buffer) {
+  public async add(key: string, value: string | object | number | Buffer) {
     const { name } = this;
     return this.redisSource.client.sendCommand(['HSET', name, key, toString(value)]);
   }
 
-  public addMany(items: { key: string; value: string | object | number | Buffer }[]) {
+  public async addMany(items: { key: string; value: string | object | number | Buffer }[]) {
     const { name } = this;
     const args = [];
+
+    if (items.length === 0) {
+      return false;
+    }
 
     items.forEach(item => {
       args.push(item.key, toString(item.value));
     });
 
-    return this.redisSource.client.sendCommand(['HSET', name, ...args]);
+    await this.redisSource.client.sendCommand(['HSET', name, ...args]);
+
+    return true;
   }
 
   public async list(keys?: string[]): Promise<RedisHashDocument> {

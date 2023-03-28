@@ -11,14 +11,19 @@ export class SortedCollectionRedisSource {
    */
   constructor(private readonly redisSource: RedisSource, private readonly name: string) {}
 
-  public add(score: number, value: string) {
+  public async add(score: number, value: string) {
     const { name } = this;
     return this.redisSource.client.zAdd(name, { score, value });
   }
 
-  public addMany(items: RedisSortedDocument[]) {
+  public async addMany(items: RedisSortedDocument[]) {
     const { name } = this;
-    return this.redisSource.client.zAdd(name, items);
+    if (Array.isArray(items) && items.length > 0) {
+      await this.redisSource.client.zAdd(name, items);
+      return true;
+    }
+
+    return false;
   }
 
   public async list(
