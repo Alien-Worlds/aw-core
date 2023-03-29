@@ -29,7 +29,7 @@ export class SortedCollectionRedisSource {
   public async list(
     offset: number,
     limit: number,
-    order = -1
+    order = 1
   ): Promise<RedisSortedDocument[]> {
     const { name } = this;
     const list: RedisSortedDocument[] = [];
@@ -67,9 +67,14 @@ export class SortedCollectionRedisSource {
     return this.redisSource.client.zScore(name, value);
   }
 
-  public getRank(value: string) {
+  public getRank(value: string, order = 1) {
     const { name } = this;
-    return this.redisSource.client.zRank(name, value);
+
+    if (order === 1) {
+      return this.redisSource.client.zRank(name, value);
+    }
+
+    return this.redisSource.client.zRevRank(name, value);
   }
 
   public async clear(): Promise<boolean> {
