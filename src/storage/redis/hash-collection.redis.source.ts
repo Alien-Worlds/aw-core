@@ -23,7 +23,9 @@ export class HashCollectionRedisSource {
     return this.redisSource.client.sendCommand(['HSET', name, key, toString(value)]);
   }
 
-  public async addMany(items: { key: string; value: string | object | number | Buffer }[]) {
+  public async addMany(
+    items: { key: string; value: string | object | number | Buffer }[]
+  ) {
     const { name } = this;
     const args = [];
 
@@ -93,5 +95,12 @@ export class HashCollectionRedisSource {
     }
 
     return true;
+  }
+
+  public async count(): Promise<number> {
+    const { name } = this;
+    const count: number = await this.redisSource.client.sendCommand(['HLEN', name]);
+
+    return count;
   }
 }

@@ -88,4 +88,16 @@ export class SortedCollectionRedisSource {
 
     return result > 0;
   }
+
+  public async count(): Promise<number> {
+    const { name } = this;
+    const result: number = await this.redisSource.client.sendCommand([
+      'ZCOUNT',
+      name,
+      '-inf',
+      '+inf',
+    ]);
+
+    return result;
+  }
 }
