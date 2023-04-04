@@ -29,12 +29,12 @@ export class SortedCollectionRedisSource {
   public async list(
     offset: number,
     limit: number,
-    order = 1
+    order = 1,
+    rankOrder = -1
   ): Promise<RedisSortedDocument[]> {
     const { name } = this;
     const list: RedisSortedDocument[] = [];
     let items = [];
-    let r = 0;
 
     items = await this.redisSource.client.sendCommand([
       order === -1 ? 'ZREVRANGE' : 'ZRANGE',
@@ -47,16 +47,8 @@ export class SortedCollectionRedisSource {
     for (let i = 0; i < items.length; i += 2) {
       const value = items[i];
       const score = items[i + 1];
-      list.push({ value, score, rank: offset + r });
-      r++;
-    }
-
-    if (order === -1 && list[0]) {
-      const rank = await this.redisSource.client.zRank(name, list[0].value);
-
-      list.forEach((item, i) => {
-        item.rank = rank - i;
-      });
+      const rank = await this.getRank(value, rankOrder);
+      list.push({ value, score, rank });
     }
 
     return list;
