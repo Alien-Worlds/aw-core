@@ -1,4 +1,5 @@
 export * from './broadcast';
+export * from './broadcast.config';
 export * from './broadcast.errors';
 export * from './broadcast.types';
 export * from './broadcast.enums';

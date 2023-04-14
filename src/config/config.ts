@@ -1,5 +1,5 @@
-import { BroadcastConfig } from './broadcast';
-import { MongoConfig, RedisConfig } from './storage';
+import { BroadcastConfig } from '../broadcast';
+import { MongoConfig, RedisConfig } from '../storage';
 
 export const mongoConfig: MongoConfig = {
   database: process.env.MONGO_DB_NAME,
