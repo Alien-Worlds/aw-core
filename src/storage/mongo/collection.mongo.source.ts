@@ -76,7 +76,7 @@ export class CollectionMongoSource<T extends Document = Document>
         }
       }
     } catch (error) {
-      throw new CreateIndexesError(this.collectionName, error.message);
+      log(this.collectionName, error.message);
     }
   }
 
