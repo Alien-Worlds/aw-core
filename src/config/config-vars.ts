@@ -8,11 +8,11 @@ export class ConfigVars {
   }
 
   private getEnv(name: string): unknown {
-    const env = (process.env || this.dotEnv)[name];
+    const env = process.env[name] || this.dotEnv[name];
     if (!env) {
       throw new Error(`${name} is undefined.`);
     }
-    return (process.env || this.dotEnv)[name];
+    return env;
   }
 
   public getNumberEnv(name: string): number {
