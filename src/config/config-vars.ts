@@ -12,15 +12,18 @@ export class ConfigVars {
   }
 
   public getNumberEnv(name: string): number {
-    return Number(this.getEnv(name));
+    const env = this.getStringEnv(name);
+    return env ? Number(env) : NaN;
   }
 
   public getStringEnv(name: string): string {
-    return String(this.getEnv(name));
+    const env = this.getEnv(name);
+    return env ? String(env) : '';
   }
 
   public getBooleanEnv(name: string): boolean {
-    return Boolean(this.getNumberEnv(name));
+    const env = this.getNumberEnv(name);
+    return env ? Boolean(env) : null;
   }
 
   public getArrayEnv(name: string): string[] {
