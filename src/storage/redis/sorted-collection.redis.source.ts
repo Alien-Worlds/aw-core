@@ -9,7 +9,10 @@ export class SortedCollectionRedisSource {
    * @constructor
    * @param {RedisSource} redisSource
    */
-  constructor(private readonly redisSource: RedisSource, private readonly name: string) {}
+  constructor(
+    private readonly redisSource: RedisSource,
+    private readonly name: string
+  ) { }
 
   public async add(score: number, value: string) {
     const { name } = this;
@@ -40,7 +43,7 @@ export class SortedCollectionRedisSource {
       order === -1 ? 'ZREVRANGE' : 'ZRANGE',
       name,
       String(offset),
-      String(offset + limit),
+      String(Number(offset) + (Number(limit) - 1)),
       'WITHSCORES',
     ]);
 
