@@ -1,6 +1,6 @@
 {
   "name": "@alien-worlds/api-core",
-  "version": "0.0.93",
+  "version": "0.0.94",
   "description": "",
   "packageManager": "yarn@3.2.3",
   "main": "build/index.js",
