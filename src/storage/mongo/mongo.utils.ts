@@ -1,5 +1,6 @@
-import { QueryModel } from '../../architecture';
 import { Db, MongoClient } from 'mongodb';
+
+import { QueryModel } from '../../architecture';
 import { MongoConfig } from './mongo.types';
 
 /**
@@ -136,4 +137,8 @@ export const getParams = (data?: unknown): object => {
   }
 
   return {};
+};
+
+export const isMongoConfig = (value: unknown): value is MongoConfig => {
+  return value && Array.isArray(value['hosts']) && typeof value['database'] === 'string';
 };
