@@ -299,16 +299,19 @@ export class CollectionMongoSource<T extends Document = Document>
         const { _id, ...rest } = dto;
         return _id ? dto : (rest as T);
       });
-      const inserted = await this.collection.insertMany(
+      const result = await this.collection.insertMany(
         data as OptionalUnlessRequiredId<T>[],
         {
           ordered: false,
         }
       );
-      return data.map((dto, i) => {
-        (dto as unknown as ObjectWithId)._id = inserted.insertedIds[i];
-        return dto;
-      });
+
+      const inserted = result.insertedIds;
+      const documents = await this.collection
+        .find({ _id: { $in: inserted } } as Filter<Document>)
+        .toArray();
+
+      return documents as T[];
     } catch (error) {
       throw DataSourceBulkWriteError.create(error);
     }
