@@ -19,7 +19,7 @@ import {
 } from 'mongodb';
 import { MongoSource } from './mongo.source';
 import { DataSourceBulkWriteError, DataSourceOperationError } from '../storage.errors';
-import { CollectionSource, CreateIndexesError } from '../../architecture';
+import { CollectionSource } from '../../architecture';
 import { CollectionOptions } from './mongo.types';
 import { UpdateManyResult } from '../../architecture/data/collection.types';
 import { containsSpecialKeys } from './mongo.utils';
@@ -306,7 +306,7 @@ export class CollectionMongoSource<T extends Document = Document>
         }
       );
 
-      const inserted = result.insertedIds;
+      const inserted = Object.values(result.insertedIds);
       const documents = await this.collection
         .find({ _id: { $in: inserted } } as Filter<Document>)
         .toArray();

@@ -4,6 +4,8 @@ import { AnyError, MongoBulkWriteError, MongoError, WriteError } from 'mongodb';
  * @class
  */
 export class DataSourceBulkWriteError extends Error {
+  private _onlyDuplicateErrors = true;
+
   /**
    * @private
    * @constructor
@@ -15,6 +17,16 @@ export class DataSourceBulkWriteError extends Error {
     public readonly concernError?: unknown
   ) {
     super('Some documents were not inserted');
+
+    for (const error of writeErrors) {
+      if (error.type !== OperationErrorType.Duplicate) {
+        this._onlyDuplicateErrors = false;
+      }
+    }
+  }
+
+  public get onlyDuplicateErrors(): boolean {
+    return this._onlyDuplicateErrors;
   }
 
   /**
