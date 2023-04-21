@@ -14,24 +14,43 @@ export const getTcpConnectionOptions = (config: BroadcastConnectionConfig) => {
   }
 };
 
+const HEADER_SIZE = 4;
+
 export const writeSocketBuffer = (message: BroadcastTcpMessage): Buffer => {
   const buffer = message.toBuffer();
-  const size = Buffer.alloc(2);
-  size.writeUInt16BE(buffer.length);
+  const size = Buffer.alloc(HEADER_SIZE);
+  size.writeUInt32BE(buffer.length);
   return Buffer.concat([size, buffer]);
 };
 
 export const splitToMessageBuffers = (buffer: Buffer): Buffer[] => {
   const buffers: Buffer[] = [];
-  if (buffer.length > 2) {
-    let offset = 0;
-    while (offset < buffer.length) {
-      const head = buffer.subarray(offset, offset + 2);
-      const buffSize = head.readUInt16BE(0);
-      const buffStart = offset + 2;
-      const buffEnd = buffStart + buffSize;
-      buffers.push(buffer.subarray(buffStart, buffEnd));
-      offset = buffEnd;
+  let offset = 0;
+  let remainingBytes = null;
+
+  while (offset < buffer.length) {
+    if (remainingBytes === null) {
+      // Need to read the size of the next message
+      if (offset + 4 <= buffer.length) {
+        // We have enough bytes to read the size
+        remainingBytes = buffer.readUInt32BE(offset);
+        offset += 4;
+      } else {
+        // Not enough bytes yet, wait for the next data chunk
+        break;
+      }
+    } else {
+      // Reading the payload of a message
+      if (offset + remainingBytes <= buffer.length) {
+        // We have enough bytes to read the entire message
+        const messageBuffer = buffer.subarray(offset, offset + remainingBytes);
+        buffers.push(messageBuffer);
+        remainingBytes = null;
+        offset += messageBuffer.length;
+      } else {
+        // Not enough bytes yet, wait for the next data chunk
+        break;
+      }
     }
   }
 
