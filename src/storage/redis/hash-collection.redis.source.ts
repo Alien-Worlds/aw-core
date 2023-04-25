@@ -1,12 +1,12 @@
-import { RedisSource } from './redis.source';
 import { RedisHashDocument } from './redis.types';
+import { RedisSource } from './redis.source';
 
 const toString = (value: string | object | number | Buffer) =>
   value instanceof Buffer
     ? value.toString()
     : typeof value === 'object'
-    ? JSON.stringify(value)
-    : String(value);
+      ? JSON.stringify(value)
+      : String(value);
 
 /**
  * @class
@@ -16,7 +16,7 @@ export class HashCollectionRedisSource {
    * @constructor
    * @param {RedisSource} redisSource
    */
-  constructor(private readonly redisSource: RedisSource, private readonly name: string) {}
+  constructor(private readonly redisSource: RedisSource, private readonly name: string) { }
 
   public async add(key: string, value: string | object | number | Buffer) {
     const { name } = this;
@@ -24,20 +24,31 @@ export class HashCollectionRedisSource {
   }
 
   public async addMany(
-    items: { key: string; value: string | object | number | Buffer }[]
+    items: { key: string; value: string | object | number | Buffer }[],
+    isTransaction = false,
   ) {
     const { name } = this;
-    const args = [];
 
     if (items.length === 0) {
       return false;
     }
 
-    items.forEach(item => {
-      args.push(item.key, toString(item.value));
-    });
+    if (isTransaction) {
+      const multiClient = this.redisSource.client.multi();
+      items.forEach(item => {
+        multiClient.hSet(name, item.key, item.value as any);
+      });
 
-    await this.redisSource.client.sendCommand(['HSET', name, ...args]);
+      await multiClient.exec();
+    } else {
+      const args = [];
+
+      items.forEach(item => {
+        args.push(item.key, toString(item.value));
+      });
+
+      await this.redisSource.client.sendCommand(['HSET', name, ...args]);
+    }
 
     return true;
   }
