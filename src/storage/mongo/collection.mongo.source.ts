@@ -236,22 +236,33 @@ export class CollectionMongoSource<T extends Document = Document>
    */
   public async updateMany<DocumentType = T>(
     data: DocumentType[],
-    params?: { where?: Filter<T>; options?: unknown }
+    params?: {
+      by?: string;
+      where?: Filter<T>;
+      options?: { upsert?: boolean; [key: string]: unknown };
+    }
   ): Promise<UpdateManyResult> {
     try {
-      const { where, options } = params || {};
+      const { where, options, by } = params || {};
       const operations = data.map(dto => {
-        const { _id, ...dtoWithoutId } = dto as unknown as T & Document;
-        const filter = where ? where : _id ? { _id } : {};
+        const { _id, ...rest } = dto as unknown as T & Document;
+        const filter = where ? where : by ? { [by]: rest[by] } : _id ? { _id } : {};
+
+        const updateOne = {
+          filter,
+          update: { $set: rest as MatchKeysAndValues<T> },
+        };
+
+        if (options?.upsert) {
+          updateOne['upsert'] = true;
+        }
+
         return {
-          updateOne: {
-            filter,
-            update: { $set: dtoWithoutId as MatchKeysAndValues<T> },
-          },
+          updateOne,
         };
       });
       const { modifiedCount, upsertedCount, upsertedIds } =
-        await this.collection.bulkWrite(operations, options);
+        await this.collection.bulkWrite(operations);
       return { modifiedCount, upsertedCount, upsertedIds };
     } catch (error) {
       throw DataSourceOperationError.fromError(error);
