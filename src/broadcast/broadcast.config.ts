@@ -4,9 +4,16 @@ import { BroadcastConfig } from './broadcast.types';
 export const buildBroadcastConfig = (
   configVars: ConfigVars,
   prefix = ''
-): BroadcastConfig => ({
-  port: configVars.getNumberEnv(`${prefix.toUpperCase()}BROADCAST_PORT`),
-  host: configVars.getStringEnv(`${prefix.toUpperCase()}BROADCAST_HOST`),
-  driver: configVars.getStringEnv(`${prefix.toUpperCase()}BROADCAST_DRIVER`),
-  clientName: configVars.getStringEnv(`${prefix.toUpperCase()}BROADCAST_CLIENT_NAME`),
-});
+): BroadcastConfig => {
+  const p = prefix
+    ? prefix.endsWith('_')
+      ? prefix.toUpperCase()
+      : prefix.toUpperCase() + '_'
+    : '';
+  return {
+    port: configVars.getNumberEnv(`${p}BROADCAST_PORT`),
+    host: configVars.getStringEnv(`${p}BROADCAST_HOST`),
+    driver: configVars.getStringEnv(`${p}BROADCAST_DRIVER`),
+    clientName: configVars.getStringEnv(`${p}BROADCAST_CLIENT_NAME`),
+  };
+};
