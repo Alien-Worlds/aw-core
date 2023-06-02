@@ -11,6 +11,7 @@ module.exports = {
     '!src/**/index.ts',
     '!src/**/*.config.ts',
     '!src/**/config.ts',
+    '!**/entity.ts',
     '!**/query-model.ts',
     '!**/smart-contract-service.ts',
     '!**/mapper.ts',

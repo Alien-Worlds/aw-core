@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Long } from 'mongodb';
 
 /**
  * Remove undefined properties and empty objects.
@@ -43,8 +42,9 @@ export const removeUndefinedProperties = <T>(input: unknown): T => {
  * @returns {bigint}
  */
 export const parseToBigInt = (value: unknown): bigint => {
-  if (value instanceof Long) {
-    return value.toBigInt();
+  // MongoDB.Long instance
+  if (value['toBigInt']) {
+    return value['toBigInt']();
   }
   return BigInt(value as string | number | bigint | boolean);
 };

@@ -2,9 +2,19 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { log } from '../utils';
 
+/**
+ * Regular expression pattern to match and capture key-value pairs in an env file line.
+ * @constant {RegExp}
+ */
 const LINE =
   /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/gm;
 
+/**
+ * Parses the contents of an env file buffer or string and returns an object representing the key-value pairs.
+ * @param {Buffer|string} buffer - The env file buffer or string to parse.
+ * @returns {object} An object representing the key-value pairs parsed from the env file.
+ * @template Environment - The type of the resulting object representing the key-value pairs.
+ */
 export const parseEnvFile = <Environment = object>(
   buffer: Buffer | string
 ): Environment => {
@@ -45,6 +55,12 @@ export const parseEnvFile = <Environment = object>(
   return obj as Environment;
 };
 
+/**
+ * Reads and parses the contents of an env file and returns an object representing the key-value pairs.
+ * @param {string} [envPath] - The path to the env file. If not provided, it defaults to '.env' in the current working directory.
+ * @returns {object} An object representing the key-value pairs parsed from the env file.
+ * @template Environment - The type of the resulting object representing the key-value pairs.
+ */
 export const readEnvFile = <Environment = object>(envPath?: string): Environment => {
   try {
     const env = parseEnvFile(
