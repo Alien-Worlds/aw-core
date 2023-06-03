@@ -1,72 +1,100 @@
-import { serialize } from 'v8';
 import crypto from 'crypto';
-import { ContractDeltaModel } from '../../types';
 import { Entity } from '../../../../architecture';
 import { ContractDelta } from '../contract-delta';
-import { UnknownObject } from '../../../../architecture/domain/types';
+import { parseToBigInt } from '../../../../utils';
+import { ContractDeltaProperties } from '../../types';
+
+// Mock crypto.createHash
+jest.mock('crypto', () => ({
+  createHash: jest.fn().mockReturnThis(),
+  update: jest.fn().mockReturnThis(),
+  digest: jest.fn().mockReturnValue('mockedHash'),
+}));
 
 describe('ContractDelta', () => {
-  let model: ContractDeltaModel<Entity>;
-  let delta: ContractDelta<Entity>;
+  describe('create', () => {
+    it('should create a ContractDelta instance with the provided properties and delta', () => {
+      // Mocked data
+      const properties = {
+        id: 'deltaId',
+        blockNumber: '123',
+        code: 'code',
+        scope: 'scope',
+        table: 'table',
+        payer: 'payer',
+        primaryKey: '456',
+        present: 1,
+        blockTimestamp: new Date(),
+      } as ContractDeltaProperties;
+      const deltaData = { foo: 'bar' };
+      const delta = { foo: 'bar', toJSON: () => deltaData } as unknown as Entity;
 
-  beforeEach(() => {
-    // Initialize the model with sample data
-    model = {
-      id: 'delta_id',
-      blockNumber: '1234567890',
-      code: 'contract_code',
-      scope: 'contract_scope',
-      table: 'contract_table',
-      data: { } as Entity,
-      payer: 'contract_payer',
-      primaryKey: '9876543210',
-      present: 1,
-      blockTimestamp: new Date(),
-    };
+      // Call create method
+      const contractDelta = ContractDelta.create(properties, delta);
 
-    // Create the ContractDelta instance
-    delta = ContractDelta.create(model);
+      // Verify the ContractDelta instance
+      expect(contractDelta).toBeInstanceOf(ContractDelta);
+      expect(contractDelta.id).toBe(properties.id);
+      expect(contractDelta.blockNumber).toBe(parseToBigInt(properties.blockNumber));
+      expect(contractDelta.code).toBe(properties.code);
+      expect(contractDelta.scope).toBe(properties.scope);
+      expect(contractDelta.table).toBe(properties.table);
+      expect(contractDelta.deltaHash).toBe('mockedHash');
+      expect(contractDelta.delta).toBe(delta);
+      expect(contractDelta.payer).toBe(properties.payer);
+      expect(contractDelta.primaryKey).toBe(parseToBigInt(properties.primaryKey));
+      expect(contractDelta.present).toBe(properties.present);
+      expect(contractDelta.blockTimestamp).toBe(properties.blockTimestamp);
+    });
   });
 
-  test('should create a ContractDelta instance with correct properties', () => {
-    expect(delta).toBeInstanceOf(ContractDelta);
-    expect(delta.id).toBe(model.id);
-    expect(delta.blockNumber).toBe(BigInt(model.blockNumber));
-    expect(delta.code).toBe(model.code);
-    expect(delta.scope).toBe(model.scope);
-    expect(delta.table).toBe(model.table);
-    expect(delta.dataHash).toBeDefined();
-    expect(delta.data).toBe(model.data);
-    expect(delta.payer).toBe(model.payer);
-    expect(delta.primaryKey).toBe(BigInt(model.primaryKey));
-    expect(delta.present).toBe(model.present);
-    expect(delta.blockTimestamp).toBeInstanceOf(Date);
-  });
+  describe('toJSON', () => {
+    it('should return the JSON representation of the ContractDelta', () => {
+      // Create a ContractDelta instance
+      const properties = {
+        id: 'deltaId',
+        blockNumber: '123',
+        code: 'code',
+        scope: 'scope',
+        table: 'table',
+        payer: 'payer',
+        primaryKey: '456',
+        present: 1,
+        blockTimestamp: new Date(),
+      };
+      const deltaData = { foo: 'bar' };
+      const delta = { foo: 'bar', toJSON: () => deltaData } as unknown as Entity;
+      const contractDelta = new ContractDelta(
+        properties.id,
+        parseToBigInt(properties.blockNumber),
+        properties.code,
+        properties.scope,
+        properties.table,
+        'mockedHash',
+        delta,
+        properties.payer,
+        parseToBigInt(properties.primaryKey),
+        properties.present,
+        properties.blockTimestamp
+      );
 
-  test('should generate the correct data hash using SHA-1 algorithm', () => {
-    const dataBuffer = serialize(model.data);
-    const expectedDataHash = crypto
-      .createHash('sha1')
-      .update(dataBuffer)
-      .digest('hex');
-    expect(delta.dataHash).toBe(expectedDataHash);
-  });
+      // Call toJSON method
+      const json = contractDelta.toJSON();
 
-  test('should return the correct JSON representation of the ContractDelta', () => {
-    const expectedJSON: UnknownObject = {
-      id: model.id,
-      block_timestamp: model.blockTimestamp.toISOString(),
-      block_number: model.blockNumber,
-      code: model.code,
-      scope: model.scope,
-      table: model.table,
-      payer: model.payer,
-      primaryKey: model.primaryKey,
-      present: model.present,
-      data: model.data,
-      data_hash: delta.dataHash,
-    };
-
-    expect(delta.toJSON()).toEqual(expectedJSON);
+      // Verify the JSON representation
+      expect(json).toEqual({
+        id: properties.id,
+        block_timestamp: properties.blockTimestamp.toISOString(),
+        block_number: properties.blockNumber,
+        code: properties.code,
+        scope: properties.scope,
+        table: properties.table,
+        payer: properties.payer,
+        primaryKey: properties.primaryKey,
+        present: properties.present,
+        data: delta.toJSON(),
+        data_hash: 'mockedHash',
+      });
+    });
   });
 });

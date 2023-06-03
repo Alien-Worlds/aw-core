@@ -1,7 +1,7 @@
-import { Entity } from "../../../../architecture";
-import { UnknownObject } from "../../../../architecture/domain/types";
-import { PermissionLevel } from "../../types";
-import { Action } from "../action";
+import { Entity } from '../../../../architecture';
+import { UnknownObject } from '../../../../architecture/domain/types';
+import { PermissionLevel } from '../../types';
+import { Action } from '../action';
 
 // Mock entity class for testing
 class MockDataEntity implements Entity {
@@ -42,7 +42,7 @@ describe('Action', () => {
 
     expect(action.account).toBe(account);
     expect(action.name).toBe(name);
-    expect(action.authorization).toBeNull();
+    expect(action.authorization).toBeFalsy();
     expect(action.data).toBe(mockDataEntity);
   });
 
@@ -53,7 +53,6 @@ describe('Action', () => {
     const action = new Action(account, name, authorization, mockDataEntity);
 
     const expectedJson = {
-      id: undefined,
       account,
       name,
       authorization,

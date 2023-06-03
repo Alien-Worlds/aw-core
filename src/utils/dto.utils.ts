@@ -24,10 +24,7 @@ export const removeUndefinedProperties = <T>(input: unknown): T => {
 
     if (value.constructor.name === 'Object') {
       const cleared = removeUndefinedProperties(value);
-      // if the cleared object is empty then do not add it
-      if (Object.keys(cleared).length > 0) {
-        output[key] = cleared;
-      }
+      output[key] = cleared;
       continue;
     }
 

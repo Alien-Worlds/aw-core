@@ -1,5 +1,5 @@
 import { Entity } from '../../../architecture/domain/entity';
-import { ActionModel, PermissionLevel } from '../types';
+import { ActionProperties, PermissionLevel } from '../types';
 import { UnknownObject } from '../../../architecture/domain/types';
 import { removeUndefinedProperties } from '../../../utils';
 
@@ -7,23 +7,23 @@ import { removeUndefinedProperties } from '../../../utils';
  * Action represents an action in a blockchain transaction.
  * It implements the Entity interface.
  *
- * @template DataEntityType - The type of the data entity associated with the action.
+ * @template DataType - The type of the data entity associated with the action.
  */
-export class Action<DataEntityType extends Entity = Entity> implements Entity {
+export class Action<DataType extends Entity = Entity> implements Entity {
   /**
    * Creates an instance of Action.
    *
    * @static
-   * @template DataEntityType - The type of the data entity associated with the action.
-   * @param {ActionModel<DataEntityType>} model - The model representing the action.
-   * @returns {Action<DataEntityType>} - The created instance of Action.
+   * @template DataType - The type of the data entity associated with the action.
+   * @param {ActionProperties<DataType>} properties - The model representing the action.
+   * @returns {Action<DataType>} - The created instance of Action.
    */
-  public static create<DataEntityType extends Entity = Entity>(
-    model: ActionModel<DataEntityType>
-  ): Action<DataEntityType> {
-    const { account, name, data } = model;
+  public static create<DataType extends Entity = Entity>(
+    properties: ActionProperties<DataType>
+  ): Action<DataType> {
+    const { account, name, data, authorization } = properties;
 
-    return new Action(account, name, null, data);
+    return new Action(account, name, authorization, data);
   }
 
   /**
@@ -32,13 +32,13 @@ export class Action<DataEntityType extends Entity = Entity> implements Entity {
    * @param {string} account - The account name associated with the action.
    * @param {string} name - The name of the action.
    * @param {PermissionLevel[]} authorization - The authorization levels required for the action.
-   * @param {DataEntityType} data - The data entity associated with the action.
+   * @param {DataType} data - The data entity associated with the action.
    */
   constructor(
     public readonly account: string,
     public readonly name: string,
     public readonly authorization: PermissionLevel[],
-    public readonly data: DataEntityType
+    public readonly data: DataType
   ) {}
   public id: string;
 

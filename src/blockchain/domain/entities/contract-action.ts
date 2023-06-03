@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { serialize } from 'v8';
 
 import { Entity } from '../../../architecture/domain/entity';
-import { ContractActionModel } from '../types';
+import { ContractActionProperties } from '../types';
 import { UnknownObject } from '../../../architecture/domain/types';
 import { removeUndefinedProperties } from '../../../utils';
 import { Action } from './action';
@@ -13,16 +13,19 @@ import { Action } from './action';
  * @implements {Entity}
  * @template ActionDataEntityType - The type of data entity associated with the action.
  */
-export class ContractAction<ActionDataEntityType extends Entity = Entity> implements Entity {
+export class ContractAction<ActionDataEntityType extends Entity = Entity>
+  implements Entity
+{
   /**
    * Creates an instance of `ContractAction` using the provided model.
    * @static
-   * @param {ContractActionModel} model - The model representing the contract action.
-   * @returns {ContractAction<ActionDataEntityType>} The created contract action instance.
+   * @param {ContractActionProperties} properties - The model representing the contract action.
+   * @returns {ContractAction<ActionDataType>} The created contract action instance.
    */
-  public static create<ActionDataEntityType extends Entity = Entity>(
-    model: ContractActionModel<ActionDataEntityType>
-  ): ContractAction<ActionDataEntityType> {
+  public static create<ActionDataType extends Entity = Entity>(
+    properties: ContractActionProperties,
+    action: Action<ActionDataType>
+  ): ContractAction<ActionDataType> {
     const {
       id,
       blockTimestamp,
@@ -30,19 +33,12 @@ export class ContractAction<ActionDataEntityType extends Entity = Entity> implem
       globalSequence,
       receiverSequence,
       transactionId,
-      data,
-      name,
-      account,
-    } = model;
-    const action = Action.create<ActionDataEntityType>({
-      name,
-      account,
-      data,
-    });
-    const actionBuffer = serialize({ name, account, data });
+    } = properties;
+    const { account, name, data } = action;
+    const actionBuffer = serialize({ name, account, data: data.toJSON() });
     const actionHash = crypto.createHash('sha1').update(actionBuffer).digest('hex');
 
-    return new ContractAction<ActionDataEntityType>(
+    return new ContractAction<ActionDataType>(
       id,
       blockTimestamp,
       blockNumber,
@@ -56,7 +52,7 @@ export class ContractAction<ActionDataEntityType extends Entity = Entity> implem
 
   /**
    * Creates an instance of `ContractAction`.
-   * 
+   *
    * @constructor
    * @param {string} id - The ID of the contract action.
    * @param {Date} blockTimestamp - The timestamp of the block containing the contract action.

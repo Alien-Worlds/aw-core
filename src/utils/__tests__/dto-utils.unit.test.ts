@@ -22,6 +22,7 @@ describe('"DTO Utils" unit tests', () => {
       b: [],
       c: {
         cc: true,
+        cb: {},
         cd: false,
       },
     });

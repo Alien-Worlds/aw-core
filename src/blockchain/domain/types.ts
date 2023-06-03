@@ -210,21 +210,23 @@ export type ContractStats = {
 
 /**
  * Represents the model for an action.
- * @typedef {object} ActionModel
+ * @typedef {object} ActionProperties
  * @property {string} account - The account associated with the action.
  * @property {string} name - The name of the action.
  * @property {unknown} data - The data associated with the action.
+ * @property {PermissionLevel[]} authorization - The array of Permission-level object representing an actor and permission pair.
  * @template DataType - The type of the data associated with the action. Default is `unknown`.
  */
-export type ActionModel<DataType = unknown> = {
+export type ActionProperties<DataType = unknown> = {
   account: string;
   name: string;
   data: DataType;
+  authorization?: PermissionLevel[];
 };
 
 /**
  * Represents the model for a contract action.
- * @typedef {object} ContractActionModel
+ * @typedef {object} ContractActionProperties
  * @property {string} account - The account associated with the action.
  * @property {string} name - The name of the action.
  * @property {Date} blockTimestamp - The timestamp of the block.
@@ -237,7 +239,7 @@ export type ActionModel<DataType = unknown> = {
  * @property {string} [id] - The ID of the action. Optional.
  * @template DataType - The type of the data associated with the action. Default is `unknown`.
  */
-export type ContractActionModel<DataType = unknown> = {
+export type ContractActionProperties = {
   account: string;
   name: string;
   blockTimestamp: Date;
@@ -245,14 +247,13 @@ export type ContractActionModel<DataType = unknown> = {
   globalSequence: bigint;
   receiverSequence: bigint;
   transactionId: string;
-  data: DataType;
-  actionHash?: string;
-  id?: string;
+  data: unknown;
+  id: string;
 };
 
 /**
  * Represents the model for a contract delta.
- * @typedef {object} ContractDeltaModel
+ * @typedef {object} ContractDeltaProperties
  * @property {string} id - The ID of the delta.
  * @property {string|bigint} blockNumber - The number of the block.
  * @property {string} code - The code of the contract.
@@ -263,10 +264,9 @@ export type ContractActionModel<DataType = unknown> = {
  * @property {number} present - The present state of the contract.
  * @property {Date} blockTimestamp - The timestamp of the block.
  * @property {unknown} data - The data associated with the contract delta.
- * @property {string} [dataHash] - The hash of the contract delta data. Optional.
  * @template DataType - The type of the data associated with the contract delta. Default is `unknown`.
  */
-export type ContractDeltaModel<DataType = unknown> = {
+export type ContractDeltaProperties<DataType = unknown> = {
   id: string;
   blockNumber: string | bigint;
   code: string;
@@ -277,5 +277,4 @@ export type ContractDeltaModel<DataType = unknown> = {
   present: number;
   blockTimestamp: Date;
   data: DataType;
-  dataHash?: string;
 };

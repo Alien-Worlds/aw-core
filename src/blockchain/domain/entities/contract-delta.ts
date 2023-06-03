@@ -2,40 +2,40 @@ import crypto from 'crypto';
 import { serialize } from 'v8';
 import { Entity } from '../../../architecture/domain/entity';
 import { parseToBigInt, removeUndefinedProperties } from '../../../utils';
-import { ContractDeltaModel } from '../types';
+import { ContractDeltaProperties } from '../types';
 import { UnknownObject } from '../../../architecture/domain/types';
 
 /**
  * Represents a contract delta.
  * @class
  * @implements {Entity}
- * @template DataEntityType - The type of the data associated with the contract delta. Default is `Entity`.
+ * @template DeltaType - The type of the data associated with the contract delta. Default is `Entity`.
  */
-export class ContractDelta<DataEntityType extends Entity = Entity> implements Entity {
+export class ContractDelta<DeltaType extends Entity = Entity> implements Entity {
   /**
    * Creates a new instance of `ContractDelta` based on the provided model.
    * @static
-   * @param {ContractDeltaModel<DataEntityType>} model - The model representing the contract delta.
-   * @returns {ContractDelta<DataEntityType>} A new instance of `ContractDelta`.
+   * @param {ContractDeltaProperties<DeltaType>} properties - The model representing the contract delta.
+   * @returns {ContractDelta<DeltaType>} A new instance of `ContractDelta`.
    */
-  public static create<DataEntityType extends Entity = Entity>(
-    model: ContractDeltaModel<DataEntityType>
-  ): ContractDelta<DataEntityType> {
+  public static create<DeltaType extends Entity = Entity>(
+    properties: ContractDeltaProperties,
+    delta: DeltaType
+  ): ContractDelta<DeltaType> {
     const {
       id,
       blockNumber,
       code,
       scope,
       table,
-      data,
       payer,
       primaryKey,
       present,
       blockTimestamp,
-    } = model;
+    } = properties;
 
-    const dataBuffer = serialize(data);
-    const dataHash = crypto.createHash('sha1').update(dataBuffer).digest('hex');
+    const deltaBuffer = serialize(delta.toJSON());
+    const deltaHash = crypto.createHash('sha1').update(deltaBuffer).digest('hex');
 
     return new ContractDelta(
       id,
@@ -43,8 +43,8 @@ export class ContractDelta<DataEntityType extends Entity = Entity> implements En
       code,
       scope,
       table,
-      dataHash,
-      data,
+      deltaHash,
+      delta,
       payer,
       parseToBigInt(primaryKey),
       present,
@@ -61,8 +61,8 @@ export class ContractDelta<DataEntityType extends Entity = Entity> implements En
    * @param {string} code - The code associated with the contract delta.
    * @param {string} scope - The scope of the contract delta.
    * @param {string} table - The table name of the contract delta.
-   * @param {string} dataHash - The hash of the data associated with the contract delta.
-   * @param {DataEntityType} data - The data associated with the contract delta.
+   * @param {string} deltaHash - The hash of the data associated with the contract delta.
+   * @param {DeltaType} delta - The data associated with the contract delta.
    * @param {string} payer - The account name of the payer.
    * @param {bigint} primaryKey - The primary key value of the contract delta.
    * @param {number} present - The present flag value of the contract delta.
@@ -74,8 +74,8 @@ export class ContractDelta<DataEntityType extends Entity = Entity> implements En
     public readonly code: string,
     public readonly scope: string,
     public readonly table: string,
-    public readonly dataHash: string,
-    public readonly data: DataEntityType,
+    public readonly deltaHash: string,
+    public readonly delta: DeltaType,
     public readonly payer: string,
     public readonly primaryKey: bigint,
     public readonly present: number,
@@ -93,8 +93,8 @@ export class ContractDelta<DataEntityType extends Entity = Entity> implements En
       code,
       scope,
       table,
-      dataHash,
-      data,
+      deltaHash: dataHash,
+      delta: data,
       payer,
       primaryKey,
       present,
@@ -109,7 +109,7 @@ export class ContractDelta<DataEntityType extends Entity = Entity> implements En
       scope,
       table,
       payer,
-      primaryKey,
+      primaryKey: primaryKey.toString(),
       present,
       data: data.toJSON(),
       data_hash: dataHash,
