@@ -5,13 +5,13 @@ import {
 } from '../../domain/types';
 
 /**
- * Abstract class representing an EOS RPC source.
+ * Abstract class representing an RPC source.
  * @abstract
- * @class EosRpcSource
+ * @class RpcSource
  */
 export abstract class RpcSource {
   /**
-   * Token associated with the EOS RPC source.
+   * Token associated with the RPC source.
    * @type {string}
    * @static
    */

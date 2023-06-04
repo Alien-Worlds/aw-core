@@ -1,106 +1,137 @@
-# api-core
+# Alien Worlds API Core
 
-A set of classes, functions used in both API and history tools. Designed not to duplicate the same code in different projects if there is no need to do so.
+Alien Worlds API Core is a comprehensive TypeScript/Node.js package designed to provide a solid infrastructure for building APIs and history tools for the Alien Worlds project. The package is organized into several modules that include API building, a clean architectural structure, blockchain interactions, configuration management, and utility functions. Additionally, it employs Inversify for inversion of control (IoC) to facilitate efficient dependency management.
 
-## Components
+## Table of Contents
 
-### IOC
+- [Installation](#installation)
+- [IoC](#ioc)
+- [API](#api)
+- [Architecture](#architecture)
+- [Blockchain](#blockchain)
+- [Config](#config)
+- [Utils](#utils)
+- [Contributing](#contributing)
+- [License](#license)
 
-Our packages use `inversify`, which is lightweight inversion of control container. To avoid conflicts, every package using `api-core` and IOC should use Inversfy. However, it is not necessary to import yet another dpenedency in your package because `api-core` exports **all** Inversify components.
-
-### API
-
-Contains elements (types, errors, enums and classes) used in the API. The most important are the `Route` classes which are used as the basis for creating specific routes in the API code.
-
-| Name            |    Type     |     Layer     | Description                                                                                     |
-| :-------------- | :---------: | :-----------: | ----------------------------------------------------------------------------------------------- |
-| `Route`         | **_class_** | _application_ | Base class used for specific types of routes `{ method, path, handler, options? }`              |
-| `GetRoute`      | **_class_** | _application_ | Route class with a defined type `GET`                                                           |
-| `PostRoute`     | **_class_** | _application_ | Route class with a defined type `POST`                                                          |
-| `PutRoute`      | **_class_** | _application_ | Route class with a defined type `PUT`                                                           |
-| `DeleteRoute`   | **_class_** | _application_ | Route class with a defined type `DELETE`                                                        |
-| `RequestMethod` | **_enum_**  | _application_ | `POST`, `PUT`, `GET`, `DELETE`                                                                  |
-| `RequestError`  | **_error_** | _application_ | Request error contains basic information about the failure (status, message and details object) |
-| `Request`       | **_type_**  | _application_ | Basic request type (independent of the selected web framework)                                  |
-| `Response`      | **_type_**  | _application_ | Basic response type (independent of the selected web framework)                                 |
-| `RouteOptions`  | **_type_**  | _application_ | Additional route options where hooks and validatorscan be specified                             |
-| `RequestHooks`  | **_type_**  | _application_ | Functions (`pre`, `post`) that run before and after the handler execution                       |
-| `Validators`    | **_type_**  | _application_ | Second route option which specifies validators for the request and response                     |
-| `RouteHandler`  | **_type_**  | _application_ | The function assigned to the endpoint that must return a `Result`                               |
-
-### Architecture
-
-| Name         |    Type     |     Layer     | Description                                                                                                                                                                              |
-| :----------- | :---------: | :-----------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CollectionSource`    | **_class_** |   _data_    |                     |
-| `Mapper`    | **_class_** |   _data_    |                     |
-| `RepositoryImpl`    | **_class_** |   _data_    |                     |
-| `UpdateStatus`, `UpdateManyResult`    | **_type_** |   _data_    |                     |
-| `Repository`    | **_class_** |   _domain_    |                     |
-| `UseCase`    | **_class_** |   _domain_    | Use cases orchestrate the flow of data to and from the entities, and direct those entities to use their Critical Business Rules to achieve the goals of the use case.                    |
-| `Result`     | **_class_** |   _domain_    | Result represents a value of two possible data types. A result is either a defined content type or a Failure.                                                                            |
-| `Failure`    | **_class_** |   _domain_    | Failure represents one of the Result data types. Failure contains an error object                                                                                                        |
-| `QueryModel` | **_class_** | _domain/data_ | Defines a data model which is on top of the specific data base query. Contains `toQueryParams` method which returns the parameters needed to execute the query in the specified database |
-
-### RPC
-
-| Name                              |    Type     |  Layer   |
-| :-------------------------------- | :---------: | :------: |
-| `EosRpcSource`                    | **_class_** |  _data_  |
-| `EosJsRpcSource`                  | **_class_** |  _data_  |
-| `SmartContractDataNotFoundError`  | **_error_** | _domain_ |
-
-### Storage
-
-| Name                       |      Type      |  Layer   |
-| :------------------------- | :------------: | :------: |
-| `CollectionBigQuerySource` |  **_class_**   |  _data_  |
-| `CollectionMongoSource`    |  **_class_**   |  _data_  |
-| `MongoSource`              |  **_class_**   |  _data_  |
-| `MongoFindQueryParams`     |   **_type_**   | _domain_ |
-| `MongoAggregateParams`     |   **_type_**   | _domain_ |
-| `connectMongo`             | **_function_** |  _data_  |
-| `buildSqlQuery`            | **_function_** |  _data_  |
-| `DataSourceBulkWriteError` |  **_error_**   | _domain_ |
-| `DataSourceOperationError` |  **_error_**   | _domain_ |
-| `InsertManyError`          |  **_error_**   | _domain_ |
-| `InsertError`              |  **_error_**   | _domain_ |
-| `InsertOnceError`          |  **_error_**   | _domain_ |
-| `EntityAlreadyExistsError` |  **_error_**   | _domain_ |
-| `EntityNotFoundError`      |  **_error_**   | _domain_ |
-| `UpdateResult`             |   **_enum_**   | _domain_ |
-| `SqlQueryType`             |   **_enum_**   | _domain_ |
-
-## Usage
-
-To use these components in your code, add this package as a dependency using your Node package manager
-
-```
-npm add @alien-worlds/api-core
-```
-
-## Deployment
-
-If you want to release a new version of this package, just run `deploy.sh` from the main project folder.
+## Installation
 
 ```sh
-# patches version by default
-sh scripts/deploy.sh
-
-# Optionally, you can specify the version or what kind of update is (major|minor|patch)
-# e.g.
-sh scripts/deploy.sh 1.2.3
-# or
-sh scripts/deploy.sh major
-
+yarn add @alien-worlds/api-core
 ```
 
-This script will:
+## IoC
 
-- start the typeScript compiler
-- pull latest changes from the repository
-- bump the version in the `package.json` file
-- create a commit and push it to the repository
-- publish the new version to the registry (if all the previous steps have been completed successfully)
+Inversion of Control (IoC) is implemented using Inversify, a powerful and lightweight inversion of control container for JavaScript and Node.js apps powered by TypeScript. IoC promotes code modularity, making the system more flexible, maintainable, and scalable.
 
-**Before running the script, be sure that you have a clean situation and the latest changes from the repository so that there are no conflicts**
+## API
+
+This module comprises the core components necessary for creating APIs. It consists of enumerations, error types, route class, and other types that allow efficient API design.
+
+### `setupRouteHandler(route)`
+
+This function sets up the route handler function for a given route. It takes a `route` object as input and returns a promise that resolves to the route handler function. The route handler function is responsible for handling incoming requests and generating appropriate responses based on the provided route configuration.
+
+The `setupRouteHandler` function supports any web framework and can be used in conjunction with the `Route` class to define routes. It provides flexibility and extensibility, allowing developers to customize the request handling logic by specifying hooks, validators, and authorization functions within the route configuration.
+
+### `Route` Class
+
+The `Route` class is a generic class that represents a route in your web application. It provides a flexible and modular approach to define routes and handle incoming requests. Developers can extend the `Route` class and use derived classes such as `GetRoute`, `PostRoute`, `PatchRoute`, `PutRoute`, and `DeleteRoute` to define routes for different HTTP methods.
+
+The `Route` class allows you to specify the HTTP method, path, handler function, and optional configuration options for each route. It supports the use of hooks, validators, and authorization functions to customize the request handling process. The class is designed to be compatible with any web framework you choose to use, making it a versatile choice for building APIs or handling server-side routes.
+
+By leveraging the `Route` class and its derived classes, developers can create a clear and structured API for their web application, improving code organization and maintainability.
+
+```java
+// An example of using the GetRoute class
+
+export class ListPlanetsRoute extends GetRoute {
+  public static create(handler: RouteHandler, config: PlanetsApiConfig) {
+    return new ListPlanetsRoute(handler, config);
+  }
+
+  private constructor(handler: RouteHandler, config: PlanetsApiConfig) {
+    super(`/${config.version}/planets/list`, handler, {
+      hooks: {
+        pre: ListPlanetsInput.fromRequest,
+        post: (output: ListPlanetsOutput) => output.toResponse(),
+      },
+    });
+  }
+}
+```
+
+## Architecture
+
+The architecture module, divided into data and domain layers, follows clean architecture principles. Adopting this approach enhances the code's flexibility, maintainability, and testability. It allows for independent and reusable code components, ensuring that code style remains consistent across different contributors.
+
+The clean architecture paradigm also promotes separation of concerns by dividing the code into layers. The use of this design pattern facilitates the ability to change one aspect of the system without affecting others. This is due to the decoupling of the software into independent layers, thereby reducing the complexity of the codebase, increasing readability, and improving overall code quality.
+
+
+### Data Layer
+
+The data layer contains base classes and types for data layer components such as:
+
+- **DataSource**: Represents a general interface for the data sources in the application.
+- **Mapper**: Converts between the EntityType and the DocumentType.
+- **QueryBuilders**: Collection of query builders for different types of operations (find, count, update, remove, and aggregate).
+- **RepositoryImpl**: A generic repository for managing database interactions.
+
+### Domain Layer
+
+The domain layer consists of basic components and types such as:
+
+- **Entity**: Core representation of an object in the system.
+- **QueryBuilder and QueryParams**: Abstract QueryBuilder class and parameters for various queries (FindParams, CountParams, AggregationParams, RemoveParams, UpdateParams).
+- **Failure**: Represents a failure as a result of an error in executing a use case or repository operation.
+- **ReadOnlyRepository and Repository**: Abstract classes defining read-only and mutable repository methods.
+- **Result**: Represents the result of executing a use case or repository operation. It can return either a Failure object or the typed content.
+- **UseCase**: Abstract UseCase class for encapsulating business logic.
+- **Where**: A class used to build 'Where' clauses. Used to build database queries within query builders.
+
+## Blockchain
+
+The blockchain component is divided into data and domain layers. It contains the necessary types and components to interact with the blockchain.
+
+### Data Layer
+
+Key components include:
+
+- **RpcSource**: Abstraction for the RPC connection. It contains methods to retrieve table rows and contract stats.
+- **EosRpcSource**: Source for making RPC requests to an EOS blockchain.
+- **SmartContractServiceImpl**: Implements the SmartContractService interface, providing implementation for interacting with smart contracts.
+
+### Domain Layer
+
+The domain layer contains:
+
+- Entities like **Action**, **ContractAction**, **ContractDelta**, and **ContractUnknownDataEntity** to represent different blockchain transaction aspects.
+- **SmartContractService** interface with one method getStats. The concrete service should implement methods to retrieve desired table rows of the contract.
+- Types related to the smart contract components.
+
+## Config
+
+The config module contains utilities for working with environment variables and `.env` files:
+
+- **ConfigVars**: Provides access to environment variables and values from a .env file.
+- **readEnvFile**: Reads and parses the contents of an .env file and returns an object representing the key-value pairs.
+- **parseEnvFile**: Parses the contents of an .env file buffer or string and returns an object representing the key-value pairs.
+
+## Utils
+
+The utility component provides a set of functions that assist in various tasks, including:
+
+- **wait**: Suspends execution of the current process for a given number of milliseconds.
+- **parseDateToMs**: Parses a date string into milliseconds.
+- **removeUndefinedProperties**: Removes undefined properties and empty objects, useful for creating DTOs to send to a data source.
+- **parseToBigInt & parseUint8ArrayToBigInt**: Functions for parsing values into BigInt.
+
+## Contributing
+
+We encourage contributions from the community. If you have suggestions or features you'd like to see in the api-core package, please open an issue. For pull requests, ensure your changes are well documented and include tests where possible.
+
+## License
+
+Alien Worlds API Core is [MIT licensed](./LICENSE).
+
+> Note to the maintainer: This Readme assumes an MIT License. If the license is different, please change it accordingly.

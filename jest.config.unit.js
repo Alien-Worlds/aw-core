@@ -28,7 +28,6 @@ module.exports = {
     '!src/**/*.types.ts',
     '!src/**/worker.ts',
     '!src/**/repository.ts',
-    '!src/**/collection.source.ts',
-    '!src/api/*',
+    '!src/**/collection.source.ts'
   ],
 };

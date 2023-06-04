@@ -31,60 +31,75 @@ type BasicRequestType = {
   );
 };
 
+/**
+ * Sets up the route handler function for a given route.
+ * @template RequestType - Type of the request object.
+ * @template ResponseType - Type of the response object.
+ * @param {Route} route - The route for which the handler function is being set up.
+ * @returns {Promise<(req: RequestType, res: ResponseType) => Promise<void>>} The route handler function.
+ */
+export const setupRouteHandler =
+  <RequestType = BasicRequestType, ResponseType = BasicResponseType>(route: Route) =>
+  async (req: RequestType, res: ResponseType) => {
+    const { hooks, validators, authorization } = route.options || {};
+
+    if (authorization) {
+      const auth = authorization(<Request>req);
+
+      if (auth === false) {
+        return (<BasicResponseType>res).status(401).send('Unauthorized');
+      }
+    }
+
+    if (validators?.request) {
+      const { valid, message, code, errors } = validators.request(req);
+
+      if (!valid) {
+        return (<BasicResponseType>res).status(code || 400).send({
+          message,
+          errors,
+        });
+      }
+    }
+
+    try {
+      let args: unknown;
+
+      if (hooks?.pre) {
+        args = hooks.pre(req);
+      }
+
+      const result = await route.handler(args);
+
+      if (hooks?.post) {
+        const { status, body } = hooks.post(result);
+        (<BasicResponseType>res).status(status).send(body);
+      } else {
+        (<BasicResponseType>res).status(200).send(result);
+      }
+    } catch (error) {
+      log(error);
+      (<BasicResponseType>res).status(500).send(error);
+    }
+  };
+
+/**
+ * Represents a route in the web framework.
+ */
 export class Route {
+  /**
+   * Mounts the route on the specified server.
+   * @template ServerType, RequestType, ResponseType
+   * @param {ServerType} app - The server instance to mount the route on.
+   * @param {Route} route - The route instance to be mounted.
+   * @returns {ServerType} The modified server instance with the mounted route.
+   */
   public static mount<
     ServerType,
     RequestType = BasicRequestType,
     ResponseType = BasicResponseType
   >(app: ServerType, route: Route): ServerType {
-    /**
-     *
-     * @param {RequestType} req
-     * @param {ResponseType} res
-     */
-
-    const routeHandler = async (req: RequestType, res: ResponseType) => {
-      const { hooks, validators, authorization } = route.options || {};
-
-      if (authorization) {
-        const auth = authorization(<Request>req);
-
-        if (auth === false) {
-          return (<BasicResponseType>res).status(401).send('Unauthorized');
-        }
-      }
-
-      if (validators?.request) {
-        const { valid, message, code, errors } = validators.request(req);
-
-        if (!valid) {
-          return (<BasicResponseType>res).status(code || 400).send({
-            message,
-            errors,
-          });
-        }
-      }
-
-      try {
-        let args: unknown;
-
-        if (hooks.pre) {
-          args = hooks.pre(req);
-        }
-
-        const result = await route.handler(args);
-
-        if (hooks.post) {
-          const { status, body } = hooks.post(result);
-          (<BasicResponseType>res).status(status).send(body);
-        } else {
-          (<BasicResponseType>res).status(200).send(result);
-        }
-      } catch (error) {
-        log(error);
-        (<BasicResponseType>res).status(500).send(error);
-      }
-    };
+    const routeHandler = setupRouteHandler<RequestType, ResponseType>(route);
 
     switch (route.method) {
       case 'POST': {
@@ -157,6 +172,14 @@ export class Route {
 
     return app;
   }
+
+  /**
+   * Creates a new Route instance.
+   * @param {RequestMethod} method - The HTTP request method of the route.
+   * @param {string | string[]} path - The path or paths of the route.
+   * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteOptions} [options] - Optional route configuration options.
+   */
   constructor(
     public readonly method: RequestMethod,
     public readonly path: string | string[],
@@ -165,7 +188,16 @@ export class Route {
   ) {}
 }
 
+/**
+ * Represents a GET route in the web framework.
+ */
 export class GetRoute extends Route {
+  /**
+   * Creates a new GetRoute instance.
+   * @param {string | string[]} path - The path or paths of the route.
+   * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteOptions} [options] - Optional route configuration options.
+   */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
@@ -175,7 +207,16 @@ export class GetRoute extends Route {
   }
 }
 
+/**
+ * Represents a POST route in the web framework.
+ */
 export class PostRoute extends Route {
+  /**
+   * Creates a new PostRoute instance.
+   * @param {string | string[]} path - The path or paths of the route.
+   * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteOptions} [options] - Optional route configuration options.
+   */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
@@ -185,7 +226,16 @@ export class PostRoute extends Route {
   }
 }
 
+/**
+ * Represents a PATCH route in the web framework.
+ */
 export class PatchRoute extends Route {
+  /**
+   * Creates a new PatchRoute instance.
+   * @param {string | string[]} path - The path or paths of the route.
+   * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteOptions} [options] - Optional route configuration options.
+   */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
@@ -195,7 +245,16 @@ export class PatchRoute extends Route {
   }
 }
 
+/**
+ * Represents a PUT route in the web framework.
+ */
 export class PutRoute extends Route {
+  /**
+   * Creates a new PutRoute instance.
+   * @param {string | string[]} path - The path or paths of the route.
+   * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteOptions} [options] - Optional route configuration options.
+   */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
@@ -205,7 +264,16 @@ export class PutRoute extends Route {
   }
 }
 
+/**
+ * Represents a DELETE route in the web framework.
+ */
 export class DeleteRoute extends Route {
+  /**
+   * Creates a new DeleteRoute instance.
+   * @param {string | string[]} path - The path or paths of the route.
+   * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteOptions} [options] - Optional route configuration options.
+   */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
