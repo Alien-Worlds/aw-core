@@ -24,6 +24,11 @@ yarn add @alien-worlds/api-core
 
 Inversion of Control (IoC) is implemented using Inversify, a powerful and lightweight inversion of control container for JavaScript and Node.js apps powered by TypeScript. IoC promotes code modularity, making the system more flexible, maintainable, and scalable.
 
+#### Helpful links:
+
+- [How to use IoC?](www.google.com)
+
+
 ## API
 
 This module comprises the core components necessary for creating APIs. It consists of enumerations, error types, route class, and other types that allow efficient API design.
@@ -61,12 +66,14 @@ export class ListPlanetsRoute extends GetRoute {
 }
 ```
 
+#### Helpful links:
+ - [How to create a new API?](www.google.com)
+
 ## Architecture
 
 The architecture module, divided into data and domain layers, follows clean architecture principles. Adopting this approach enhances the code's flexibility, maintainability, and testability. It allows for independent and reusable code components, ensuring that code style remains consistent across different contributors.
 
 The clean architecture paradigm also promotes separation of concerns by dividing the code into layers. The use of this design pattern facilitates the ability to change one aspect of the system without affecting others. This is due to the decoupling of the software into independent layers, thereby reducing the complexity of the codebase, increasing readability, and improving overall code quality.
-
 
 ### Data Layer
 
@@ -89,13 +96,15 @@ The domain layer consists of basic components and types such as:
 - **UseCase**: Abstract UseCase class for encapsulating business logic.
 - **Where**: A class used to build 'Where' clauses. Used to build database queries within query builders.
 
+#### Helpful links:
+
+- [Why clean Architecture?](www.google.com)
+
 ## Blockchain
 
 The blockchain component is divided into data and domain layers. It contains the necessary types and components to interact with the blockchain.
 
 ### Data Layer
-
-Key components include:
 
 - **RpcSource**: Abstraction for the RPC connection. It contains methods to retrieve table rows and contract stats.
 - **EosRpcSource**: Source for making RPC requests to an EOS blockchain.
@@ -103,17 +112,26 @@ Key components include:
 
 ### Domain Layer
 
-The domain layer contains:
-
 - Entities like **Action**, **ContractAction**, **ContractDelta**, and **ContractUnknownDataEntity** to represent different blockchain transaction aspects.
 - **SmartContractService** interface with one method getStats. The concrete service should implement methods to retrieve desired table rows of the contract.
 - Types related to the smart contract components.
+
+#### Helpful links:
+
+- [How to implement smart contract service?](www.google.com)
 
 ## Config
 
 The config module contains utilities for working with environment variables and `.env` files:
 
 - **ConfigVars**: Provides access to environment variables and values from a .env file.
+```java
+const vars = new ConfigVars();
+const port = vars.getNumberEnv('PORT'); // PORT=8080
+const secretKey = vars.getStringEnv('SECRET_KEY'); // SECRET_KEY=my_secret
+const isPrimary = vars.getBooleanEnv('IS_PRIMARY'); // IS_PRIMARY=true OR IS_PRIMARY=1
+const hosts = vars.getArrayEnv('HOSTS'); // HOSTS='url_1, url_2, url_3'
+```
 - **readEnvFile**: Reads and parses the contents of an .env file and returns an object representing the key-value pairs.
 - **parseEnvFile**: Parses the contents of an .env file buffer or string and returns an object representing the key-value pairs.
 
@@ -122,9 +140,20 @@ The config module contains utilities for working with environment variables and 
 The utility component provides a set of functions that assist in various tasks, including:
 
 - **wait**: Suspends execution of the current process for a given number of milliseconds.
+```java
+await wait(5000);
+```
 - **parseDateToMs**: Parses a date string into milliseconds.
+```java
+const ms = parseDateToMs('...');
+```
+
 - **removeUndefinedProperties**: Removes undefined properties and empty objects, useful for creating DTOs to send to a data source.
 - **parseToBigInt & parseUint8ArrayToBigInt**: Functions for parsing values into BigInt.
+```java
+const blockNumber = parseToBigInt('1234567890');
+```
+
 
 ## Contributing
 
