@@ -32,10 +32,10 @@ export abstract class DataSource<DocumentType = unknown> {
    * Abstract method to perform an aggregation operation on the data source.
    *
    * @param {Query} query The aggregation criteria.
-   * @returns {Promise<T>} A promise that resolves to the result of the aggregation operation.
+   * @returns {Promise<T[]>} A promise that resolves to the result of the aggregation operation.
    * @abstract
    */
-  public abstract aggregate<T = DocumentType[]>(query: Query): Promise<T>;
+  public abstract aggregate<T = DocumentType>(query: Query): Promise<T[]>;
 
   /**
    * Abstract method to update documents in the data source.

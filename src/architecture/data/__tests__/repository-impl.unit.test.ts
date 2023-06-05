@@ -56,7 +56,7 @@ describe('RepositoryImpl', () => {
         groupBy: 'filed3',
       });
       const expectedQuery = { count: 'field1' };
-      const expected = { name: 'Foo' };
+      const expected = [{ name: 'Foo' }];
 
       mockQueryBuilders.buildAggregationQuery.mockReturnValue(expectedQuery);
       mockDataSource.aggregate.mockResolvedValueOnce(expected);
@@ -66,7 +66,7 @@ describe('RepositoryImpl', () => {
 
       expect(result).toEqual(Result.withContent(expected));
       expect(mockDataSource.aggregate).toHaveBeenCalledWith(expectedQuery);
-      expect(mockMapper.toEntity).toHaveBeenCalledWith(expected);
+      expect(mockMapper.toEntity).toHaveBeenCalledWith(...expected);
 
       mockMapper.toEntity.mockReset();
       mockDataSource.aggregate.mockResolvedValueOnce([expected]);
