@@ -1,3 +1,8 @@
+/**
+ * Enum representing the types of operation errors.
+ *
+ * @enum {string}
+ */
 export enum OperationErrorType {
   Duplicate = 'duplicate',
   InvalidData = 'invalid_data',
@@ -5,25 +10,40 @@ export enum OperationErrorType {
 }
 
 /**
+ * Interface for additional data in a duplicate error.
+ *
+ * @type DuplicateErrorAdditionalData
+ */
+export type DuplicateErrorAdditionalData = {
+  duplicatedIds: string[];
+};
+
+/**
  * Custom error class for DataSource errors.
  *
  * @class DataSourceError
  * @extends {Error}
+ * @template AdditionalDataType The type of additional data associated with the error.
  */
-export class DataSourceError extends Error {
+export class DataSourceError<AdditionalDataType = unknown> extends Error {
   /**
    * Creates a new DataSourceError instance for a duplicate data error.
    *
    * @static
    * @param {Error} error The original error object.
-   * @param {string} [message] The error message (optional).
-   * @returns {DataSourceError} The DataSourceError instance.
+   * @param {{ message?: string, data?: string[] }} options Options for the error (optional).
+   * @returns {DataSourceError<AdditionalDataType>} The DataSourceError instance.
    */
-  public static createDuplicateError(error: Error, message?: string): DataSourceError {
-    return new DataSourceError(
+  public static createDuplicateError(
+    error: Error,
+    options?: { message?: string; data?: string[] }
+  ): DataSourceError {
+    const { message, data } = options || {};
+    return new DataSourceError<DuplicateErrorAdditionalData>(
       error,
       message || error.message,
-      OperationErrorType.Duplicate
+      OperationErrorType.Duplicate,
+      { duplicatedIds: data || [] }
     );
   }
 
@@ -32,14 +52,19 @@ export class DataSourceError extends Error {
    *
    * @static
    * @param {Error} error The original error object.
-   * @param {string} [message] The error message (optional).
-   * @returns {DataSourceError} The DataSourceError instance.
+   * @param {{ message?: string, data?: unknown }} options Options for the error (optional).
+   * @returns {DataSourceError<AdditionalDataType>} The DataSourceError instance.
    */
-  public static createInvalidDataError(error: Error, message?: string): DataSourceError {
+  public static createInvalidDataError(
+    error: Error,
+    options?: { message?: string; data?: unknown }
+  ): DataSourceError {
+    const { message, data } = options || {};
     return new DataSourceError(
       error,
       message || error.message,
-      OperationErrorType.InvalidData
+      OperationErrorType.InvalidData,
+      data
     );
   }
 
@@ -48,25 +73,36 @@ export class DataSourceError extends Error {
    *
    * @static
    * @param {Error} error The original error object.
-   * @param {string} [message] The error message (optional).
-   * @returns {DataSourceError} The DataSourceError instance.
+   * @param {{ message?: string, data?: unknown }} options Options for the error (optional).
+   * @returns {DataSourceError<AdditionalDataType>} The DataSourceError instance.
    */
-  public static createError(error: Error, message?: string): DataSourceError {
-    return new DataSourceError(error, message || error.message, OperationErrorType.Other);
+  public static createError(
+    error: Error,
+    options?: { message?: string; data?: unknown }
+  ): DataSourceError {
+    const { message, data } = options || {};
+    return new DataSourceError(
+      error,
+      message || error.message,
+      OperationErrorType.Other,
+      data
+    );
   }
 
   /**
    * Constructs a new DataSourceError.
    *
    * @constructor
-   * @param {unknown} error The original error object.
+   * @param {Error} error The original error object.
    * @param {string} message The error message.
    * @param {string} type The type of the error.
+   * @param {AdditionalDataType} [additionalData] Additional data associated with the error (optional).
    */
   constructor(
-    public readonly error: unknown,
+    public readonly error: Error,
     public readonly message: string,
-    public readonly type: string
+    public readonly type: string,
+    public readonly additionalData?: AdditionalDataType
   ) {
     super(message);
   }
