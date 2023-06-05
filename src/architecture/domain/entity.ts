@@ -33,7 +33,7 @@ export abstract class Entity<JsonType = UnknownObject, RestType = UnknownObject>
    * The unique identifier of the entity.
    * @type {string}
    */
-  public id: string;
+  public id?: string;
 
   /**
    * Additional properties of the entity.
