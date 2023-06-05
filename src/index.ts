@@ -1,6 +1,6 @@
-export * as Ioc from 'inversify';
-export * as Api from './api';
-export * as Architecture from './architecture';
-export * as Config from './config';
-export * as Blockchain from './blockchain';
-export * as Utils from './utils';
+export * from 'inversify';
+export * from './api';
+export * from './architecture';
+export * from './config';
+export * from './blockchain';
+export * from './utils';

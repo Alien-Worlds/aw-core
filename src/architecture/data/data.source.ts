@@ -58,11 +58,11 @@ export abstract class DataSource<DocumentType = unknown> {
   /**
    * Abstract method to remove documents from the data source.
    *
-   * @param {DocumentType[] | Query} data The documents to remove or the removal criteria.
+   * @param {Query} query The removal criteria.
    * @returns {Promise<RemoveStats>} A promise that resolves to the removal statistics.
    * @abstract
    */
-  public abstract remove(data: DocumentType[] | Query): Promise<RemoveStats>;
+  public abstract remove(query: Query): Promise<RemoveStats>;
 
   /**
    * Abstract method to start a database transaction.
