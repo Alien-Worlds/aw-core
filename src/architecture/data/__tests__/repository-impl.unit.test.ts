@@ -105,7 +105,7 @@ describe('RepositoryImpl', () => {
         status: 'success',
         modifiedCount: 1,
         upsertedCount: 0,
-        upsertedIds: {},
+        upsertedIds: [],
       };
       const expectedQuery = { id: 1, name: 'Entity 1' };
       mockQueryBuilders.buildUpdateQuery.mockReturnValue(expectedQuery);

@@ -2,9 +2,7 @@ export type UpdateStats = {
   status: string;
   modifiedCount?: number;
   upsertedCount?: number;
-  upsertedIds?: {
-    [key: number]: unknown;
-  };
+  upsertedIds?: unknown[];
 };
 
 export type RemoveStats = {
