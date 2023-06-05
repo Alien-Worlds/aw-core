@@ -1,5 +1,5 @@
 import { Entity } from '../../../architecture/domain/entity';
-import { ActionProperties, PermissionLevel } from '../types';
+import { ActionModel, PermissionLevel } from '../types';
 import { UnknownObject } from '../../../architecture/domain/types';
 import { removeUndefinedProperties } from '../../../utils';
 
@@ -15,11 +15,11 @@ export class Action<DataType extends Entity = Entity> implements Entity {
    *
    * @static
    * @template DataType - The type of the data entity associated with the action.
-   * @param {ActionProperties<DataType>} properties - The model representing the action.
+   * @param {ActionModel<DataType>} properties - The model representing the action.
    * @returns {Action<DataType>} - The created instance of Action.
    */
   public static create<DataType extends Entity = Entity>(
-    properties: ActionProperties<DataType>
+    properties: ActionModel<DataType>
   ): Action<DataType> {
     const { account, name, data, authorization } = properties;
 

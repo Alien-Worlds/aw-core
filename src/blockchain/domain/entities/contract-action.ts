@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { serialize } from 'v8';
 
 import { Entity } from '../../../architecture/domain/entity';
-import { ContractActionProperties } from '../types';
+import { ContractActionModel } from '../types';
 import { UnknownObject } from '../../../architecture/domain/types';
 import { removeUndefinedProperties } from '../../../utils';
 import { Action } from './action';
@@ -19,11 +19,11 @@ export class ContractAction<ActionDataEntityType extends Entity = Entity>
   /**
    * Creates an instance of `ContractAction` using the provided model.
    * @static
-   * @param {ContractActionProperties} properties - The model representing the contract action.
+   * @param {ContractActionModel} properties - The model representing the contract action.
    * @returns {ContractAction<ActionDataType>} The created contract action instance.
    */
   public static create<ActionDataType extends Entity = Entity>(
-    properties: ContractActionProperties,
+    properties: ContractActionModel,
     action: Action<ActionDataType>
   ): ContractAction<ActionDataType> {
     const {

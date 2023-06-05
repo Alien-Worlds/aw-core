@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { Action } from '../action';
 import { Entity } from '../../../../architecture';
 import { ContractAction } from '../contract-action';
-import { ContractActionProperties } from '../../types';
+import { ContractActionModel } from '../../types';
 
 jest.mock('crypto', () => ({
   createHash: jest.fn().mockReturnThis(),
@@ -21,7 +21,7 @@ describe('ContractAction', () => {
         globalSequence: BigInt(456),
         receiverSequence: BigInt(789),
         transactionId: 'transactionId',
-      } as ContractActionProperties;
+      } as ContractActionModel;
       const actionData = {
         account: 'account',
         name: 'name',

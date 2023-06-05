@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { serialize } from 'v8';
 import { Entity } from '../../../architecture/domain/entity';
 import { parseToBigInt, removeUndefinedProperties } from '../../../utils';
-import { ContractDeltaProperties } from '../types';
+import { ContractDeltaModel } from '../types';
 import { UnknownObject } from '../../../architecture/domain/types';
 
 /**
@@ -15,11 +15,11 @@ export class ContractDelta<DeltaType extends Entity = Entity> implements Entity 
   /**
    * Creates a new instance of `ContractDelta` based on the provided model.
    * @static
-   * @param {ContractDeltaProperties<DeltaType>} properties - The model representing the contract delta.
+   * @param {ContractDeltaModel<DeltaType>} properties - The model representing the contract delta.
    * @returns {ContractDelta<DeltaType>} A new instance of `ContractDelta`.
    */
   public static create<DeltaType extends Entity = Entity>(
-    properties: ContractDeltaProperties,
+    properties: ContractDeltaModel,
     delta: DeltaType
   ): ContractDelta<DeltaType> {
     const {

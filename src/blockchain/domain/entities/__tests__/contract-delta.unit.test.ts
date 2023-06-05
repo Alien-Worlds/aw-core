@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { Entity } from '../../../../architecture';
 import { ContractDelta } from '../contract-delta';
 import { parseToBigInt } from '../../../../utils';
-import { ContractDeltaProperties } from '../../types';
+import { ContractDeltaModel } from '../../types';
 
 // Mock crypto.createHash
 jest.mock('crypto', () => ({
@@ -25,7 +25,7 @@ describe('ContractDelta', () => {
         primaryKey: '456',
         present: 1,
         blockTimestamp: new Date(),
-      } as ContractDeltaProperties;
+      } as ContractDeltaModel;
       const deltaData = { foo: 'bar' };
       const delta = { foo: 'bar', toJSON: () => deltaData } as unknown as Entity;
 
