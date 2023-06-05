@@ -5,27 +5,32 @@ import { Entity } from '../../../architecture/domain/entity';
 import { ContractActionModel } from '../types';
 import { UnknownObject } from '../../../architecture/domain/types';
 import { removeUndefinedProperties } from '../../../utils';
-import { Action } from './action';
 
 /**
  * Represents a contract action in the blockchain.
  * @class
  * @implements {Entity}
- * @template ActionDataEntityType - The type of data entity associated with the action.
+ * @template ActionDataType - The type of data entity associated with the action.
  */
-export class ContractAction<ActionDataEntityType extends Entity = Entity>
-  implements Entity
+export class ContractAction<
+  ActionDataType extends Entity = Entity,
+  ActionJsonType = UnknownObject
+> implements Entity<ActionJsonType>
 {
   /**
    * Creates an instance of `ContractAction` using the provided model.
    * @static
-   * @param {ContractActionModel} properties - The model representing the contract action.
-   * @returns {ContractAction<ActionDataType>} The created contract action instance.
+   * @param {ContractActionModel} model - The model representing the contract action.
+   * @param {ActionDataType} data - The entity of the contract action data.
+   * @returns {ContractAction<ActionDataType, ActionJsonType>} The created contract action instance.
    */
-  public static create<ActionDataType extends Entity = Entity>(
-    properties: ContractActionModel,
-    action: Action<ActionDataType>
-  ): ContractAction<ActionDataType> {
+  public static create<
+    ActionDataType extends Entity = Entity,
+    ActionJsonType = UnknownObject
+  >(
+    model: ContractActionModel,
+    data: ActionDataType
+  ): ContractAction<ActionDataType, ActionJsonType> {
     const {
       id,
       blockTimestamp,
@@ -33,19 +38,22 @@ export class ContractAction<ActionDataEntityType extends Entity = Entity>
       globalSequence,
       receiverSequence,
       transactionId,
-    } = properties;
-    const { account, name, data } = action;
+      account,
+      name,
+    } = model;
     const actionBuffer = serialize({ name, account, data: data.toJSON() });
     const actionHash = crypto.createHash('sha1').update(actionBuffer).digest('hex');
 
-    return new ContractAction<ActionDataType>(
+    return new ContractAction<ActionDataType, ActionJsonType>(
       id,
       blockTimestamp,
       blockNumber,
+      account,
+      name,
       globalSequence,
       receiverSequence,
       transactionId,
-      action,
+      data,
       actionHash
     );
   }
@@ -57,29 +65,33 @@ export class ContractAction<ActionDataEntityType extends Entity = Entity>
    * @param {string} id - The ID of the contract action.
    * @param {Date} blockTimestamp - The timestamp of the block containing the contract action.
    * @param {bigint} blockNumber - The number of the block containing the contract action.
+   * @param {string} account - The account name associated with the action.
+   * @param {string} name - The name of the action.
    * @param {bigint} globalSequence - The global sequence of the contract action.
    * @param {bigint} receiverSequence - The receiver sequence of the contract action.
    * @param {string} transactionId - The ID of the transaction containing the contract action.
-   * @param {Action<ActionDataEntityType>} action - The action associated with the contract action.
+   * @param {ActionDataType} data - The data entity associated with the action data.
    * @param {string} actionHash - The hash value of the serialized action.
    */
   constructor(
     public readonly id: string,
     public readonly blockTimestamp: Date,
     public readonly blockNumber: bigint,
+    public readonly account: string,
+    public readonly name: string,
     public readonly globalSequence: bigint,
     public readonly receiverSequence: bigint,
     public readonly transactionId: string,
-    public readonly action: Action<ActionDataEntityType>,
+    public readonly data: ActionDataType,
     public readonly actionHash: string
   ) {}
 
   /**
    * Converts the `ContractAction` to a JSON object.
    * @method
-   * @returns {UnknownObject} The JSON representation of the `ContractAction`.
+   * @returns {ActionJsonType} The JSON representation of the `ContractAction`.
    */
-  public toJSON(): UnknownObject {
+  public toJSON(): ActionJsonType {
     const {
       id,
       blockTimestamp,
@@ -87,7 +99,9 @@ export class ContractAction<ActionDataEntityType extends Entity = Entity>
       globalSequence,
       receiverSequence,
       transactionId,
-      action,
+      account,
+      name,
+      data,
       actionHash,
     } = this;
 
@@ -98,10 +112,12 @@ export class ContractAction<ActionDataEntityType extends Entity = Entity>
       global_sequence: globalSequence.toString(),
       receiver_sequence: receiverSequence.toString(),
       transaction_id: transactionId,
-      action: action.toJSON(),
+      account,
+      name,
+      data: data.toJSON(),
       action_hash: actionHash,
     };
 
-    return removeUndefinedProperties(json);
+    return removeUndefinedProperties<ActionJsonType>(json);
   }
 }

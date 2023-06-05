@@ -215,12 +215,11 @@ export type ContractStats = {
  * @property {string} name - The name of the action.
  * @property {unknown} data - The data associated with the action.
  * @property {PermissionLevel[]} authorization - The array of Permission-level object representing an actor and permission pair.
- * @template DataType - The type of the data associated with the action. Default is `unknown`.
  */
-export type ActionModel<DataType = unknown> = {
+export type ActionModel = {
   account: string;
   name: string;
-  data: DataType;
+  data?: unknown;
   authorization?: PermissionLevel[];
 };
 
@@ -237,7 +236,6 @@ export type ActionModel<DataType = unknown> = {
  * @property {unknown} data - The data associated with the action.
  * @property {string} [actionHash] - The hash of the action. Optional.
  * @property {string} [id] - The ID of the action. Optional.
- * @template DataType - The type of the data associated with the action. Default is `unknown`.
  */
 export type ContractActionModel = {
   account: string;
@@ -264,9 +262,8 @@ export type ContractActionModel = {
  * @property {number} present - The present state of the contract.
  * @property {Date} blockTimestamp - The timestamp of the block.
  * @property {unknown} data - The data associated with the contract delta.
- * @template DataType - The type of the data associated with the contract delta. Default is `unknown`.
  */
-export type ContractDeltaModel<DataType = unknown> = {
+export type ContractDeltaModel = {
   id: string;
   blockNumber: string | bigint;
   code: string;
@@ -276,5 +273,5 @@ export type ContractDeltaModel<DataType = unknown> = {
   primaryKey: string | bigint;
   present: number;
   blockTimestamp: Date;
-  data: DataType;
+  data: unknown;
 };

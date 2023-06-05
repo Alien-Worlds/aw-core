@@ -1,6 +1,4 @@
 import crypto from 'crypto';
-import { Action } from '../action';
-import { Entity } from '../../../../architecture';
 import { ContractAction } from '../contract-action';
 import { ContractActionModel } from '../../types';
 
@@ -21,22 +19,14 @@ describe('ContractAction', () => {
         globalSequence: BigInt(456),
         receiverSequence: BigInt(789),
         transactionId: 'transactionId',
-      } as ContractActionModel;
-      const actionData = {
         account: 'account',
         name: 'name',
-        data: { foo: 'bar', toJSON: () => ({ foo: 'bar' }) },
-        authorization: null,
-      };
-      const action = new Action(
-        actionData.account,
-        actionData.name,
-        actionData.authorization,
-        actionData.data as unknown as Entity
-      );
+        data: { foo: 'bar' },
+      } as ContractActionModel;
+      const actionData = { foo: 'bar', toJSON: () => ({ foo: 'bar' }) };
 
       // Call create method
-      const contractAction = ContractAction.create(properties, action);
+      const contractAction = ContractAction.create(properties, actionData);
 
       // Verify the ContractAction instance
       expect(contractAction).toBeInstanceOf(ContractAction);
@@ -46,7 +36,8 @@ describe('ContractAction', () => {
       expect(contractAction.globalSequence).toBe(properties.globalSequence);
       expect(contractAction.receiverSequence).toBe(properties.receiverSequence);
       expect(contractAction.transactionId).toBe(properties.transactionId);
-      expect(contractAction.action).toBe(action);
+      expect(contractAction.account).toBe(properties.account);
+      expect(contractAction.name).toBe(properties.name);
       expect(contractAction.actionHash).toBe('mockedHash');
     });
   });
@@ -58,30 +49,24 @@ describe('ContractAction', () => {
         id: 'actionId',
         blockTimestamp: new Date(),
         blockNumber: BigInt(123),
+        account: 'account',
+        name: 'name',
         globalSequence: BigInt(456),
         receiverSequence: BigInt(789),
         transactionId: 'transactionId',
       };
-      const actionData = {
-        account: 'account',
-        name: 'name',
-        data: { foo: 'bar', toJSON: () => ({ foo: 'bar' }) },
-        authorization: null,
-      };
-      const action = new Action(
-        actionData.account,
-        actionData.name,
-        actionData.authorization,
-        actionData.data as unknown as Entity
-      );
+      const actionData = { foo: 'bar', toJSON: () => ({ foo: 'bar' }) };
+
       const contractAction = new ContractAction(
         properties.id,
         properties.blockTimestamp,
         properties.blockNumber,
+        properties.account,
+        properties.name,
         properties.globalSequence,
         properties.receiverSequence,
         properties.transactionId,
-        action,
+        actionData,
         'mockedHash'
       );
 
@@ -96,8 +81,10 @@ describe('ContractAction', () => {
         global_sequence: properties.globalSequence.toString(),
         receiver_sequence: properties.receiverSequence.toString(),
         transaction_id: properties.transactionId,
-        action: action.toJSON(),
+        data: actionData.toJSON(),
         action_hash: 'mockedHash',
+        account: properties.account,
+        name: properties.name,
       });
     });
   });

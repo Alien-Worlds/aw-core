@@ -11,17 +11,19 @@ import { UnknownObject } from '../../../architecture/domain/types';
  * @implements {Entity}
  * @template DeltaType - The type of the data associated with the contract delta. Default is `Entity`.
  */
-export class ContractDelta<DeltaType extends Entity = Entity> implements Entity {
+export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = UnknownObject>
+  implements Entity<RawDeltaType>
+{
   /**
    * Creates a new instance of `ContractDelta` based on the provided model.
    * @static
-   * @param {ContractDeltaModel<DeltaType>} properties - The model representing the contract delta.
+   * @param {ContractDeltaModel<DeltaType>} model - The model representing the contract delta.
    * @returns {ContractDelta<DeltaType>} A new instance of `ContractDelta`.
    */
-  public static create<DeltaType extends Entity = Entity>(
-    properties: ContractDeltaModel,
+  public static create<DeltaType extends Entity = Entity, RawDeltaType = UnknownObject>(
+    model: ContractDeltaModel,
     delta: DeltaType
-  ): ContractDelta<DeltaType> {
+  ): ContractDelta<DeltaType, RawDeltaType> {
     const {
       id,
       blockNumber,
@@ -32,7 +34,7 @@ export class ContractDelta<DeltaType extends Entity = Entity> implements Entity 
       primaryKey,
       present,
       blockTimestamp,
-    } = properties;
+    } = model;
 
     const deltaBuffer = serialize(delta.toJSON());
     const deltaHash = crypto.createHash('sha1').update(deltaBuffer).digest('hex');
@@ -84,9 +86,9 @@ export class ContractDelta<DeltaType extends Entity = Entity> implements Entity 
 
   /**
    * Serializes the `ContractDelta` instance to a JSON object.
-   * @returns {UnknownObject} The serialized JSON object representing the `ContractDelta`.
+   * @returns {RawDeltaType} The serialized JSON object representing the `ContractDelta`.
    */
-  public toJSON(): UnknownObject {
+  public toJSON(): RawDeltaType {
     const {
       id,
       blockNumber,
@@ -115,6 +117,6 @@ export class ContractDelta<DeltaType extends Entity = Entity> implements Entity 
       data_hash: dataHash,
     };
 
-    return removeUndefinedProperties(json);
+    return removeUndefinedProperties<RawDeltaType>(json);
   }
 }
