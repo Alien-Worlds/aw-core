@@ -2,7 +2,6 @@ import {
   AggregationParams,
   CountParams,
   FindParams,
-  QueryBuilder,
   RemoveParams,
   UpdateParams,
 } from '../domain/queries';
@@ -12,24 +11,7 @@ import { Query } from '../domain/types';
  * @class
  * Represents a collection of query builders for different types of operations.
  */
-export class QueryBuilders {
-  /**
-   * @constructor
-   * Creates a new QueryBuilders instance.
-   *
-   * @param {QueryBuilder} findQueryBuilder The QueryBuilder for find operations.
-   * @param {QueryBuilder} countQueryBuilder The QueryBuilder for count operations.
-   * @param {QueryBuilder} updateQueryBuilder The QueryBuilder for update operations.
-   * @param {QueryBuilder} removeQueryBuilder The QueryBuilder for remove operations.
-   * @param {QueryBuilder} aggregationQueryBuilder The QueryBuilder for aggregation operations.
-   */
-  constructor(
-    private readonly findQueryBuilder: QueryBuilder,
-    private readonly countQueryBuilder: QueryBuilder,
-    private readonly updateQueryBuilder: QueryBuilder,
-    private readonly removeQueryBuilder: QueryBuilder,
-    private readonly aggregationQueryBuilder: QueryBuilder
-  ) {}
+export abstract class QueryBuilders {
 
   /**
    * Builds a query for find operations.
@@ -38,9 +20,7 @@ export class QueryBuilders {
    *
    * @returns {Query} The query for the find operation.
    */
-  public buildFindQuery(params: FindParams): Query {
-    return this.findQueryBuilder.build(params);
-  }
+  public abstract buildFindQuery(params: FindParams): Query;
 
   /**
    * Builds a query for count operations.
@@ -49,9 +29,7 @@ export class QueryBuilders {
    *
    * @returns {Query} The query for the count operation.
    */
-  public buildCountQuery(params: CountParams): Query {
-    return this.countQueryBuilder.build(params);
-  }
+  public abstract buildCountQuery(params: CountParams): Query;
 
   /**
    * Builds a query for update operations.
@@ -60,9 +38,7 @@ export class QueryBuilders {
    *
    * @returns {Query} The query for the update operation.
    */
-  public buildUpdateQuery(params: UpdateParams): Query {
-    return this.updateQueryBuilder.build(params);
-  }
+  public abstract buildUpdateQuery(params: UpdateParams): Query;
 
   /**
    * Builds a query for remove operations.
@@ -71,9 +47,7 @@ export class QueryBuilders {
    *
    * @returns {Query} The query for the remove operation.
    */
-  public buildRemoveQuery(params: RemoveParams): Query {
-    return this.removeQueryBuilder.build(params);
-  }
+  public abstract buildRemoveQuery(params: RemoveParams): Query;
 
   /**
    * Builds a query for aggregation operations.
@@ -82,7 +56,5 @@ export class QueryBuilders {
    *
    * @returns {Query} The query for the aggregation operation.
    */
-  public buildAggregationQuery(params: AggregationParams): Query {
-    return this.aggregationQueryBuilder.build(params);
-  }
+  public abstract buildAggregationQuery(params: AggregationParams): Query;
 }
