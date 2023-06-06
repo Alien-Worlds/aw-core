@@ -53,7 +53,7 @@ describe('RepositoryImpl', () => {
       const testParams = AggregationParams.create({
         average: 'filed1',
         count: 'filed2',
-        groupBy: 'filed3',
+        groupBy: ['filed3'],
       });
       const expectedQuery = { count: 'field1' };
       const expected = [{ name: 'Foo' }];

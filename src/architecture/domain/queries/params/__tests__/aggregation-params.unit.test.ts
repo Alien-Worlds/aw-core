@@ -7,7 +7,7 @@ describe('AggregationParams', () => {
   describe('create', () => {
     it('should create a new instance of AggregationParams with the provided options', () => {
       const options = {
-        groupBy: 'field1',
+        groupBy: ['field1'],
         filterBy: { field: 'field2', name: 'Foo' },
         sort: { field3: 1 },
         sum: 'field4',
@@ -50,7 +50,7 @@ describe('AggregationParams', () => {
 
   describe('constructor', () => {
     it('should construct a new instance of AggregationParams with the provided values', () => {
-      const groupBy = 'field1';
+      const groupBy = ['field1'];
       const filterBy: Filter = { field: 'field2', name: 'Foo' };
       const sort: Sort = { field3: 1 };
       const sum = 'field4';

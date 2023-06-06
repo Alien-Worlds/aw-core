@@ -9,7 +9,7 @@ export class AggregationParams {
    * Creates a new instance of AggregationParams with the provided options.
    * @static
    * @param {Object} options - The options for creating AggregationParams.
-   * @param {string} options.groupBy - The field to group by.
+   * @param {string[]} options.groupBy - The field to group by.
    * @param {Filter} options.filterBy - The filter to apply.
    * @param {Sort} options.sort - The sorting criteria.
    * @param {string} options.sum - The field to calculate the sum.
@@ -21,7 +21,7 @@ export class AggregationParams {
    * @returns {AggregationParams} A new instance of AggregationParams.
    */
   public static create(options: {
-    groupBy?: string;
+    groupBy?: string[];
     filterBy?: Filter;
     sort?: Sort;
     sum?: string;
@@ -47,7 +47,7 @@ export class AggregationParams {
 
   /**
    * Constructs a new instance of AggregationParams.
-   * @param {string} [groupBy] - The field to group by.
+   * @param {string[]} [groupBy] - The field to group by.
    * @param {Filter} [filterBy] - The filter to apply.
    * @param {Sort} [sort] - The sorting criteria.
    * @param {string} [sum] - The field to calculate the sum.
@@ -58,7 +58,7 @@ export class AggregationParams {
    * @param {Where} [where] - The where clause.
    */
   constructor(
-    public readonly groupBy?: string,
+    public readonly groupBy?: string[],
     public readonly filterBy?: Filter,
     public readonly sort?: Sort,
     public readonly sum?: string,
