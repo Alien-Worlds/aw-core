@@ -201,7 +201,7 @@ describe('Where', () => {
 
   describe('or', () => {
     it('should create an "OR" condition for a group of Where clauses', () => {
-      const condition1 = new Where().valueOf('key1').isEq('value1');
+      const condition1 = new Where().valueOf('key1').isEq('value1').valueOf('key2').isNotEq(1);
       const condition2 = new Where().valueOf('key2').isEq('value2');
       const condition3 = new Where().valueOf('key3').isEq('value3');
 

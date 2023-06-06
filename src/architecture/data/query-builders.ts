@@ -3,16 +3,16 @@ import {
   CountParams,
   FindParams,
   RemoveParams,
-  UpdateParams,
+  UpdateMethod,
 } from '../domain/queries';
 import { Query } from '../domain/types';
+import { Where } from '../domain/where';
 
 /**
  * @class
  * Represents a collection of query builders for different types of operations.
  */
 export abstract class QueryBuilders {
-
   /**
    * Builds a query for find operations.
    *
@@ -34,11 +34,17 @@ export abstract class QueryBuilders {
   /**
    * Builds a query for update operations.
    *
-   * @param {UpdateParams} params The parameters for the update operation.
+   * @param {UpdateType[]} updates
+   * @param {Where[]} where
+   * @param {UpdateMethod} method
    *
    * @returns {Query} The query for the update operation.
    */
-  public abstract buildUpdateQuery(params: UpdateParams): Query;
+  public abstract buildUpdateQuery<UpdateType = unknown>(
+    updates: UpdateType[],
+    where: Where[],
+    method: UpdateMethod
+  ): Query;
 
   /**
    * Builds a query for remove operations.

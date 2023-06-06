@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { UnknownObject } from './types';
 
 /**
@@ -14,7 +15,7 @@ export abstract class Entity<JsonType = UnknownObject, RestType = UnknownObject>
    * @returns {EntityType} The created instance of the entity.
    * @throws {Error} The static method create() is not implemented.
    */
-  public static create<EntityType = Entity>(): EntityType {
+  public static create<EntityType = Entity>(...args: unknown[]): EntityType {
     throw new Error('Static method create() not implemented.');
   }
 

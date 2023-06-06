@@ -81,18 +81,21 @@ export class RepositoryImpl<EntityType, DocumentType>
   /**
    * Updates entities in the data source.
    *
-   * @param {UpdateParams<EntityType> | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the update operation.
+   * @param {UpdateParams<Partial<EntityType>> | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the update operation.
    *
    * @returns {Promise<Result<UpdateStats, Error>>} The result of the update operation, containing the update statistics or an error.
    */
   public async update(
-    paramsOrBuilder: UpdateParams<EntityType> | QueryBuilder
+    paramsOrBuilder: UpdateParams<Partial<EntityType>> | QueryBuilder
   ): Promise<Result<UpdateStats, Error>> {
     try {
       let query: Query;
 
-      if (paramsOrBuilder instanceof UpdateParams<EntityType>) {
-        query = this.queryBuilders.buildUpdateQuery(paramsOrBuilder);
+      if (paramsOrBuilder instanceof UpdateParams<Partial<EntityType>>) {
+        const { updates, where, method } = paramsOrBuilder;
+        const documents = updates.map(this.mapper.fromEntity);
+
+        query = this.queryBuilders.buildUpdateQuery(documents, where, method);
       } else {
         query = paramsOrBuilder.build();
       }

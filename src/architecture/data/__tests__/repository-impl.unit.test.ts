@@ -6,6 +6,7 @@ import {
   CountParams,
   FindParams,
   RemoveParams,
+  UpdateMethod,
   UpdateParams,
 } from '../../domain/queries';
 import { Result } from '../../domain/result';
@@ -100,7 +101,11 @@ describe('RepositoryImpl', () => {
 
   describe('update', () => {
     it('should perform the update and return a result', async () => {
-      const testParams = new UpdateParams([{ id: 1, name: 'Entity 1' }]);
+      const testParams = new UpdateParams(
+        [{ id: 1, name: 'Entity 1' }],
+        [Where.is({})],
+        UpdateMethod.UpdateEach
+      );
       const expected = {
         status: 'success',
         modifiedCount: 1,

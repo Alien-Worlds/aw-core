@@ -1,62 +1,60 @@
 import { Where } from '../../../where';
-import { UpdateParams } from '../update-params';
+import { UpdateMethod, UpdateParams } from '../update-params';
 
 describe('UpdateParams', () => {
   describe('create', () => {
     it('should create a new instance of UpdateParams with the provided options', () => {
-      const entities = [
+      const updates = [
         { id: 1, name: 'Entity 1' },
         { id: 2, name: 'Entity 2' },
       ];
       const where = new Where().valueOf('field1').isEq('value1');
 
-      const updateParams = UpdateParams.create(entities, where);
+      const updateParams = UpdateParams.createUpdateManyParams(updates, where);
 
       expect(updateParams).toBeInstanceOf(UpdateParams);
-      expect(updateParams.entities).toEqual(entities);
-      expect(updateParams.where).toEqual(where);
+      expect(updateParams.updates).toEqual(updates);
+      expect(updateParams.where).toEqual([where]);
     });
 
     it('should create a new instance of UpdateParams with undefined where clause if not provided', () => {
-      const entities = [
-        { id: 1, name: 'Entity 1' },
-        { id: 2, name: 'Entity 2' },
-      ];
+      const update = { id: 1, name: 'Entity 1' };
 
-      const updateParams = UpdateParams.create(entities);
+      const updateParams = UpdateParams.createUpdateEachParams([{
+        update,
+        where: Where.is({}),
+      } as any]);
 
       expect(updateParams).toBeInstanceOf(UpdateParams);
-      expect(updateParams.entities).toEqual(entities);
-      expect(updateParams.where).toBeUndefined();
+      expect(updateParams.updates).toEqual([update]);
     });
   });
 
   describe('constructor', () => {
     it('should construct a new instance of UpdateParams with the provided entities and where clause', () => {
-      const entities = [
+      const updates = [
         { id: 1, name: 'Entity 1' },
         { id: 2, name: 'Entity 2' },
       ];
       const where = new Where().valueOf('field1').isEq('value1');
 
-      const updateParams = new UpdateParams(entities, where);
+      const updateParams = new UpdateParams(updates, [where], UpdateMethod.UpdateEach);
 
       expect(updateParams).toBeInstanceOf(UpdateParams);
-      expect(updateParams.entities).toEqual(entities);
-      expect(updateParams.where).toEqual(where);
+      expect(updateParams.updates).toEqual(updates);
+      expect(updateParams.where).toEqual([where]);
     });
 
     it('should construct a new instance of UpdateParams with undefined where clause if not provided', () => {
-      const entities = [
+      const updates = [
         { id: 1, name: 'Entity 1' },
         { id: 2, name: 'Entity 2' },
       ];
 
-      const updateParams = new UpdateParams(entities);
+      const updateParams = new UpdateParams(updates, [], UpdateMethod.UpdateEach);
 
       expect(updateParams).toBeInstanceOf(UpdateParams);
-      expect(updateParams.entities).toEqual(entities);
-      expect(updateParams.where).toBeUndefined();
+      expect(updateParams.updates).toEqual(updates);
     });
   });
 });
