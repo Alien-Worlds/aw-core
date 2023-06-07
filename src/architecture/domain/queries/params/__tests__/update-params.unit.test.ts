@@ -6,10 +6,10 @@ describe('UpdateParams', () => {
   const update = {};
 
   test('should create update parameters for many updates', () => {
-    const updates = [update, update];
-    const wheres = [where, where];
+    const updates = [update];
+    const wheres = [where];
 
-    const params = UpdateParams.createUpdateMany(updates, wheres);
+    const params = UpdateParams.createUpdateMany(update, where);
 
     expect(params.updates).toEqual(updates);
     expect(params.where).toEqual(wheres);
@@ -26,7 +26,7 @@ describe('UpdateParams', () => {
       {
         update,
         where,
-        method: UpdateMethod.UpdateEach,
+        method: UpdateMethod.UpdateMany,
       },
     ];
 

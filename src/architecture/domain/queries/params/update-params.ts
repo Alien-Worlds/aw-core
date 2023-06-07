@@ -2,13 +2,12 @@ import { Where } from '../../where';
 
 export enum UpdateMethod {
   UpdateOne,
-  UpdateEach,
   UpdateMany,
 }
 
 export type UpdateEachParams<T = unknown> = {
   update: T;
-  where?: Where;
+  where: Where;
   method?: UpdateMethod;
 };
 
@@ -21,16 +20,13 @@ export class UpdateParams<UpdateType = unknown> {
   /**
    * Factory method for creating parameters to update multiple entities.
    *
-   * @param {UpdateType[]} updates The array of entities to update.
-   * @param {Where[]} where The array of where clauses corresponding to each update.
+   * @param {UpdateType} update The (partial) data to update.
+   * @param {Where} where The where clause for the update.
    *
    * @returns {UpdateParams} An instance of UpdateParams.
    */
-  public static createUpdateMany<UpdateType = unknown>(
-    updates: UpdateType[],
-    where: Where[]
-  ) {
-    return new UpdateParams(updates, where, [UpdateMethod.UpdateMany]);
+  public static createUpdateMany<UpdateType = unknown>(update: UpdateType, where: Where) {
+    return new UpdateParams([update], [where], [UpdateMethod.UpdateMany]);
   }
 
   /**
@@ -59,7 +55,7 @@ export class UpdateParams<UpdateType = unknown> {
   /**
    * Factory method for creating parameters to update a single entity.
    *
-   * @param {UpdateType} update The entity to update.
+   * @param {UpdateType} update The (partial) data to update.
    * @param {Where} where The where clause for the update.
    *
    * @returns {UpdateParams} An instance of UpdateParams.
