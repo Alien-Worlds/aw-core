@@ -34,9 +34,10 @@ export abstract class QueryBuilders {
   /**
    * Builds a query for update operations.
    *
-   * @param {UpdateType[]} updates
-   * @param {Where[]} where
-   * @param {UpdateMethod} method
+   * @template UpdateType The type of updates being performed.
+   * @param {UpdateType[]} updates An array of updates (entities or partial entity data to apply).
+   * @param {Where[]} where An array of conditions to specify which documents to update.
+   * @param {UpdateMethod} method The method used for updating the documents.
    *
    * @returns {Query} The query for the update operation.
    */
