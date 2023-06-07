@@ -104,7 +104,7 @@ describe('RepositoryImpl', () => {
       const testParams = new UpdateParams(
         [{ id: 1, name: 'Entity 1' }],
         [Where.is({})],
-        UpdateMethod.UpdateEach
+        [UpdateMethod.UpdateOne]
       );
       const expected = {
         status: 'success',

@@ -92,10 +92,10 @@ export class RepositoryImpl<EntityType, DocumentType>
       let query: Query;
 
       if (paramsOrBuilder instanceof UpdateParams<Partial<EntityType>>) {
-        const { updates, where, method } = paramsOrBuilder;
+        const { updates, where, methods } = paramsOrBuilder;
         const documents = updates.map(this.mapper.fromEntity);
 
-        query = this.queryBuilders.buildUpdateQuery(documents, where, method);
+        query = this.queryBuilders.buildUpdateQuery(documents, where, methods);
       } else {
         query = paramsOrBuilder.build();
       }

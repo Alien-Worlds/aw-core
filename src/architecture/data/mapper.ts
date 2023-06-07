@@ -27,3 +27,21 @@ export abstract class Mapper<EntityType = unknown, DocumentType = unknown> {
    */
   public abstract fromEntity(entity: EntityType): DocumentType;
 }
+
+/**
+ * Represents a property mapping that maps a key to a mapper function.
+ */
+export type PropertyMapping = {
+  /**
+   * The key associated with the property mapping.
+   */
+  key: string;
+
+  /**
+   * The mapper function that transforms the property value.
+   *
+   * @param value - The value of the property to be transformed.
+   * @returns The transformed value.
+   */
+  mapper: (value: unknown) => unknown;
+};
