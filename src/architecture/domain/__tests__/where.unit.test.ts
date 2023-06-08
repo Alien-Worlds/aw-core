@@ -7,6 +7,14 @@ describe('Where', () => {
     where = new Where();
   });
 
+  describe('result', () => {
+    it('should return raw object', () => {
+      expect(Where.is({ name: 'John' }).result).toEqual({
+        name: 'John',
+      });
+    });
+  });
+
   describe('isEq', () => {
     it('should add an "isEq" condition to the current Where clause', () => {
       where.valueOf('key').isEq('value');
@@ -201,7 +209,11 @@ describe('Where', () => {
 
   describe('or', () => {
     it('should create an "OR" condition for a group of Where clauses', () => {
-      const condition1 = new Where().valueOf('key1').isEq('value1').valueOf('key2').isNotEq(1);
+      const condition1 = new Where()
+        .valueOf('key1')
+        .isEq('value1')
+        .valueOf('key2')
+        .isNotEq(1);
       const condition2 = new Where().valueOf('key2').isEq('value2');
       const condition3 = new Where().valueOf('key3').isEq('value3');
 

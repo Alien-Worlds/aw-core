@@ -36,6 +36,13 @@ export enum WhereOperator {
  * @property {unknown} value - The value for the clause.
  */
 export type WhereClause = { operator: WhereOperator; value: unknown };
+/**
+ * Represents a chain of Where clauses.
+ * @typedef {Object} WhereChain
+ * @property {string} key - The key for the current WhereClause.
+ * @property {WhereClause} value - The single WhereClause.
+ */
+export type WhereChain = { [key: string]: WhereClause };
 
 /**
  * Represents a class for constructing Where clauses.
@@ -77,9 +84,10 @@ export class Where {
 
   /**
    * Constructs a new instance of the Where class.
+   * @param {UnknownObject} [chain] - The raw object to initialize the Where instance.
    * @param {UnknownObject} [raw] - The raw object to initialize the Where instance.
    */
-  constructor(private raw: UnknownObject = {}) {}
+  constructor(private raw: UnknownObject = null, private chain: WhereChain = {}) {}
 
   /**
    * Sets the key for the current Where clause.
@@ -96,7 +104,8 @@ export class Where {
    * @type {UnknownObject}
    */
   public get result() {
-    return { ...this.raw };
+    const { raw, chain } = this;
+    return raw ? { ...raw } : { ...chain };
   }
 
   /**
@@ -104,7 +113,7 @@ export class Where {
    * @param {unknown} value - The value for the 'isEq' condition.
    */
   public isEq(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isEq, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isEq, value };
     return this;
   }
 
@@ -113,7 +122,7 @@ export class Where {
    * @param {unknown[]} value - The value for the 'isIn' condition.
    */
   public isIn(value: Array<unknown>) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isIn, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isIn, value };
     return this;
   }
 
@@ -123,7 +132,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotEq(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isNotEq, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isNotEq, value };
     return this;
   }
 
@@ -133,7 +142,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isLt(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isLt, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isLt, value };
     return this;
   }
 
@@ -143,7 +152,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isLte(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isLte, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isLte, value };
     return this;
   }
 
@@ -153,7 +162,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isGt(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isGt, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isGt, value };
     return this;
   }
 
@@ -163,7 +172,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isGte(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isGte, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isGte, value };
     return this;
   }
 
@@ -173,7 +182,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isInRange(value: Array<unknown>) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isInRange, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isInRange, value };
     return this;
   }
 
@@ -183,7 +192,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotInRange(value: Array<unknown>) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isNotInRange, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isNotInRange, value };
     return this;
   }
 
@@ -193,7 +202,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotIn(value: Array<unknown>) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isNotIn, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isNotIn, value };
     return this;
   }
 
@@ -203,7 +212,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNoneOf(value: Array<unknown>) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isNoneOf, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isNoneOf, value };
     return this;
   }
 
@@ -212,7 +221,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isTrue() {
-    this.raw[this.currentKey] = { operator: WhereOperator.isTrue, value: true };
+    this.chain[this.currentKey] = { operator: WhereOperator.isTrue, value: true };
     return this;
   }
 
@@ -221,7 +230,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isFalse() {
-    this.raw[this.currentKey] = { operator: WhereOperator.isFalse, value: false };
+    this.chain[this.currentKey] = { operator: WhereOperator.isFalse, value: false };
     return this;
   }
 
@@ -231,7 +240,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public is0(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.is0, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.is0, value };
     return this;
   }
 
@@ -241,7 +250,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public is1(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.is1, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.is1, value };
     return this;
   }
 
@@ -251,7 +260,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNull(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isNull, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isNull, value };
     return this;
   }
 
@@ -261,7 +270,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotNull(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isNotNull, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isNotNull, value };
     return this;
   }
 
@@ -271,7 +280,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isEmpty(value: unknown) {
-    this.raw[this.currentKey] = { operator: WhereOperator.isEmpty, value };
+    this.chain[this.currentKey] = { operator: WhereOperator.isEmpty, value };
     return this;
   }
 
@@ -281,7 +290,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotEmpty(value: unknown) {
-    this.raw[this.currentKey] = {
+    this.chain[this.currentKey] = {
       operator: WhereOperator.isNotEmpty,
       value,
     };
