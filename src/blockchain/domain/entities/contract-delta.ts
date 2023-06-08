@@ -67,7 +67,7 @@ export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = Unk
    * @param {DeltaType} delta - The data associated with the contract delta.
    * @param {string} payer - The account name of the payer.
    * @param {bigint} primaryKey - The primary key value of the contract delta.
-   * @param {number} present - The present flag value of the contract delta.
+   * @param {boolean} present - The present flag value of the contract delta.
    * @param {Date} blockTimestamp - The block timestamp of the contract delta.
    */
   constructor(
@@ -80,7 +80,7 @@ export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = Unk
     public readonly delta: DeltaType,
     public readonly payer: string,
     public readonly primaryKey: bigint,
-    public readonly present: number,
+    public readonly present: boolean,
     public readonly blockTimestamp: Date
   ) {}
 

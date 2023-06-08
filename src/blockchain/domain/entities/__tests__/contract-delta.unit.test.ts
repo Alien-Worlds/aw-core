@@ -23,7 +23,7 @@ describe('ContractDelta', () => {
         table: 'table',
         payer: 'payer',
         primaryKey: '456',
-        present: 1,
+        present: true,
         blockTimestamp: new Date(),
       } as ContractDeltaModel;
       const deltaData = { foo: 'bar' };
@@ -59,7 +59,7 @@ describe('ContractDelta', () => {
         table: 'table',
         payer: 'payer',
         primaryKey: '456',
-        present: 1,
+        present: true,
         blockTimestamp: new Date(),
       };
       const deltaData = { foo: 'bar' };

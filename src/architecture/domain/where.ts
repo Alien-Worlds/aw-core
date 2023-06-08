@@ -109,6 +109,13 @@ export class Where {
   }
 
   /**
+   * @type {Boolean}
+   */
+  public get isRaw() {
+    return this.raw !== null;
+  }
+
+  /**
    * Adds an 'isEq' condition to the current Where clause.
    * @param {unknown} value - The value for the 'isEq' condition.
    */

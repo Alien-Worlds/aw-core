@@ -7,11 +7,13 @@ describe('Where', () => {
     where = new Where();
   });
 
-  describe('result', () => {
+  describe('raw', () => {
     it('should return raw object', () => {
-      expect(Where.is({ name: 'John' }).result).toEqual({
+      const where = Where.is({ name: 'John' });
+      expect(where.result).toEqual({
         name: 'John',
       });
+      expect(where.isRaw).toBeTruthy();
     });
   });
 

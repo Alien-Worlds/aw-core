@@ -271,7 +271,7 @@ export type ContractDeltaModel = {
   table: string;
   payer: string;
   primaryKey: string | bigint;
-  present: number;
+  present: boolean;
   blockTimestamp: Date;
   data: unknown;
 };
