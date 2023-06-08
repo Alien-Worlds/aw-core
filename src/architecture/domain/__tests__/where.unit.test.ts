@@ -194,7 +194,7 @@ describe('Where', () => {
       const combinedCondition = Where.and([condition1, condition2, condition3]);
 
       expect(combinedCondition).toEqual({
-        and: [condition1.result, condition2.result, condition3.result],
+        and: [condition1, condition2, condition3],
       });
     });
   });
@@ -208,7 +208,7 @@ describe('Where', () => {
       const combinedCondition = Where.or([condition1, condition2, condition3]);
 
       expect(combinedCondition).toEqual({
-        or: [condition1.result, condition2.result, condition3.result],
+        or: [condition1, condition2, condition3],
       });
     });
   });

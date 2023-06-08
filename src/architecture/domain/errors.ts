@@ -9,3 +9,9 @@ export class MissingKeyMappingsError extends Error {
     super(`Some keys [${keys.join(', ')}] do not have mappers assigned to them.`);
   }
 }
+
+export class UnsupportedOperatorError extends Error {
+  constructor(operator: string) {
+    super(`Unsupported operator "${operator}".`);
+  }
+}

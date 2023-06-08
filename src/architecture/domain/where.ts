@@ -60,7 +60,7 @@ export class Where {
    * @returns {Object} The 'AND' condition for the group of Where clauses.
    */
   public static and(clauses: Array<Where>) {
-    return { and: clauses.map(clause => clause.result) };
+    return { and: clauses };
   }
 
   /**
@@ -70,7 +70,7 @@ export class Where {
    * @returns {Object} The 'OR' condition for the group of Where clauses.
    */
   public static or(clauses: Array<Where>) {
-    return { or: clauses.map(clause => clause.result) };
+    return { or: clauses };
   }
 
   private currentKey: string;
