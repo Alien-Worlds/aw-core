@@ -162,5 +162,3 @@ We encourage contributions from the community. If you have suggestions or featur
 ## License
 
 Alien Worlds API Core is [MIT licensed](./LICENSE).
-
-> Note to the maintainer: This Readme assumes an MIT License. If the license is different, please change it accordingly.
