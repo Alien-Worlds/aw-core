@@ -3,7 +3,8 @@ import fetch from 'node-fetch';
 import { JsonRpc } from 'eosjs';
 import { GetTableRowsResult } from 'eosjs/dist/eosjs-rpc-interfaces';
 import { RpcSource } from './rpc.source';
-import { ContractStats, GetTableRowsOptions } from '../../domain/types';
+import { BlockchainInfo, ContractStats, GetTableRowsOptions } from '../../domain/types';
+import { parseToBigInt } from '../../../utils';
 
 /**
  * EosRpcSource class represents a source for making RPC requests to an EOS blockchain.
@@ -19,6 +20,36 @@ export class EosRpcSource implements RpcSource {
    */
   constructor(url: string) {
     this.rpc = new JsonRpc(url, { fetch });
+  }
+
+  /**
+   * Retrieves the blockchain information.
+   * @returns {Promise<BlockchainInfo>} A promise that resolves with the blockchain information.
+   */
+  public async getInfo(): Promise<BlockchainInfo> {
+    const info = await this.rpc.get_info();
+
+    return info as BlockchainInfo;
+  }
+
+  /**
+   * Retrieves the block number of the head block.
+   * @returns {Promise<bigint>} A promise that resolves with the head block number.
+   */
+  public async getHeadBlockNumber(): Promise<bigint> {
+    const info = await this.rpc.get_info();
+    const value = parseToBigInt(info.head_block_num);
+    return value;
+  }
+
+  /**
+   * Retrieves the block number of the last irreversible block.
+   * @returns {Promise<bigint>} A promise that resolves with the last irreversible block number.
+   */
+  public async getLastIrreversibleBlockNumber(): Promise<bigint> {
+    const info = await this.rpc.get_info();
+    const value = parseToBigInt(info.last_irreversible_block_num);
+    return value;
   }
 
   /**
