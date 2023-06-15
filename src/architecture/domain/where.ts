@@ -44,6 +44,7 @@ export enum WhereOperator {
   isNotEmpty,
   and,
   or,
+  isBetween,
 }
 
 /**
