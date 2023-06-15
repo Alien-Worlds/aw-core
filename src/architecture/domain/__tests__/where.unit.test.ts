@@ -17,12 +17,25 @@ describe('Where', () => {
     });
   });
 
+  describe('isBetween', () => {
+    it('should add an "isBetween" condition to the current Where clause', () => {
+      where.valueOf('key').isBetween(1,10);
+
+      expect(where.result).toEqual({
+        key: [
+          { operator: WhereOperator.isGte, value: 1 },
+          { operator: WhereOperator.isLte, value: 10 },
+        ],
+      });
+    });
+  });
+
   describe('isEq', () => {
     it('should add an "isEq" condition to the current Where clause', () => {
       where.valueOf('key').isEq('value');
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isEq, value: 'value' },
+        key: [{ operator: WhereOperator.isEq, value: 'value' }],
       });
     });
   });
@@ -32,7 +45,7 @@ describe('Where', () => {
       where.valueOf('key').isIn(['value1', 'value2']);
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isIn, value: ['value1', 'value2'] },
+        key: [{ operator: WhereOperator.isIn, value: ['value1', 'value2'] }],
       });
     });
   });
@@ -42,7 +55,7 @@ describe('Where', () => {
       where.valueOf('key').isNotEq('value');
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isNotEq, value: 'value' },
+        key: [{ operator: WhereOperator.isNotEq, value: 'value' }],
       });
     });
   });
@@ -51,7 +64,7 @@ describe('Where', () => {
     it('should add an "isLt" condition to the current Where clause', () => {
       where.valueOf('key').isLt(10);
 
-      expect(where.result).toEqual({ key: { operator: WhereOperator.isLt, value: 10 } });
+      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isLt, value: 10 }] });
     });
   });
 
@@ -59,7 +72,7 @@ describe('Where', () => {
     it('should add an "isLte" condition to the current Where clause', () => {
       where.valueOf('key').isLte(10);
 
-      expect(where.result).toEqual({ key: { operator: WhereOperator.isLte, value: 10 } });
+      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isLte, value: 10 }] });
     });
   });
 
@@ -67,7 +80,7 @@ describe('Where', () => {
     it('should add an "isGt" condition to the current Where clause', () => {
       where.valueOf('key').isGt(10);
 
-      expect(where.result).toEqual({ key: { operator: WhereOperator.isGt, value: 10 } });
+      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isGt, value: 10 }] });
     });
   });
 
@@ -75,7 +88,7 @@ describe('Where', () => {
     it('should add an "isGte" condition to the current Where clause', () => {
       where.valueOf('key').isGte(10);
 
-      expect(where.result).toEqual({ key: { operator: WhereOperator.isGte, value: 10 } });
+      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isGte, value: 10 }] });
     });
   });
 
@@ -84,7 +97,7 @@ describe('Where', () => {
       where.valueOf('key').isInRange([10, 20]);
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isInRange, value: [10, 20] },
+        key: [{ operator: WhereOperator.isInRange, value: [10, 20] }],
       });
     });
   });
@@ -94,7 +107,7 @@ describe('Where', () => {
       where.valueOf('key').isNotInRange([10, 20]);
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isNotInRange, value: [10, 20] },
+        key: [{ operator: WhereOperator.isNotInRange, value: [10, 20] }],
       });
     });
   });
@@ -104,7 +117,7 @@ describe('Where', () => {
       where.valueOf('key').isNotIn(['value1', 'value2']);
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isNotIn, value: ['value1', 'value2'] },
+        key: [{ operator: WhereOperator.isNotIn, value: ['value1', 'value2'] }],
       });
     });
   });
@@ -114,7 +127,7 @@ describe('Where', () => {
       where.valueOf('key').isNoneOf(['value1', 'value2']);
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isNoneOf, value: ['value1', 'value2'] },
+        key: [{ operator: WhereOperator.isNoneOf, value: ['value1', 'value2'] }],
       });
     });
   });
@@ -124,7 +137,7 @@ describe('Where', () => {
       where.valueOf('key').isTrue();
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isTrue, value: true },
+        key: [{ operator: WhereOperator.isTrue, value: true }],
       });
     });
   });
@@ -134,7 +147,7 @@ describe('Where', () => {
       where.valueOf('key').isFalse();
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isFalse, value: false },
+        key: [{ operator: WhereOperator.isFalse, value: false }],
       });
     });
   });
@@ -143,7 +156,7 @@ describe('Where', () => {
     it('should add an "is0" condition to the current Where clause', () => {
       where.valueOf('key').is0(0);
 
-      expect(where.result).toEqual({ key: { operator: WhereOperator.is0, value: 0 } });
+      expect(where.result).toEqual({ key: [{ operator: WhereOperator.is0, value: 0 }] });
     });
   });
 
@@ -151,7 +164,7 @@ describe('Where', () => {
     it('should add an "is1" condition to the current Where clause', () => {
       where.valueOf('key').is1(1);
 
-      expect(where.result).toEqual({ key: { operator: WhereOperator.is1, value: 1 } });
+      expect(where.result).toEqual({ key: [{ operator: WhereOperator.is1, value: 1 }] });
     });
   });
 
@@ -160,7 +173,7 @@ describe('Where', () => {
       where.valueOf('key').isNull(null);
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isNull, value: null },
+        key: [{ operator: WhereOperator.isNull, value: null }],
       });
     });
   });
@@ -170,7 +183,7 @@ describe('Where', () => {
       where.valueOf('key').isNotNull('value');
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isNotNull, value: 'value' },
+        key: [{ operator: WhereOperator.isNotNull, value: 'value' }],
       });
     });
   });
@@ -180,7 +193,7 @@ describe('Where', () => {
       where.valueOf('key').isEmpty('');
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isEmpty, value: '' },
+        key: [{ operator: WhereOperator.isEmpty, value: '' }],
       });
     });
   });
@@ -190,7 +203,7 @@ describe('Where', () => {
       where.valueOf('key').isNotEmpty('value');
 
       expect(where.result).toEqual({
-        key: { operator: WhereOperator.isNotEmpty, value: 'value' },
+        key: [{ operator: WhereOperator.isNotEmpty, value: 'value' }],
       });
     });
   });

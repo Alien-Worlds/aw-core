@@ -1,4 +1,21 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 import { UnknownObject } from './types';
+
+/**
+ * Type that maps properties of T to Where<T>.
+ * @template T - Any type.
+ */
+type PropertyChecker<T> = {
+  [K in keyof T]: Where<T>;
+};
+
+/**
+ * Function to assert input is a PropertyChecker<T>.
+ * @param input - The object to assert.
+ * @template T - Any type.
+ * @throws {TypeError} If input is not a PropertyChecker<T>.
+ */
+function asPropertyChecker<T>(input: unknown): asserts input is PropertyChecker<T> {}
 
 /**
  * Represents the available operators for the Where clause.
@@ -42,13 +59,13 @@ export type WhereClause = { operator: WhereOperator; value: unknown };
  * @property {string} key - The key for the current WhereClause.
  * @property {WhereClause} value - The single WhereClause.
  */
-export type WhereChain = { [key: string]: WhereClause };
+export type WhereChain = { [key: string]: WhereClause[] };
 
 /**
  * Represents a class for constructing Where clauses.
  * @class
  */
-export class Where {
+export class Where<Type = UnknownObject> {
   /**
    * Creates a new Where instance with the provided raw object.
    * @static
@@ -57,6 +74,11 @@ export class Where {
    */
   public static is(raw: UnknownObject) {
     const where = new Where(raw);
+    return where;
+  }
+
+  public static bind<Type = UnknownObject>() {
+    const where = new Where<Type>();
     return where;
   }
 
@@ -80,14 +102,60 @@ export class Where {
     return { or: clauses };
   }
 
-  private currentKey: string;
+  /**
+   * The key for the current Where clause.
+   * @type {string|null}
+   */
+  private currentKey: string | null = null;
+  /**
+   * The Proxy object to get properties of the bound type.
+   * @type {PropertyChecker<Type>}
+   */
+  private proxyObject: PropertyChecker<Type>;
 
   /**
    * Constructs a new instance of the Where class.
    * @param {UnknownObject} [chain] - The raw object to initialize the Where instance.
    * @param {UnknownObject} [raw] - The raw object to initialize the Where instance.
    */
-  constructor(private raw: UnknownObject = null, private chain: WhereChain = {}) {}
+  constructor(private raw: UnknownObject = null, private chain: WhereChain = {}) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    this.proxyObject = new Proxy<any>(
+      {},
+      {
+        get: (_target, prop: string) => {
+          this.currentKey = prop;
+          return this;
+        },
+      }
+    );
+    asPropertyChecker<Type>(this.proxyObject);
+  }
+
+  /**
+   * Provides access to the keys of the bound type.
+   * @returns {PropertyChecker<Type>} The keys of the bound type.
+   */
+  public props(): PropertyChecker<Type> {
+    return this.proxyObject;
+  }
+
+  /**
+   * Adds the Where clause to the key.
+   *
+   * @param {string} key - The key for the current Where clause.
+   * @param {number} operator - The Where clause operator.
+   * @param {number} value - The value for the condition.
+   * @returns {Where} The current instance of the Where class.
+   */
+  private setClause(key: string, operator: number, value: unknown) {
+    if (!this.chain[key]) {
+      this.chain[key] = [];
+    }
+
+    this.chain[key].push({ operator, value });
+    return this;
+  }
 
   /**
    * Sets the key for the current Where clause.
@@ -116,12 +184,23 @@ export class Where {
   }
 
   /**
+   * Adds an 'isBetween' condition to the current Where clause.
+   * @param {unknown} value - The value for the 'isBetween' condition.
+   */
+  public isBetween(first: unknown, last: unknown) {
+    return this.setClause(this.currentKey, WhereOperator.isGte, first).setClause(
+      this.currentKey,
+      WhereOperator.isLte,
+      last
+    );
+  }
+
+  /**
    * Adds an 'isEq' condition to the current Where clause.
    * @param {unknown} value - The value for the 'isEq' condition.
    */
   public isEq(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isEq, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isEq, value);
   }
 
   /**
@@ -129,8 +208,7 @@ export class Where {
    * @param {unknown[]} value - The value for the 'isIn' condition.
    */
   public isIn(value: Array<unknown>) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isIn, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isIn, value);
   }
 
   /**
@@ -139,8 +217,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotEq(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isNotEq, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isNotEq, value);
   }
 
   /**
@@ -149,8 +226,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isLt(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isLt, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isLt, value);
   }
 
   /**
@@ -159,8 +235,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isLte(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isLte, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isLte, value);
   }
 
   /**
@@ -169,8 +244,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isGt(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isGt, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isGt, value);
   }
 
   /**
@@ -179,8 +253,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isGte(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isGte, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isGte, value);
   }
 
   /**
@@ -189,8 +262,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isInRange(value: Array<unknown>) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isInRange, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isInRange, value);
   }
 
   /**
@@ -199,8 +271,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotInRange(value: Array<unknown>) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isNotInRange, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isNotInRange, value);
   }
 
   /**
@@ -209,8 +280,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotIn(value: Array<unknown>) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isNotIn, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isNotIn, value);
   }
 
   /**
@@ -219,8 +289,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNoneOf(value: Array<unknown>) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isNoneOf, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isNoneOf, value);
   }
 
   /**
@@ -228,8 +297,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isTrue() {
-    this.chain[this.currentKey] = { operator: WhereOperator.isTrue, value: true };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isTrue, true);
   }
 
   /**
@@ -237,8 +305,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isFalse() {
-    this.chain[this.currentKey] = { operator: WhereOperator.isFalse, value: false };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isFalse, false);
   }
 
   /**
@@ -247,8 +314,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public is0(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.is0, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.is0, value);
   }
 
   /**
@@ -257,8 +323,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public is1(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.is1, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.is1, value);
   }
 
   /**
@@ -267,8 +332,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNull(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isNull, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isNull, value);
   }
 
   /**
@@ -277,8 +341,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotNull(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isNotNull, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isNotNull, value);
   }
 
   /**
@@ -287,8 +350,7 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isEmpty(value: unknown) {
-    this.chain[this.currentKey] = { operator: WhereOperator.isEmpty, value };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isEmpty, value);
   }
 
   /**
@@ -297,10 +359,8 @@ export class Where {
    * @returns {Where} The current instance of the Where class.
    */
   public isNotEmpty(value: unknown) {
-    this.chain[this.currentKey] = {
-      operator: WhereOperator.isNotEmpty,
-      value,
-    };
-    return this;
+    return this.setClause(this.currentKey, WhereOperator.isNotEmpty, value);
   }
+
+  // TODO: implement "and", "or"
 }
