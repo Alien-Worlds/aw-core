@@ -7,9 +7,9 @@ import { Query, UnknownObject } from '../types';
 export class QueryBuilder<QueryType = Query> {
   /**
    * The arguments for the query.
-   * @private
+   * @protected
    */
-  private args: UnknownObject = {};
+  protected args: UnknownObject = {};
 
   /**
    * Sets the arguments for the query.
