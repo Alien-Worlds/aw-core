@@ -1,15 +1,35 @@
-import { Query } from '../types';
+import { Query, UnknownObject } from '../types';
 
 /**
- * Represents an abstract QueryBuilder class.
- * @abstract
+ * A class representing a query builder.
+ * @template QueryType - The type of query.
  */
-export abstract class QueryBuilder {
+export class QueryBuilder<QueryType = Query> {
   /**
-   * Builds a query using the provided arguments.
-   * @param {...unknown[]} args - The arguments needed to build the query.
-   * @returns {Query} The built query.
-   * @abstract
+   * The arguments for the query.
+   * @private
    */
-  public abstract build(...args: unknown[]): Query;
+  private args: UnknownObject = {};
+
+  /**
+   * Sets the arguments for the query.
+   * @param {UnknownObject} args - The arguments for the query.
+   * @returns {QueryBuilder<QueryType>} - The updated query builder instance.
+   */
+  public with(args: UnknownObject): QueryBuilder<QueryType> {
+    Object.keys(args).forEach(key => {
+      this.args[key] = args[key];
+    });
+
+    return this;
+  }
+
+  /**
+   * Builds and returns the query.
+   * @throws {Error} - This method is not implemented.
+   * @returns {QueryType} - The built query.
+   */
+  public build(): QueryType {
+    throw new Error('Method not implemented.');
+  }
 }

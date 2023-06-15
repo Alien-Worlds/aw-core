@@ -37,6 +37,7 @@ describe('RepositoryImpl', () => {
     mockMapper = {
       toEntity: jest.fn(),
       fromEntity: jest.fn(),
+      getEntityKeyMapping: jest.fn(),
     };
     mockQueryBuilders = {
       buildAggregationQuery: jest.fn(),
@@ -79,8 +80,9 @@ describe('RepositoryImpl', () => {
 
     it('should call the build method when a custom builder is given', async () => {
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
 
       await (repository as any).aggregate(mockQueryBuilder);
       expect(mockQueryBuilder.build).toHaveBeenCalled();
@@ -89,8 +91,9 @@ describe('RepositoryImpl', () => {
     it('should return Result.withFailure on error', async () => {
       const mockError = new Error('Mocked error');
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
       mockDataSource.aggregate.mockRejectedValue(mockError);
 
       const result = await (repository as any).aggregate(mockQueryBuilder);
@@ -124,8 +127,9 @@ describe('RepositoryImpl', () => {
 
     it('should call the build method when a custom builder is given', async () => {
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
 
       await repository.update(mockQueryBuilder);
       expect(mockQueryBuilder.build).toHaveBeenCalled();
@@ -134,8 +138,9 @@ describe('RepositoryImpl', () => {
     it('should return Result.withFailure on error', async () => {
       const mockError = new Error('Mocked error');
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
       mockDataSource.update.mockRejectedValue(mockError);
 
       const result = await repository.update(mockQueryBuilder);
@@ -163,8 +168,9 @@ describe('RepositoryImpl', () => {
 
     it('should call the build method when a custom builder is given', async () => {
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
 
       await repository.remove(mockQueryBuilder);
       expect(mockQueryBuilder.build).toHaveBeenCalled();
@@ -173,8 +179,9 @@ describe('RepositoryImpl', () => {
     it('should return Result.withFailure on error', async () => {
       const mockError = new Error('Mocked error');
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
       mockDataSource.remove.mockRejectedValue(mockError);
 
       const result = await repository.remove(mockQueryBuilder);
@@ -203,8 +210,9 @@ describe('RepositoryImpl', () => {
 
     it('should call the build method when a custom builder is given', async () => {
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
 
       await repository.count(mockQueryBuilder);
       expect(mockQueryBuilder.build).toHaveBeenCalled();
@@ -213,8 +221,9 @@ describe('RepositoryImpl', () => {
     it('should return Result.withFailure on error', async () => {
       const mockError = new Error('Mocked error');
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
       mockDataSource.count.mockRejectedValue(mockError);
 
       const result = await repository.count(mockQueryBuilder);
@@ -241,8 +250,9 @@ describe('RepositoryImpl', () => {
 
     it('should call the build method when a custom builder is given', async () => {
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
 
       await repository.find(mockQueryBuilder);
       expect(mockQueryBuilder.build).toHaveBeenCalled();
@@ -251,8 +261,9 @@ describe('RepositoryImpl', () => {
     it('should return Result.withFailure on error', async () => {
       const mockError = new Error('Mocked error');
       const mockQueryBuilder = {
+        with: jest.fn(),
         build: jest.fn().mockReturnValue({ name: 'foo' }),
-      };
+      } as any;
       mockDataSource.find.mockRejectedValue(mockError);
 
       const result = await repository.find(mockQueryBuilder);

@@ -26,7 +26,6 @@ module.exports = {
     '!src/**/*.enums.ts',
     '!src/**/*.dtos.ts',
     '!src/**/*.types.ts',
-    '!src/**/worker.ts',
     '!src/**/repository.ts',
     '!src/**/collection.source.ts'
   ],
