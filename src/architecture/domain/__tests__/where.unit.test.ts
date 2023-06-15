@@ -19,13 +19,10 @@ describe('Where', () => {
 
   describe('isBetween', () => {
     it('should add an "isBetween" condition to the current Where clause', () => {
-      where.valueOf('key').isBetween(1,10);
+      where.valueOf('key').isBetween(1, 10);
 
       expect(where.result).toEqual({
-        key: [
-          { operator: WhereOperator.isGte, value: 1 },
-          { operator: WhereOperator.isLte, value: 10 },
-        ],
+        key: [{ operator: WhereOperator.isBetween, value: [1, 10] }],
       });
     });
   });
@@ -64,7 +61,9 @@ describe('Where', () => {
     it('should add an "isLt" condition to the current Where clause', () => {
       where.valueOf('key').isLt(10);
 
-      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isLt, value: 10 }] });
+      expect(where.result).toEqual({
+        key: [{ operator: WhereOperator.isLt, value: 10 }],
+      });
     });
   });
 
@@ -72,7 +71,9 @@ describe('Where', () => {
     it('should add an "isLte" condition to the current Where clause', () => {
       where.valueOf('key').isLte(10);
 
-      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isLte, value: 10 }] });
+      expect(where.result).toEqual({
+        key: [{ operator: WhereOperator.isLte, value: 10 }],
+      });
     });
   });
 
@@ -80,7 +81,9 @@ describe('Where', () => {
     it('should add an "isGt" condition to the current Where clause', () => {
       where.valueOf('key').isGt(10);
 
-      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isGt, value: 10 }] });
+      expect(where.result).toEqual({
+        key: [{ operator: WhereOperator.isGt, value: 10 }],
+      });
     });
   });
 
@@ -88,7 +91,9 @@ describe('Where', () => {
     it('should add an "isGte" condition to the current Where clause', () => {
       where.valueOf('key').isGte(10);
 
-      expect(where.result).toEqual({ key: [{ operator: WhereOperator.isGte, value: 10 }] });
+      expect(where.result).toEqual({
+        key: [{ operator: WhereOperator.isGte, value: 10 }],
+      });
     });
   });
 

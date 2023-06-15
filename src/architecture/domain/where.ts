@@ -189,11 +189,7 @@ export class Where<Type = UnknownObject> {
    * @param {unknown} value - The value for the 'isBetween' condition.
    */
   public isBetween(first: unknown, last: unknown) {
-    return this.setClause(this.currentKey, WhereOperator.isGte, first).setClause(
-      this.currentKey,
-      WhereOperator.isLte,
-      last
-    );
+    return this.setClause(this.currentKey, WhereOperator.isBetween, [first, last]);
   }
 
   /**
