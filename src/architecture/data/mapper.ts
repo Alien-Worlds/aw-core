@@ -1,38 +1,57 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { MissingKeyMappingsError } from '../domain/errors';
+
 /**
- * @abstract
  * Represents a mapper that converts between the EntityType and the DocumentType.
  * EntityType is the domain entity type used in the business logic layer.
  * DocumentType is the document type used in the database layer.
  */
-export abstract class Mapper<EntityType = unknown, DocumentType = unknown> {
+export class Mapper<EntityType = unknown, ModelType = unknown> {
+  protected readonly mappingFromEntity = new Map<string, PropertyMapping>();
   /**
    * Converts a document from the database layer to a domain entity.
    *
-   * @param {DocumentType} document The document from the database layer.
+   * @param {ModelType} model The document from the database layer.
    * @returns {EntityType} The domain entity.
-   *
-   * @abstract
    */
-  public abstract toEntity(document: DocumentType): EntityType;
+  public toEntity(model: ModelType): EntityType {
+    throw new Error('Method not implemented.');
+  }
 
   /**
    * Converts a domain entity from the business logic layer to a database document.
    *
    * @param {EntityType} entity The domain entity from the business logic layer.
-   * @returns {DocumentType} The document for the database layer.
-   *
-   * @abstract
+   * @returns {ModelType} The document for the database layer.
    */
-  public abstract fromEntity(entity: EntityType): DocumentType;
+  public fromEntity(entity: EntityType): ModelType {
+    const missingMappings: string[] = [];
+    const model = {};
+
+    Object.keys(entity).forEach(key => {
+      const mapping = this.mappingFromEntity.get(key);
+      if (mapping) {
+        model[mapping.key] = mapping.mapper(entity[key]);
+      } else {
+        missingMappings.push(key);
+      }
+    });
+    if (missingMappings.length > 0) {
+      throw new MissingKeyMappingsError(missingMappings);
+    }
+    return model as ModelType;
+  }
 
   /**
    * Gets entity key mapping based on the provided key.
    *
-   * @abstract
+   *
    * @param {string} key - The key for which to get the entity key mapping.
    * @returns {PropertyMapping} The mapping associated with the provided key.
    */
-  public abstract getEntityKeyMapping(key: string): PropertyMapping;
+  public getEntityKeyMapping(key: string): PropertyMapping {
+    return this.mappingFromEntity.get(key);
+  }
 }
 
 /**

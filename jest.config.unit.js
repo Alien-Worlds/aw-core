@@ -14,7 +14,6 @@ module.exports = {
     '!**/entity.ts',
     '!**/query-model.ts',
     '!**/smart-contract-service.ts',
-    '!**/mapper.ts',
     '!**/use-case.ts',
     '!**/*.repository.ts',
     '!**/*.fixture.ts',
