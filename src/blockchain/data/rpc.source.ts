@@ -3,7 +3,7 @@ import {
   ContractStats,
   GetTableRowsOptions,
   GetTableRowsResult,
-} from '../../domain/types';
+} from '../domain/types';
 
 /**
  * Abstract class representing an RPC source.

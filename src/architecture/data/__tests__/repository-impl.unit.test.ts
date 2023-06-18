@@ -38,7 +38,7 @@ describe('RepositoryImpl', () => {
       toEntity: jest.fn(),
       fromEntity: jest.fn(),
       getEntityKeyMapping: jest.fn(),
-    };
+    } as any;
     mockQueryBuilders = {
       buildAggregationQuery: jest.fn(),
       buildFindQuery: jest.fn(),
