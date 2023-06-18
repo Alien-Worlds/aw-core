@@ -187,25 +187,26 @@ export type RefundRequest = {
  * Contract statistics object representing the result of retrieving account information.
  */
 export type ContractStats = {
-  account_name: string;
-  head_block_num: number;
-  head_block_time: string;
-  privileged: boolean;
-  last_code_update: string;
-  created: string;
+  account_name?: string;
+  first_block_num?: number;
+  head_block_num?: number;
+  head_block_time?: string;
+  privileged?: boolean;
+  last_code_update?: string;
+  created?: string;
   core_liquid_balance?: string;
-  ram_quota: number;
-  net_weight: number;
-  cpu_weight: number;
-  net_limit: AccountResourceInfo;
-  cpu_limit: AccountResourceInfo;
-  ram_usage: number;
-  permissions: Permission[];
-  total_resources: ResourceOverview | null;
-  self_delegated_bandwidth: ResourceDelegation | null;
-  refund_request: RefundRequest | null;
-  voter_info: unknown;
-  rex_info: unknown;
+  ram_quota?: number;
+  net_weight?: number;
+  cpu_weight?: number;
+  net_limit?: AccountResourceInfo;
+  cpu_limit?: AccountResourceInfo;
+  ram_usage?: number;
+  permissions?: Permission[];
+  total_resources?: ResourceOverview | null;
+  self_delegated_bandwidth?: ResourceDelegation | null;
+  refund_request?: RefundRequest | null;
+  voter_info?: unknown;
+  rex_info?: unknown;
 } & UnknownObject;
 
 export type BlockchainInfo = {
