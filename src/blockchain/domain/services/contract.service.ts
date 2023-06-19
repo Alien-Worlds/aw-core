@@ -5,9 +5,9 @@ import { ContractStats } from '../types';
  * An abstract class representing a Smart Contract Service.
  * @export
  * @abstract
- * @class SmartContractService
+ * @class ContractService
  */
-export abstract class SmartContractService {
+export abstract class ContractService {
   /**
    * Retrieves the statistics of the smart contract.
    * @abstract
