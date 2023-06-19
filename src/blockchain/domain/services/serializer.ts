@@ -32,6 +32,40 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
   ): Type;
 
   /**
+   * Deserializes the action data for a specific account and action.
+   *
+   * @param {string} contract - The contract associated with the action.
+   * @param {string} action - The action name.
+   * @param {Uint8Array} data - The raw data to be deserialized.
+   * @param {string} value - The hexadecimal representation of the data.
+   * @returns {Type} The deserialized action data.
+   */
+  public abstract deserializeAction(
+    contract: string,
+    action: string,
+    data: Uint8Array,
+    value: string,
+    ...args: unknown[]
+  ): Type;
+
+  /**
+   * Deserializes the table data for a specific contract and table.
+   *
+   * @param {string} contract - The contract associated with the table.
+   * @param {string} table - The table name.
+   * @param {Uint8Array} data - The raw data to be deserialized.
+   * @param {string} value - The hexadecimal representation of the data.
+   * @returns {Type} The deserialized table data.
+   */
+  public abstract deserializeTable(
+    contract: string,
+    table: string,
+    data: Uint8Array,
+    value: string,
+    ...args: unknown[]
+  ): Type;
+
+  /**
    * Converts given hex string to Uint8Array.
    *
    * @abstract
