@@ -1,5 +1,6 @@
 import { Mapper, PropertyMapping } from '../mapper';
 import { MissingKeyMappingsError } from '../../domain/errors';
+import { MapperImpl } from '../mapper-impl';
 
 describe('Mapper', () => {
   const mockMapping: PropertyMapping = {
@@ -13,7 +14,7 @@ describe('Mapper', () => {
   let mapper: Mapper<MockEntity, MockModel>;
 
   beforeEach(() => {
-    mapper = new Mapper<MockEntity, MockModel>();
+    mapper = new MapperImpl<MockEntity, MockModel>();
     mapper['mappingFromEntity'].set('test', mockMapping);
   });
 

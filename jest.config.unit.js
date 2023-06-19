@@ -23,9 +23,15 @@ module.exports = {
     '!**/__tests__/**',
     '!**/__mocks__/**',
     '!src/**/*.enums.ts',
+    '!src/**/enums.ts',
     '!src/**/*.dtos.ts',
     '!src/**/*.types.ts',
     '!src/**/repository.ts',
-    '!src/**/collection.source.ts'
+    '!src/**/collection.source.ts',
+    '!src/**/rpc.source.ts',
+    '!src/**/blockchain-service.ts',
+    '!src/**/mapper.ts',
+    '!src/**/data.source.ts',
+    '!src/**/query-builders.ts'
   ],
 };

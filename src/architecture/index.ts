@@ -12,5 +12,6 @@ export * from './domain/where';
 export * from './data/data.source';
 export * from './data/errors';
 export * from './data/mapper';
+export * from './data/mapper-impl';
 export * from './data/query-builders';
 export * from './data/repository-impl';

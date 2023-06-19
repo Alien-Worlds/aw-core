@@ -10,7 +10,8 @@ export abstract class SmartContractService {
   /**
    * Retrieves the statistics of the smart contract.
    * @abstract
+   * @param {string} contract - Contract name. 
    * @returns {Promise<ContractStats>} A promise that resolves with the statistics of the smart contract.
    */
-  public abstract getStats(): Promise<ContractStats>;
+  public abstract getStats(contract?: string): Promise<ContractStats>;
 }
