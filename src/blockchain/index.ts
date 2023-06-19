@@ -6,6 +6,6 @@ export * from './domain/entities/contract-encoded-abi';
 export * from './domain/errors/smart-contract-data-not-found.error';
 export * from './domain/services/abi.service';
 export * from './domain/services/blockchain.service';
-export * from './domain/services/contract.service';
+export * from './domain/services/smart-contract.service';
 export * from './domain/services/serializer';
 export * from './domain/types';
