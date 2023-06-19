@@ -24,12 +24,12 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
    * @param {...unknown[]} args - Additional arguments for deserialization if needed.
    * @returns {Type} The deserialized value.
    */
-  public abstract deserialize(
+  public abstract deserialize<T = Type>(
     value: Uint8Array,
     type?: string,
     types?: Map<string, unknown>,
     ...args: unknown[]
-  ): Type;
+  ): T;
 
   /**
    * Deserializes the action data for a specific account and action.
@@ -40,13 +40,13 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
    * @param {string} value - The hexadecimal representation of the data.
    * @returns {Type} The deserialized action data.
    */
-  public abstract deserializeAction(
+  public abstract deserializeAction<T = Type>(
     contract: string,
     action: string,
     data: Uint8Array,
     value: string,
     ...args: unknown[]
-  ): Type;
+  ): T;
 
   /**
    * Deserializes the table data for a specific contract and table.
@@ -57,13 +57,13 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
    * @param {string} value - The hexadecimal representation of the data.
    * @returns {Type} The deserialized table data.
    */
-  public abstract deserializeTable(
+  public abstract deserializeTable<T = Type>(
     contract: string,
     table: string,
     data: Uint8Array,
     value: string,
     ...args: unknown[]
-  ): Type;
+  ): T;
 
   /**
    * Converts given hex string to Uint8Array.
