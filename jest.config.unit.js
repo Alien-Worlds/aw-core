@@ -32,6 +32,7 @@ module.exports = {
     '!src/**/blockchain-service.ts',
     '!src/**/mapper.ts',
     '!src/**/data.source.ts',
-    '!src/**/query-builders.ts'
+    '!src/**/query-builders.ts',
+    '!src/**/serializer.ts'
   ],
 };
