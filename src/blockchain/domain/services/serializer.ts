@@ -1,5 +1,14 @@
 import { UnknownObject } from '../../../architecture';
 
+export type ContractTable<DataType = unknown> = {
+  code: string;
+  scope: string;
+  table: string;
+  primaryKey: string;
+  payer: string;
+  data: DataType;
+};
+
 /**
  * Abstract class for serialization and deserialization.
  * @template Type - The type of the serialized/deserialized value.
@@ -55,31 +64,27 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
   ): T;
 
   /**
-   * Deserializes the table data for a specific contract and table.
+   * Deserializes the table.
    *
-   * @param {string} contract - The contract associated with the table.
-   * @param {string} table - The table name.
    * @param {Uint8Array} data - The raw data to be deserialized.
-   * @returns {Type} The deserialized table data.
+   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
+   * @returns {ContractTable<Type>} The deserialized table data.
    */
   public abstract deserializeTable<T = Type>(
-    contract: string,
-    table: string,
     data: Uint8Array,
+    abi: string | UnknownObject,
     ...args: unknown[]
-  ): T;
+  ): ContractTable<T>;
 
   /**
-   * Deserializes a table delta for a specific contract and table.
+   * Deserializes a table delta for a specific table.
    *
-   * @param {string} contract - The contract associated with the table delta.
    * @param {string} table - The table name.
    * @param {Uint8Array} data - The raw data to be deserialized.
    * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
    * @returns {Type} The deserialized table delta.
    */
-  public abstract deserializeTableDelta<T = Type>(
-    contract: string,
+  public abstract deserializeTableDelta<T = UnknownObject>(
     table: string,
     data: Uint8Array,
     abi: string | UnknownObject,
@@ -87,16 +92,17 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
   ): T;
 
   /**
-   * Deserializes a transaction for a specific contract and table.
+   * Deserializes a transaction for a specific contract.
    *
    * @param {string} contract - The contract associated with the transaction.
    * @param {Uint8Array} data - The raw data to be deserialized.
-   * @param {string} value - The hexadecimal representation of the data.
+   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
    * @returns {Type} The deserialized transaction.
    */
   public abstract deserializeTransaction<T = Type>(
     contract: string,
     data: Uint8Array,
+    abi: string | UnknownObject,
     ...args: unknown[]
   ): T;
 
