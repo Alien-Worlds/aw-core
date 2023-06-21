@@ -74,7 +74,7 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
     data: Uint8Array,
     abi?: string | UnknownObject,
     ...args: unknown[]
-  ): ContractTable<T>;
+  ): ContractTable<T | Uint8Array>;
 
   /**
    * Deserializes a table delta for a specific table.
@@ -102,7 +102,7 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
   public abstract deserializeTransaction<T = Type>(
     contract: string,
     data: Uint8Array,
-    abi: string | UnknownObject,
+    abi?: string | UnknownObject,
     ...args: unknown[]
   ): T;
 
