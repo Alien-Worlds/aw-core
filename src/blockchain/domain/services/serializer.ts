@@ -72,7 +72,7 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
    */
   public abstract deserializeTable<T = Type>(
     data: Uint8Array,
-    abi: string | UnknownObject,
+    abi?: string | UnknownObject,
     ...args: unknown[]
   ): ContractTable<T>;
 
