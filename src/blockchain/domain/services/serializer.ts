@@ -1,3 +1,9 @@
+import { UnknownObject } from '../../../architecture';
+
+/**
+ * Abstract class for serialization and deserialization.
+ * @template Type - The type of the serialized/deserialized value.
+ */
 export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
   /**
    * Serializes a value to Uint8Array based on the given type.
@@ -37,14 +43,14 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
    * @param {string} contract - The contract associated with the action.
    * @param {string} action - The action name.
    * @param {Uint8Array} data - The raw data to be deserialized.
-   * @param {string} value - The hexadecimal representation of the data.
+   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
    * @returns {Type} The deserialized action data.
    */
-  public abstract deserializeAction<T = Type>(
+  public abstract deserializeActionData<T = Type>(
     contract: string,
     action: string,
     data: Uint8Array,
-    value: string,
+    abi: string | UnknownObject,
     ...args: unknown[]
   ): T;
 
@@ -54,23 +60,61 @@ export abstract class Serializer<Type = [string, { [key: string]: unknown }]> {
    * @param {string} contract - The contract associated with the table.
    * @param {string} table - The table name.
    * @param {Uint8Array} data - The raw data to be deserialized.
-   * @param {string} value - The hexadecimal representation of the data.
    * @returns {Type} The deserialized table data.
    */
   public abstract deserializeTable<T = Type>(
     contract: string,
     table: string,
     data: Uint8Array,
-    value: string,
     ...args: unknown[]
   ): T;
 
   /**
-   * Converts given hex string to Uint8Array.
+   * Deserializes a table delta for a specific contract and table.
+   *
+   * @param {string} contract - The contract associated with the table delta.
+   * @param {string} table - The table name.
+   * @param {Uint8Array} data - The raw data to be deserialized.
+   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
+   * @returns {Type} The deserialized table delta.
+   */
+  public abstract deserializeTableDelta<T = Type>(
+    contract: string,
+    table: string,
+    data: Uint8Array,
+    abi: string | UnknownObject,
+    ...args: unknown[]
+  ): T;
+
+  /**
+   * Deserializes a transaction for a specific contract and table.
+   *
+   * @param {string} contract - The contract associated with the transaction.
+   * @param {Uint8Array} data - The raw data to be deserialized.
+   * @param {string} value - The hexadecimal representation of the data.
+   * @returns {Type} The deserialized transaction.
+   */
+  public abstract deserializeTransaction<T = Type>(
+    contract: string,
+    data: Uint8Array,
+    ...args: unknown[]
+  ): T;
+
+  /**
+   * Converts a hexadecimal string to Uint8Array.
    *
    * @abstract
-   * @param {string} value - The value to be serialized.
-   * @returns {Uint8Array} The serialized value as Uint8Array.
+   * @param {string} value - The hexadecimal value to be converted.
+   * @returns {Uint8Array} The converted value as Uint8Array.
    */
   public abstract hexToUint8Array(value: string): Uint8Array;
+
+  /**
+   * Converts a Uint8Array to a hexadecimal string.
+   *
+   * @abstract
+   * @param {Uint8Array} value - The Uint8Array value to be converted.
+   * @returns {string} The converted value as a hexadecimal string.
+   */
+  public abstract uint8ArrayToHex(value: Uint8Array): string;
 }

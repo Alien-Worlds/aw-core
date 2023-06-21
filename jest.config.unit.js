@@ -31,6 +31,7 @@ module.exports = {
     '!**/contract.service.ts',
     '!src/**/abi.service.ts',
     '!src/**/blockchain.service.ts',
+    '!src/**/smart-contract.service.ts',
     '!src/**/mapper.ts',
     '!src/**/data.source.ts',
     '!src/**/query-builders.ts',
