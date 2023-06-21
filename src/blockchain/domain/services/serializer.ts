@@ -52,7 +52,7 @@ export abstract class Serializer {
    * @param {string} contract - The contract associated with the action.
    * @param {string} action - The action name.
    * @param {Uint8Array} data - The raw data to be deserialized.
-   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
+   * @param {string | UnknownObject} abi - ABI in the form of a hexadecimal string or as an object. If the ABI is not given then any internal Uint8Array will not be parsed.
    * @returns {ReturnType} The deserialized action data.
    */
   public abstract deserializeActionData<ReturnType = UnknownObject>(
@@ -64,14 +64,14 @@ export abstract class Serializer {
   ): ReturnType;
 
   /**
-   * Deserializes the table.
+   * Deserializes the table row.
    *
-   * @param {Uint8Array} data - The raw data to be deserialized.
-   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
+   * @param {Uint8Array} row - The raw row to be deserialized.
+   * @param {string | UnknownObject} abi - ABI in the form of a hexadecimal string or as an object. If the ABI is not given then any internal Uint8Array will not be parsed.
    * @returns {ContractTable<DataType>} The deserialized table data.
    */
-  public abstract deserializeTable<DataType = UnknownObject>(
-    data: Uint8Array,
+  public abstract deserializeTableRow<DataType = UnknownObject>(
+    row: Uint8Array,
     abi?: string | UnknownObject,
     ...args: unknown[]
   ): ContractTable<DataType | Uint8Array>;
@@ -81,10 +81,10 @@ export abstract class Serializer {
    *
    * @param {string} table - The table name.
    * @param {Uint8Array} data - The raw data to be deserialized.
-   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
+   * @param {string | UnknownObject} abi - ABI in the form of a hexadecimal string or as an object. If the ABI is not given then any internal Uint8Array will not be parsed.
    * @returns {ReturnType} The deserialized table delta.
    */
-  public abstract deserializeTableDelta<ReturnType = UnknownObject>(
+  public abstract deserializeTableRowData<ReturnType = UnknownObject>(
     table: string,
     data: Uint8Array,
     abi: string | UnknownObject,
@@ -96,7 +96,7 @@ export abstract class Serializer {
    *
    * @param {string} contract - The contract associated with the transaction.
    * @param {Uint8Array} data - The raw data to be deserialized.
-   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
+   * @param {string | UnknownObject} abi - ABI in the form of a hexadecimal string or as an object. If the ABI is not given then any internal Uint8Array will not be parsed.
    * @returns {ReturnType} The deserialized transaction.
    */
   public abstract deserializeTransaction<ReturnType = UnknownObject>(
@@ -110,7 +110,7 @@ export abstract class Serializer {
    * Deserializes a block.
    *
    * @param {DataType} data - The raw data to be deserialized. Default Uint8Array.
-   * @param {string | UnknownObject} abi - The hexadecimal representation of the abi or raw object.
+   * @param {string | UnknownObject} abi - ABI in the form of a hexadecimal string or as an object. If the ABI is not given then any internal Uint8Array will not be parsed.
    * @returns {ReturnType} The deserialized block.
    */
   public abstract deserializeBlock<ReturnType = UnknownObject, DataType = Uint8Array>(
