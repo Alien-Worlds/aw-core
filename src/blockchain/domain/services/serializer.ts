@@ -1,10 +1,10 @@
 import { UnknownObject } from '../../../architecture';
 
-export type ContractTable<DataType = unknown> = {
+export type TableRow<DataType = unknown> = {
   code: string;
   scope: string;
   table: string;
-  primaryKey: string;
+  primary_key: string;
   payer: string;
   data: DataType;
 };
@@ -74,7 +74,7 @@ export abstract class Serializer {
     row: Uint8Array,
     abi?: string | UnknownObject,
     ...args: unknown[]
-  ): ContractTable<DataType | Uint8Array>;
+  ): TableRow<DataType | Uint8Array>;
 
   /**
    * Deserializes a table delta for a specific table.
