@@ -15,6 +15,22 @@ export type TableRow<DataType = unknown> = {
  */
 export abstract class Serializer {
   /**
+   * Method to deserialize ABI from hexadecimal representation.
+   *
+   * @param {string} hex - The hexadecimal representation of the ABI.
+   * @returns {AbiType} The deserialized ABI.
+   */
+  public abstract getAbiFromHex<AbiType>(hex: string): AbiType;
+
+  /**
+   * Method to get types from provided ABI.
+   *
+   * @param {Abi} abi
+   * @returns {Map<string, Type>}
+   */
+  public abstract getTypesFromAbi<Type>(abi: UnknownObject): Map<string, Type>;
+
+  /**
    * Serializes a value to Uint8Array based on the given type.
    * @abstract
    * @param {unknown} value - The value to be serialized.
