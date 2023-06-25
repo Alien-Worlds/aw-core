@@ -3,7 +3,7 @@ import { log, wait } from '../common.utils';
 describe('wait', () => {
   it('should wait for the specified amount of time', async () => {
     const startTime = Date.now();
-    const waitTime = 1000; // milliseconds
+    const waitTime = 1000;
 
     await wait(waitTime);
 

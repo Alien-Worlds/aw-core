@@ -2,7 +2,6 @@ import { ConfigVars } from '../config-vars';
 
 describe('ConfigVars', () => {
   beforeEach(() => {
-    // Mock the .env file values or process.env values for testing
     process.env.TEST_STRING = 'test string';
     process.env.TEST_NUMBER = '42';
     process.env.TEST_BOOLEAN = 'true';
@@ -12,7 +11,6 @@ describe('ConfigVars', () => {
   });
 
   afterEach(() => {
-    // Clean up the mocked values
     delete process.env.TEST_STRING;
     delete process.env.TEST_NUMBER;
     delete process.env.TEST_BOOLEAN;

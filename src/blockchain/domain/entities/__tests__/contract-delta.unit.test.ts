@@ -4,7 +4,6 @@ import { ContractDelta } from '../contract-delta';
 import { parseToBigInt } from '../../../../utils';
 import { ContractDeltaModel } from '../../types';
 
-// Mock crypto.createHash
 jest.mock('crypto', () => ({
   createHash: jest.fn().mockReturnThis(),
   update: jest.fn().mockReturnThis(),
@@ -14,7 +13,6 @@ jest.mock('crypto', () => ({
 describe('ContractDelta', () => {
   describe('create', () => {
     it('should create a ContractDelta instance with the provided properties and delta', () => {
-      // Mocked data
       const properties = {
         id: 'deltaId',
         blockNumber: '123',
@@ -29,10 +27,8 @@ describe('ContractDelta', () => {
       const deltaData = { foo: 'bar' };
       const delta = { foo: 'bar', toJSON: () => deltaData } as unknown as Entity;
 
-      // Call create method
       const contractDelta = ContractDelta.create(properties, delta);
 
-      // Verify the ContractDelta instance
       expect(contractDelta).toBeInstanceOf(ContractDelta);
       expect(contractDelta.id).toBe(properties.id);
       expect(contractDelta.blockNumber).toBe(parseToBigInt(properties.blockNumber));
@@ -50,7 +46,6 @@ describe('ContractDelta', () => {
 
   describe('toJSON', () => {
     it('should return the JSON representation of the ContractDelta', () => {
-      // Create a ContractDelta instance
       const properties = {
         id: 'deltaId',
         blockNumber: '123',
@@ -78,10 +73,8 @@ describe('ContractDelta', () => {
         properties.blockTimestamp
       );
 
-      // Call toJSON method
       const json = contractDelta.toJSON();
 
-      // Verify the JSON representation
       expect(json).toEqual({
         id: properties.id,
         block_timestamp: properties.blockTimestamp.toISOString(),

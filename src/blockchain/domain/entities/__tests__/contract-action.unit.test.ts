@@ -11,7 +11,6 @@ jest.mock('crypto', () => ({
 describe('ContractAction', () => {
   describe('create', () => {
     it('should create a ContractAction instance with the provided properties and action', () => {
-      // Mocked data
       const properties = {
         id: 'actionId',
         blockTimestamp: new Date(),
@@ -25,10 +24,8 @@ describe('ContractAction', () => {
       } as ContractActionModel;
       const actionData = { foo: 'bar', toJSON: () => ({ foo: 'bar' }) };
 
-      // Call create method
       const contractAction = ContractAction.create(properties, actionData);
 
-      // Verify the ContractAction instance
       expect(contractAction).toBeInstanceOf(ContractAction);
       expect(contractAction.id).toBe(properties.id);
       expect(contractAction.blockTimestamp).toBe(properties.blockTimestamp);
@@ -44,7 +41,6 @@ describe('ContractAction', () => {
 
   describe('toJSON', () => {
     it('should return the JSON representation of the ContractAction', () => {
-      // Create a ContractAction instance
       const properties = {
         id: 'actionId',
         blockTimestamp: new Date(),
@@ -70,10 +66,8 @@ describe('ContractAction', () => {
         'mockedHash'
       );
 
-      // Call toJSON method
       const json = contractAction.toJSON();
 
-      // Verify the JSON representation
       expect(json).toEqual({
         id: properties.id,
         block_timestamp: properties.blockTimestamp.toISOString(),

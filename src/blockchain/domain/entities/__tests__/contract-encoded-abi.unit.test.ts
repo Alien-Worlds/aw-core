@@ -7,7 +7,6 @@ describe('ContractEncodedAbi', () => {
   const hex = '0xabcdef';
 
   beforeEach(() => {
-    // Reset mocks
     jest.resetAllMocks();
   });
 
@@ -19,8 +18,6 @@ describe('ContractEncodedAbi', () => {
       expect(result.contract).toBe(contract);
       expect(result.hex).toBe(hex);
     });
-
-    // Add more test cases for different scenarios
   });
 
   describe('constructor', () => {
@@ -31,8 +28,6 @@ describe('ContractEncodedAbi', () => {
       expect(result.contract).toBe(contract);
       expect(result.hex).toBe(hex);
     });
-
-    // Add more test cases for different scenarios
   });
 
   describe('toJson', () => {
@@ -48,7 +43,5 @@ describe('ContractEncodedAbi', () => {
 
       expect(result).toEqual(expectedJson);
     });
-
-    // Add more test cases for different scenarios
   });
 });

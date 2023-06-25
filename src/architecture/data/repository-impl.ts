@@ -91,9 +91,11 @@ export class RepositoryImpl<EntityType, DocumentType>
     try {
       let query: Query;
 
-      if (paramsOrBuilder instanceof UpdateParams<Partial<EntityType>>) {
+      if (paramsOrBuilder instanceof UpdateParams) {
         const { updates, where, methods } = paramsOrBuilder;
-        const documents = updates.map(this.mapper.fromEntity);
+        const documents = updates.map(update =>
+          this.mapper.fromEntity(update as EntityType)
+        );
 
         query = this.queryBuilders.buildUpdateQuery(documents, where, methods);
       } else {
@@ -117,9 +119,9 @@ export class RepositoryImpl<EntityType, DocumentType>
    */
   public async add(entities: EntityType[]): Promise<Result<EntityType[], Error>> {
     try {
-      const documents = entities.map(this.mapper.fromEntity);
+      const documents = entities.map(entity => this.mapper.fromEntity(entity));
       const inserted = await this.source.insert(documents);
-      const newEntities = inserted.map(this.mapper.toEntity);
+      const newEntities = inserted.map(document => this.mapper.toEntity(document));
 
       return Result.withContent(newEntities);
     } catch (error) {
