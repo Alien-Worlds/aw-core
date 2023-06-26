@@ -23,6 +23,14 @@ export abstract class Serializer {
   public abstract getAbiFromHex<AbiType>(hex: string): AbiType;
 
   /**
+   * Method to deserialize ABI from hexadecimal representation.
+   *
+   * @param {AbiType} abi - The ABI object.
+   * @returns {string} The ABI hex string.
+   */
+  public abstract getHexFromAbi<AbiType>(abi: AbiType): string;
+
+  /**
    * Method to get types from provided ABI.
    *
    * @param {Abi} abi
