@@ -171,7 +171,7 @@ export class RepositoryImpl<EntityType, DocumentType>
 
       if (paramsOrBuilder instanceof CountParams) {
         query = this.queryBuilders.buildCountQuery(paramsOrBuilder);
-      } else if (paramsOrBuilder.build) {
+      } else if (paramsOrBuilder?.build) {
         query = paramsOrBuilder.build();
       } else {
         query = {};
@@ -199,7 +199,7 @@ export class RepositoryImpl<EntityType, DocumentType>
       let query: Query;
       if (paramsOrBuilder instanceof FindParams) {
         query = this.queryBuilders.buildFindQuery(paramsOrBuilder);
-      } else if (paramsOrBuilder.build) {
+      } else if (paramsOrBuilder?.build) {
         query = paramsOrBuilder.build();
       } else {
         query = {};
