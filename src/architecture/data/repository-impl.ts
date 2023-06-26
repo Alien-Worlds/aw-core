@@ -171,8 +171,10 @@ export class RepositoryImpl<EntityType, DocumentType>
 
       if (paramsOrBuilder instanceof CountParams) {
         query = this.queryBuilders.buildCountQuery(paramsOrBuilder);
+      } else if (paramsOrBuilder.build) {
+        query = paramsOrBuilder.build();
       } else {
-        query = paramsOrBuilder?.build();
+        query = {};
       }
 
       const count = await this.source.count(query);
@@ -197,8 +199,10 @@ export class RepositoryImpl<EntityType, DocumentType>
       let query: Query;
       if (paramsOrBuilder instanceof FindParams) {
         query = this.queryBuilders.buildFindQuery(paramsOrBuilder);
-      } else {
+      } else if (paramsOrBuilder.build) {
         query = paramsOrBuilder.build();
+      } else {
+        query = {};
       }
 
       const documents = await this.source.find(query);
