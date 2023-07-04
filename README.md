@@ -26,7 +26,7 @@ Inversion of Control (IoC) is implemented using Inversify, a powerful and lightw
 
 #### Helpful links:
 
-- [How to use IoC?](www.google.com)
+- [About IoC](./tutorials/about-ioc.md)
 
 
 ## API
@@ -67,7 +67,7 @@ export class ListPlanetsRoute extends GetRoute {
 ```
 
 #### Helpful links:
- - [How to create a new API?](www.google.com)
+ - [How to create a new API?](./tutorials/how-to-write-api.md)
 
 ## Architecture
 
@@ -80,8 +80,26 @@ The clean architecture paradigm also promotes separation of concerns by dividing
 The data layer contains base classes and types for data layer components such as:
 
 - **DataSource**: Represents a general interface for the data sources in the application.
-- **Mapper**: Converts between the EntityType and the DocumentType.
+    - `find(query?: Query)`
+    - `count(query?: Query)`
+    - `aggregate(query: Query)`
+    - `update(query: Query)`
+    - `insert(query: Query)`
+    - `remove(query: Query)`
+    - `startTransaction(options?: UnknownObject)`
+    - `commitTransaction()`
+    - `rollbackTransaction()`
+- **Mapper**: The interface of a class whose instance changes the entity to the model of a specific database and vice versa.
+    - `toEntity(model: ModelType)`
+    - `fromEntity(entity: EntityType)`
+    - `getEntityKeyMapping(key: string)`
+- **MapperImpl**: Basic mapper implementation that can be inherited and extended. It contains a basic fromEntity mechanism for extracting mapping functions assigned to entity parameters.
 - **QueryBuilders**: Collection of query builders for different types of operations (find, count, update, remove, and aggregate).
+    - `buildFindQuery(params: FindParams)`
+    - `buildCountQuery(params: CountParams)`
+    - `buildUpdateQuery(updates: UpdateType[], where: Where[], methods: UpdateMethod[])`
+    - `buildRemoveQuery(params: RemoveParams)`
+    - `buildAggregationQuery(params: AggregationParams)`
 - **RepositoryImpl**: A generic repository for managing database interactions.
 
 ### Domain Layer
@@ -89,16 +107,30 @@ The data layer contains base classes and types for data layer components such as
 The domain layer consists of basic components and types such as:
 
 - **Entity**: Core representation of an object in the system.
+    - `static create(...args: unknown[])`
+    - `static getDefault()`
+    - `toJSON()`
 - **QueryBuilder and QueryParams**: Abstract QueryBuilder class and parameters for various queries (FindParams, CountParams, AggregationParams, RemoveParams, UpdateParams).
 - **Failure**: Represents a failure as a result of an error in executing a use case or repository operation.
+    - `static fromError<T = Error>(error: T, throwable = false, reportable = false)`
+    - `static withMessage(message: string, throwable = false, reportable = false)`
 - **ReadOnlyRepository and Repository**: Abstract classes defining read-only and mutable repository methods.
+    - `count(paramsOrBuilder?: CountParams | QueryBuilder)`
+    - `find(paramsOrBuilder?: FindParams | QueryBuilder)`
+    - `update(paramsOrBuilder: UpdateParams | QueryBuilder)`
+    - `add(entities: EntityType[])`
+    - `remove(paramsOrBuilder: RemoveParams | QueryBuilder)`
 - **Result**: Represents the result of executing a use case or repository operation. It can return either a Failure object or the typed content.
+    - `static withContent<ContentType>(content: ContentType)`
+    - `static withoutContent()`
+    - `static withFailure<ErrorType>(failure: Failure<ErrorType>)`
 - **UseCase**: Abstract UseCase class for encapsulating business logic.
+    - `execute(...rest: unknown[])`
 - **Where**: A class used to build 'Where' clauses. Used to build database queries within query builders.
 
 #### Helpful links:
 
-- [Why clean Architecture?](www.google.com)
+- [Why clean Architecture?](./tutorials/why-clean-architecture.md)
 
 ## Blockchain
 
@@ -107,18 +139,40 @@ The blockchain component is divided into data and domain layers. It contains the
 ### Data Layer
 
 - **RpcSource**: Abstraction for the RPC connection. It contains methods to retrieve table rows and contract stats.
-- **EosRpcSource**: Source for making RPC requests to an EOS blockchain.
-- **SmartContractServiceImpl**: Implements the SmartContractService interface, providing implementation for interacting with smart contracts.
-
+    - `getTableRows<RowType = unknown>(options: GetTableRowsOptions)`
+    - `getContractStats(account: string)`
+    - `getInfo()`
+    - `getHeadBlockNumber()`
+    - `getLastIrreversibleBlockNumber()`
 ### Domain Layer
 
-- Entities like **Action**, **ContractAction**, **ContractDelta**, and **ContractUnknownDataEntity** to represent different blockchain transaction aspects.
-- **SmartContractService** interface with one method getStats. The concrete service should implement methods to retrieve desired table rows of the contract.
+- Entities like **ContractAction**, **ContractDelta**, **ContractEncodedAbi** and **ContractUnknownDataEntity** to represent different blockchain transaction aspects.
+- **SmartContractService**: interface with one method getStats. The concrete service should implement methods to retrieve desired table rows of the contract.
+- **BlockchainService**: An abstraction of the service that is used to download blockchain data and statistics. 
+    - `getInfo()`
+    - `getHeadBlockNumber()`
+    - `getLastIrreversibleBlockNumber()`
+- **AbiService**: An abstract class that represents the ABI service. The purpose of the service is to download ABI(s) data from the web. 
+    - `fetchAbis(contract: string)`
+- **Serializer**: An abstraction of tools for serializing and deserializing blockchain content. The implementation depends on the type of blockchain.
+    - `getAbiFromHex(hex: string)`
+    - `getHexFromAbi(abi: AbiType)`
+    - `getTypesFromAbi(abi: UnknownObject)`
+    - `serialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
+    - `deserialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
+    - `deserializeActionData(contract: string, action: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
+    - `deserializeTableRow(row: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
+    - `deserializeTableRowData(table: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
+    - `deserializeTransaction(contract: string, data: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
+    - `deserializeBlock(data: DataType, abi?: string | UnknownObject, ...args: unknown[])`
+    - `hexToUint8Array(value: string)`
+    - `uint8ArrayToHex(value: Uint8Array)`
 - Types related to the smart contract components.
 
 #### Helpful links:
 
-- [How to implement smart contract service?](www.google.com)
+- [How to write your own blockchain components?](./tutorials/how-to-write-blockchain-components.md)
+
 
 ## Config
 
@@ -154,11 +208,11 @@ const ms = parseDateToMs('...');
 const blockNumber = parseToBigInt('1234567890');
 ```
 
-
 ## Contributing
 
-We encourage contributions from the community. If you have suggestions or features you'd like to see in the api-core package, please open an issue. For pull requests, ensure your changes are well documented and include tests where possible.
+We welcome contributions from the community. Before contributing, please read through the existing issues on this repository to prevent duplicate submissions. New feature requests and bug reports can be submitted as an issue. If you would like to contribute code, please open a pull request.
 
 ## License
 
-Alien Worlds API Core is [MIT licensed](./LICENSE).
+This project is licensed under the terms of the MIT license. For more information, refer to the [LICENSE](./LICENSE) file.
+
