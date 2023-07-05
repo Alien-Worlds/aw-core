@@ -7,7 +7,7 @@ export * from './domain/repository';
 export * from './domain/result';
 export * from './domain/types';
 export * from './domain/use-case';
-export * from './domain/where/where';
+export * from './domain/where';
 
 export * from './data/data.source';
 export * from './data/errors';
