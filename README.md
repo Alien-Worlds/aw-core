@@ -67,7 +67,7 @@ export class ListPlanetsRoute extends GetRoute {
 ```
 
 #### Helpful links:
- - [How to create a new API?](./tutorials/how-to-write-api.md)
+ - [How to create a new API?](https://github.com/Alien-Worlds/api-starter-kit/blob/main/tutorials/how-to-create-api.md)
 
 ## Architecture
 
