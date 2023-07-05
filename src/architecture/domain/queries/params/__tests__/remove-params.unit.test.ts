@@ -1,4 +1,4 @@
-import { Where } from '../../../where';
+import { Where } from '../../../where/where';
 import { RemoveParams } from '../remove-params';
 
 describe('RemoveParams', () => {

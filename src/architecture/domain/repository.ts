@@ -6,6 +6,8 @@ import { RemoveParams } from './queries/params/remove-params';
 import { UpdateParams } from './queries/params/update-params';
 import { Result } from './result';
 import { RemoveStats, UpdateStats } from './types';
+import { AggregationParams } from './queries';
+import { Mapper } from '../data/mapper';
 
 /**
  * Represents an abstract ReadOnlyRepository class.
@@ -46,6 +48,22 @@ export abstract class Repository<
   EntityType = unknown,
   DocumentType = unknown
 > extends ReadOnlyRepository<EntityType> {
+  /**
+   * Executes an aggregation operation on the data source.
+   *
+   * @param {AggregationParams | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the aggregation operation.
+   * @param {Mapper<ResultType, AggregationType>?} mapper The Mapper used for ResultType-AggregationType transformations (optional).
+   *
+   * @returns {Promise<Result<ResultType, Error>>} The result of the aggregation operation.
+   */
+  public abstract aggregate<
+    ResultType = EntityType | EntityType[],
+    AggregationType = DocumentType
+  >(
+    paramsOrBuilder: AggregationParams | QueryBuilder,
+    mapper?: Mapper<ResultType, AggregationType>
+  ): Promise<Result<ResultType>>;
+
   /**
    * Updates entities based on the provided parameters or query builder.
    * @abstract

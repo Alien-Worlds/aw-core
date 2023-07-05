@@ -1,4 +1,4 @@
-import { Where } from '../../where';
+import { Where } from '../../where/where';
 
 export enum UpdateMethod {
   UpdateOne,

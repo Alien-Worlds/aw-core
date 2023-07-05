@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
-import { UnknownObject } from './types';
+import { UnknownObject } from '../types';
+import { Group } from './group';
+import { WhereOperator } from './where.enums';
+import { WhereChain } from './where.types';
 
 /**
  * Type that maps properties of T to Where<T>.
@@ -16,51 +19,6 @@ type PropertyChecker<T> = {
  * @throws {TypeError} If input is not a PropertyChecker<T>.
  */
 function asPropertyChecker<T>(input: unknown): asserts input is PropertyChecker<T> {}
-
-/**
- * Represents the available operators for the Where clause.
- * @enum {number}
- */
-export enum WhereOperator {
-  is,
-  isEq,
-  isNotEq,
-  isLt,
-  isLte,
-  isGt,
-  isGte,
-  isInRange,
-  isNotInRange,
-  isIn,
-  isNotIn,
-  isNoneOf,
-  isTrue,
-  isFalse,
-  is0,
-  is1,
-  isNull,
-  isNotNull,
-  isEmpty,
-  isNotEmpty,
-  and,
-  or,
-  isBetween,
-}
-
-/**
- * Represents a single Where clause.
- * @typedef {Object} WhereClause
- * @property {WhereOperator} operator - The operator for the clause.
- * @property {unknown} value - The value for the clause.
- */
-export type WhereClause = { operator: WhereOperator; value: unknown };
-/**
- * Represents a chain of Where clauses.
- * @typedef {Object} WhereChain
- * @property {string} key - The key for the current WhereClause.
- * @property {WhereClause} value - The single WhereClause.
- */
-export type WhereChain = { [key: string]: WhereClause[] };
 
 /**
  * Represents a class for constructing Where clauses.
@@ -113,6 +71,15 @@ export class Where<Type = UnknownObject> {
    * @type {PropertyChecker<Type>}
    */
   private proxyObject: PropertyChecker<Type>;
+
+  /**
+   * This array stores Group instances that represent group operations
+   * in the query. It starts as an empty array.
+   *
+   * @type {Group[]}
+   * @private
+   */
+  private groups: Group[] = [];
 
   /**
    * Constructs a new instance of the Where class.
@@ -173,8 +140,8 @@ export class Where<Type = UnknownObject> {
    * @type {UnknownObject}
    */
   public get result() {
-    const { raw, chain } = this;
-    return raw ? { ...raw } : { ...chain };
+    const { raw, chain, groups } = this;
+    return raw ? { ...raw } : { ...chain, groups };
   }
 
   /**
@@ -357,6 +324,18 @@ export class Where<Type = UnknownObject> {
    */
   public isNotEmpty(value: unknown) {
     return this.setClause(this.currentKey, WhereOperator.isNotEmpty, value);
+  }
+
+  /**
+   * Adds a Group instance to the list of group operations in the query.
+   *
+   * @param {Group} group - The Group instance to add.
+   * @returns {this} The current class instance for chaining.
+   * @public
+   */
+  public group(group: Group) {
+    this.groups.push(group);
+    return this;
   }
 
   // TODO: implement "and", "or"

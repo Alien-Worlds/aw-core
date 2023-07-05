@@ -8,7 +8,7 @@ import {
   UpdateParams,
 } from '../../domain/queries';
 import { Result } from '../../domain/result';
-import { Where } from '../../domain/where';
+import { Where } from '../../domain/where/where';
 import { DataSource } from '../data.source';
 import { Mapper } from '../mapper';
 import { QueryBuilders } from '../query-builders';

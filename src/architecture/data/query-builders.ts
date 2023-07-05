@@ -6,7 +6,7 @@ import {
   UpdateMethod,
 } from '../domain/queries';
 import { Query } from '../domain/types';
-import { Where } from '../domain/where';
+import { Where } from '../domain/where/where';
 
 /**
  * @class

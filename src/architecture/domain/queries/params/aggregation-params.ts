@@ -1,5 +1,5 @@
 import { Filter, Sort } from '../../types';
-import { Where } from '../../where';
+import { Where } from '../../where/where';
 
 /**
  * Represents the parameters for aggregation.

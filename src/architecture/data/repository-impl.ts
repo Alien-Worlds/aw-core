@@ -36,16 +36,12 @@ export class RepositoryImpl<EntityType, DocumentType>
   /**
    * Executes an aggregation operation on the data source.
    *
-   * Note: This method should be marked as protected. If custom aggregation operations are required,
-   * a new repository should be created extending this one and implementing the custom methods.
-   * Inside these custom methods, this aggregate method can be used.
-   *
    * @param {AggregationParams | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the aggregation operation.
    * @param {Mapper<ResultType, AggregationType>?} mapper The Mapper used for ResultType-AggregationType transformations (optional).
    *
    * @returns {Promise<Result<ResultType, Error>>} The result of the aggregation operation.
    */
-  protected async aggregate<
+  public async aggregate<
     ResultType = EntityType | EntityType[],
     AggregationType = DocumentType
   >(

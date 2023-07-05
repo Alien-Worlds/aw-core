@@ -1,4 +1,4 @@
-import { Where } from '../../where';
+import { Where } from '../../where/where';
 
 /**
  * Represents the parameters for removing.
@@ -20,4 +20,3 @@ export class RemoveParams {
    */
   constructor(public readonly where?: Where) {}
 }
-

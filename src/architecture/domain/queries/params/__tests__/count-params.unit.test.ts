@@ -1,5 +1,5 @@
 import { Sort } from '../../../types';
-import { Where } from '../../../where';
+import { Where } from '../../../where/where';
 import { CountParams } from '../count-params';
 
 describe('CountParams', () => {

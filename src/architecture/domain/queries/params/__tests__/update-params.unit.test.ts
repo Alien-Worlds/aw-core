@@ -1,4 +1,4 @@
-import { Where } from '../../../where';
+import { Where } from '../../../where/where';
 import { UpdateParams, UpdateMethod, UpdateEachParams } from '../update-params';
 
 describe('UpdateParams', () => {

@@ -1,7 +1,6 @@
-import { Filter, Sort } from "../../../types";
-import { Where } from "../../../where";
-import { AggregationParams } from "../aggregation-params";
-
+import { Filter, Sort } from '../../../types';
+import { Where } from '../../../where/where';
+import { AggregationParams } from '../aggregation-params';
 
 describe('AggregationParams', () => {
   describe('create', () => {
