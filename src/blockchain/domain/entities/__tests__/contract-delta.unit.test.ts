@@ -1,48 +1,9 @@
-import crypto from 'crypto';
 import { Entity } from '../../../../architecture';
 import { ContractDelta } from '../contract-delta';
 import { parseToBigInt } from '../../../../utils';
 import { ContractDeltaModel } from '../../types';
 
-jest.mock('crypto', () => ({
-  createHash: jest.fn().mockReturnThis(),
-  update: jest.fn().mockReturnThis(),
-  digest: jest.fn().mockReturnValue('mockedHash'),
-}));
-
 describe('ContractDelta', () => {
-  describe('create', () => {
-    it('should create a ContractDelta instance with the provided properties and delta', () => {
-      const properties = {
-        id: 'deltaId',
-        blockNumber: '123',
-        code: 'code',
-        scope: 'scope',
-        table: 'table',
-        payer: 'payer',
-        primaryKey: '456',
-        present: true,
-        blockTimestamp: new Date(),
-      } as ContractDeltaModel;
-      const deltaData = { foo: 'bar' };
-      const delta = { foo: 'bar', toJSON: () => deltaData } as unknown as Entity;
-
-      const contractDelta = ContractDelta.create(properties, delta);
-
-      expect(contractDelta).toBeInstanceOf(ContractDelta);
-      expect(contractDelta.id).toBe(properties.id);
-      expect(contractDelta.blockNumber).toBe(parseToBigInt(properties.blockNumber));
-      expect(contractDelta.code).toBe(properties.code);
-      expect(contractDelta.scope).toBe(properties.scope);
-      expect(contractDelta.table).toBe(properties.table);
-      expect(contractDelta.deltaHash).toBe('mockedHash');
-      expect(contractDelta.delta).toBe(delta);
-      expect(contractDelta.payer).toBe(properties.payer);
-      expect(contractDelta.primaryKey).toBe(parseToBigInt(properties.primaryKey));
-      expect(contractDelta.present).toBe(properties.present);
-      expect(contractDelta.blockTimestamp).toBe(properties.blockTimestamp);
-    });
-  });
 
   describe('toJSON', () => {
     it('should return the JSON representation of the ContractDelta', () => {
@@ -53,7 +14,7 @@ describe('ContractDelta', () => {
         scope: 'scope',
         table: 'table',
         payer: 'payer',
-        primaryKey: '456',
+        primary_key: '456',
         present: true,
         blockTimestamp: new Date(),
       };
@@ -65,10 +26,9 @@ describe('ContractDelta', () => {
         properties.code,
         properties.scope,
         properties.table,
-        'mockedHash',
         delta,
         properties.payer,
-        parseToBigInt(properties.primaryKey),
+        parseToBigInt(properties.primary_key),
         properties.present,
         properties.blockTimestamp
       );
@@ -83,10 +43,9 @@ describe('ContractDelta', () => {
         scope: properties.scope,
         table: properties.table,
         payer: properties.payer,
-        primaryKey: properties.primaryKey,
+        primary_key: properties.primary_key,
         present: properties.present,
         data: delta.toJSON(),
-        data_hash: 'mockedHash',
       });
     });
   });

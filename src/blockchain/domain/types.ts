@@ -250,50 +250,47 @@ export type ActionModel = {
  * @typedef {object} ContractActionModel
  * @property {string} account - The account associated with the action.
  * @property {string} name - The name of the action.
- * @property {Date} blockTimestamp - The timestamp of the block.
- * @property {bigint} blockNumber - The number of the block.
- * @property {bigint} globalSequence - The global sequence of the action.
- * @property {bigint} receiverSequence - The receiver sequence of the action.
- * @property {string} transactionId - The ID of the transaction.
- * @property {unknown} data - The data associated with the action.
- * @property {string} [actionHash] - The hash of the action. Optional.
- * @property {string} [id] - The ID of the action. Optional.
+ * @property {Date} block_timestamp - The timestamp of the block.
+ * @property {string} block_number - The number of the block.
+ * @property {string} global_sequence - The global sequence of the action.
+ * @property {string} recv_sequence - The receiver sequence of the action.
+ * @property {string} transaction_id - The ID of the transaction.
+ * @property {DataType = Uint8Array} data - The data associated with the action.
  */
-export type ContractActionModel = {
+export type ContractActionModel<DataType = Uint8Array> = {
   account: string;
   name: string;
-  blockTimestamp: Date;
-  blockNumber: bigint;
-  globalSequence: bigint;
-  receiverSequence: bigint;
-  transactionId: string;
-  data: unknown;
-  id: string;
+  block_timestamp: Date;
+  block_number: string;
+  global_sequence: string;
+  recv_sequence: string;
+  transaction_id: string;
+  data: DataType;
+  [key: string]: unknown;
 };
 
 /**
  * Represents the model for a contract delta.
  * @typedef {object} ContractDeltaModel
- * @property {string} id - The ID of the delta.
- * @property {string|bigint} blockNumber - The number of the block.
+ * @property {string} block_number - The number of the block.
  * @property {string} code - The code of the contract.
  * @property {string} scope - The scope of the contract.
  * @property {string} table - The table of the contract.
  * @property {string} payer - The payer of the contract.
- * @property {string|bigint} primaryKey - The primary key of the contract.
+ * @property {string} primary_key - The primary key of the contract.
  * @property {number} present - The present state of the contract.
- * @property {Date} blockTimestamp - The timestamp of the block.
- * @property {unknown} data - The data associated with the contract delta.
+ * @property {Date} block_timestamp - The timestamp of the block.
+ * @property {DataType = Uint8Array} data - The data associated with the contract delta.
  */
-export type ContractDeltaModel = {
-  id: string;
-  blockNumber: string | bigint;
+export type ContractDeltaModel<DataType = Uint8Array> = {
+  block_timestamp: Date;
+  block_number: string;
   code: string;
   scope: string;
   table: string;
   payer: string;
-  primaryKey: string | bigint;
+  primary_key: string;
   present: boolean;
-  blockTimestamp: Date;
-  data: unknown;
+  data: DataType;
+  [key: string]: unknown;
 };

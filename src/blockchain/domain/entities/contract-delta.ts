@@ -1,8 +1,5 @@
-import crypto from 'crypto';
-import { serialize } from 'v8';
 import { Entity } from '../../../architecture/domain/entity';
-import { parseToBigInt, removeUndefinedProperties } from '../../../utils';
-import { ContractDeltaModel } from '../types';
+import { removeUndefinedProperties } from '../../../utils';
 import { UnknownObject } from '../../../architecture/domain/types';
 
 /**
@@ -15,46 +12,6 @@ export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = Unk
   implements Entity<RawDeltaType>
 {
   /**
-   * Creates a new instance of `ContractDelta` based on the provided model.
-   * @static
-   * @param {ContractDeltaModel<DeltaType>} model - The model representing the contract delta.
-   * @returns {ContractDelta<DeltaType>} A new instance of `ContractDelta`.
-   */
-  public static create<DeltaType extends Entity = Entity, RawDeltaType = UnknownObject>(
-    model: ContractDeltaModel,
-    delta: DeltaType
-  ): ContractDelta<DeltaType, RawDeltaType> {
-    const {
-      id,
-      blockNumber,
-      code,
-      scope,
-      table,
-      payer,
-      primaryKey,
-      present,
-      blockTimestamp,
-    } = model;
-
-    const deltaBuffer = serialize(delta.toJSON());
-    const deltaHash = crypto.createHash('sha1').update(deltaBuffer).digest('hex');
-
-    return new ContractDelta(
-      id,
-      parseToBigInt(blockNumber),
-      code,
-      scope,
-      table,
-      deltaHash,
-      delta,
-      payer,
-      parseToBigInt(primaryKey),
-      present,
-      blockTimestamp
-    );
-  }
-
-  /**
    * Creates an instance of `ContractDelta`.
    *
    * @constructor
@@ -63,8 +20,7 @@ export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = Unk
    * @param {string} code - The code associated with the contract delta.
    * @param {string} scope - The scope of the contract delta.
    * @param {string} table - The table name of the contract delta.
-   * @param {string} deltaHash - The hash of the data associated with the contract delta.
-   * @param {DeltaType} delta - The data associated with the contract delta.
+   * @param {DeltaType} data - The data associated with the contract delta.
    * @param {string} payer - The account name of the payer.
    * @param {bigint} primaryKey - The primary key value of the contract delta.
    * @param {boolean} present - The present flag value of the contract delta.
@@ -76,8 +32,7 @@ export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = Unk
     public readonly code: string,
     public readonly scope: string,
     public readonly table: string,
-    public readonly deltaHash: string,
-    public readonly delta: DeltaType,
+    public readonly data: DeltaType,
     public readonly payer: string,
     public readonly primaryKey: bigint,
     public readonly present: boolean,
@@ -95,8 +50,7 @@ export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = Unk
       code,
       scope,
       table,
-      deltaHash: dataHash,
-      delta: data,
+      data,
       payer,
       primaryKey,
       present,
@@ -111,10 +65,9 @@ export class ContractDelta<DeltaType extends Entity = Entity, RawDeltaType = Unk
       scope,
       table,
       payer,
-      primaryKey: primaryKey.toString(),
+      primary_key: primaryKey.toString(),
       present,
       data: data.toJSON(),
-      data_hash: dataHash,
     };
 
     return removeUndefinedProperties<RawDeltaType>(json);
