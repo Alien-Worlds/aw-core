@@ -146,7 +146,7 @@ The blockchain component is divided into data and domain layers. It contains the
     - `getLastIrreversibleBlockNumber()`
 ### Domain Layer
 
-- Entities like **ContractAction**, **ContractDelta**, **ContractEncodedAbi** and **ContractUnknownDataEntity** to represent different blockchain transaction aspects.
+- Entities like **ContractAction**, **ContractDelta**, **ContractEncodedAbi** and **ContractUnknownData** to represent different blockchain transaction aspects.
 - **SmartContractService**: interface with one method getStats. The concrete service should implement methods to retrieve desired table rows of the contract.
 - **BlockchainService**: An abstraction of the service that is used to download blockchain data and statistics. 
     - `getInfo()`

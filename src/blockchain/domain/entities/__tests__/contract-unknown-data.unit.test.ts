@@ -1,9 +1,9 @@
 import { UnknownObject } from '../../../../architecture';
-import { ContractUnkownDataEntity } from '../contract-unkown-data';
+import { ContractUnknownData } from '../contract-unknown-data';
 
 describe('ContractUnkownDataEntity', () => {
   let data: UnknownObject;
-  let entity: ContractUnkownDataEntity;
+  let entity: ContractUnknownData;
 
   beforeEach(() => {
     data = {
@@ -11,16 +11,16 @@ describe('ContractUnkownDataEntity', () => {
       prop2: 'value2',
     };
 
-    entity = ContractUnkownDataEntity.create(data);
+    entity = ContractUnknownData.create(data);
   });
 
-  test('should create a ContractUnkownDataEntity instance with correct data', () => {
-    expect(entity).toBeInstanceOf(ContractUnkownDataEntity);
+  test('should create a ContractUnknownData instance with correct data', () => {
+    expect(entity).toBeInstanceOf(ContractUnknownData);
     expect(entity.id).toBeUndefined();
     expect(entity.toJSON()).toEqual(data);
   });
 
-  test('should return the correct JSON representation of the ContractUnkownDataEntity', () => {
+  test('should return the correct JSON representation of the ContractUnknownData', () => {
     expect(entity.toJSON()).toEqual(data);
   });
 });

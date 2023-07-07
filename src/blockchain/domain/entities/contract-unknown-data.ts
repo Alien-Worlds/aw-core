@@ -2,24 +2,24 @@ import { Entity } from '../../../architecture';
 import { UnknownObject } from '../../../architecture/domain/types';
 
 /**
- * ContractUnknownDataEntity represents contract data for which there is no processor or known types defined in the history tools components.
+ * ContractUnknownData represents contract data for which there is no processor or known types defined in the history tools components.
  * This can occur when a new contract version is released, but the history tools are using a different version and have no types defined for the new version.
  *
  * @class
  */
-export class ContractUnkownDataEntity implements Entity {
+export class ContractUnknownData implements Entity {
   /**
-   * Creates an instance of ContractUnknownDataEntity.
+   * Creates an instance of ContractUnknownData.
    *
    * @param {UnknownObject} data - The unknown data object to be stored in the entity.
-   * @returns {ContractUnknownDataEntity} The created instance of ContractUnknownDataEntity.
+   * @returns {ContractUnknownData} The created instance of ContractUnknownData.
    */
   public static create(data: UnknownObject) {
-    return new ContractUnkownDataEntity(data);
+    return new ContractUnknownData(data);
   }
 
   /**
-   * Creates an instance of ContractUnknownDataEntity.
+   * Creates an instance of ContractUnknownData.
    *
    * @protected
    * @param {UnknownObject} data - The unknown data object to be stored in the entity.
