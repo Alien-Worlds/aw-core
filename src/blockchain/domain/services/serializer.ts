@@ -1,12 +1,20 @@
 import { UnknownObject } from '../../../architecture';
 
+export type Row = {
+  present: boolean;
+  data: Uint8Array;
+  [key: string]: unknown;
+};
+
 export type TableRow<DataType = unknown> = {
   code: string;
   scope: string;
   table: string;
   primary_key: string;
   payer: string;
+  present: boolean;
   data: DataType;
+  [key: string]: unknown;
 };
 
 /**
@@ -95,7 +103,7 @@ export abstract class Serializer {
    * @returns {ContractTable<DataType>} The deserialized table data.
    */
   public abstract deserializeTableRow<DataType = UnknownObject>(
-    row: Uint8Array,
+    row: Row,
     abi?: string | UnknownObject,
     ...args: unknown[]
   ): TableRow<DataType | Uint8Array>;
