@@ -5,7 +5,7 @@ Alien Worlds API Core is a comprehensive TypeScript/Node.js package designed to 
 ## Table of Contents
 
 - [Installation](#installation)
-- [IoC](#ioc)
+- [IoC (Inversion of Control)](#ioc)
 - [API](#api)
 - [Architecture](#architecture)
 - [Blockchain](#blockchain)
@@ -20,14 +20,13 @@ Alien Worlds API Core is a comprehensive TypeScript/Node.js package designed to 
 yarn add @alien-worlds/api-core
 ```
 
-## IoC
+## IoC (Inversion of Control)
 
-Inversion of Control (IoC) is implemented using Inversify, a powerful and lightweight inversion of control container for JavaScript and Node.js apps powered by TypeScript. IoC promotes code modularity, making the system more flexible, maintainable, and scalable.
+Inversion of Control (IoC) is implemented using [InversifyJS](https://inversify.io/), a powerful and lightweight inversion of control container for JavaScript and Node.js apps powered by TypeScript. IoC promotes code modularity, making the system more flexible, maintainable, and scalable.
 
 #### Helpful links:
 
 - [About IoC](./tutorials/about-ioc.md)
-
 
 ## API
 
@@ -67,7 +66,8 @@ export class ListPlanetsRoute extends GetRoute {
 ```
 
 #### Helpful links:
- - [How to create a new API?](https://github.com/Alien-Worlds/api-starter-kit/blob/main/tutorials/how-to-create-api.md)
+
+- [How to create a new API?](https://github.com/Alien-Worlds/api-starter-kit/blob/main/tutorials/how-to-create-api.md)
 
 ## Architecture
 
@@ -80,26 +80,26 @@ The clean architecture paradigm also promotes separation of concerns by dividing
 The data layer contains base classes and types for data layer components such as:
 
 - **DataSource**: Represents a general interface for the data sources in the application.
-    - `find(query?: Query)`
-    - `count(query?: Query)`
-    - `aggregate(query: Query)`
-    - `update(query: Query)`
-    - `insert(query: Query)`
-    - `remove(query: Query)`
-    - `startTransaction(options?: UnknownObject)`
-    - `commitTransaction()`
-    - `rollbackTransaction()`
+  - `find(query?: Query)`
+  - `count(query?: Query)`
+  - `aggregate(query: Query)`
+  - `update(query: Query)`
+  - `insert(query: Query)`
+  - `remove(query: Query)`
+  - `startTransaction(options?: UnknownObject)`
+  - `commitTransaction()`
+  - `rollbackTransaction()`
 - **Mapper**: The interface of a class whose instance changes the entity to the model of a specific database and vice versa.
-    - `toEntity(model: ModelType)`
-    - `fromEntity(entity: EntityType)`
-    - `getEntityKeyMapping(key: string)`
+  - `toEntity(model: ModelType)`
+  - `fromEntity(entity: EntityType)`
+  - `getEntityKeyMapping(key: string)`
 - **MapperImpl**: Basic mapper implementation that can be inherited and extended. It contains a basic fromEntity mechanism for extracting mapping functions assigned to entity parameters.
 - **QueryBuilders**: Collection of query builders for different types of operations (find, count, update, remove, and aggregate).
-    - `buildFindQuery(params: FindParams)`
-    - `buildCountQuery(params: CountParams)`
-    - `buildUpdateQuery(updates: UpdateType[], where: Where[], methods: UpdateMethod[])`
-    - `buildRemoveQuery(params: RemoveParams)`
-    - `buildAggregationQuery(params: AggregationParams)`
+  - `buildFindQuery(params: FindParams)`
+  - `buildCountQuery(params: CountParams)`
+  - `buildUpdateQuery(updates: UpdateType[], where: Where[], methods: UpdateMethod[])`
+  - `buildRemoveQuery(params: RemoveParams)`
+  - `buildAggregationQuery(params: AggregationParams)`
 - **RepositoryImpl**: A generic repository for managing database interactions.
 
 ### Domain Layer
@@ -107,25 +107,25 @@ The data layer contains base classes and types for data layer components such as
 The domain layer consists of basic components and types such as:
 
 - **Entity**: Core representation of an object in the system.
-    - `static create(...args: unknown[])`
-    - `static getDefault()`
-    - `toJSON()`
+  - `static create(...args: unknown[])`
+  - `static getDefault()`
+  - `toJSON()`
 - **QueryBuilder and QueryParams**: Abstract QueryBuilder class and parameters for various queries (FindParams, CountParams, AggregationParams, RemoveParams, UpdateParams).
 - **Failure**: Represents a failure as a result of an error in executing a use case or repository operation.
-    - `static fromError<T = Error>(error: T, throwable = false, reportable = false)`
-    - `static withMessage(message: string, throwable = false, reportable = false)`
+  - `static fromError<T = Error>(error: T, throwable = false, reportable = false)`
+  - `static withMessage(message: string, throwable = false, reportable = false)`
 - **ReadOnlyRepository and Repository**: Abstract classes defining read-only and mutable repository methods.
-    - `count(paramsOrBuilder?: CountParams | QueryBuilder)`
-    - `find(paramsOrBuilder?: FindParams | QueryBuilder)`
-    - `update(paramsOrBuilder: UpdateParams | QueryBuilder)`
-    - `add(entities: EntityType[])`
-    - `remove(paramsOrBuilder: RemoveParams | QueryBuilder)`
+  - `count(paramsOrBuilder?: CountParams | QueryBuilder)`
+  - `find(paramsOrBuilder?: FindParams | QueryBuilder)`
+  - `update(paramsOrBuilder: UpdateParams | QueryBuilder)`
+  - `add(entities: EntityType[])`
+  - `remove(paramsOrBuilder: RemoveParams | QueryBuilder)`
 - **Result**: Represents the result of executing a use case or repository operation. It can return either a Failure object or the typed content.
-    - `static withContent<ContentType>(content: ContentType)`
-    - `static withoutContent()`
-    - `static withFailure<ErrorType>(failure: Failure<ErrorType>)`
+  - `static withContent<ContentType>(content: ContentType)`
+  - `static withoutContent()`
+  - `static withFailure<ErrorType>(failure: Failure<ErrorType>)`
 - **UseCase**: Abstract UseCase class for encapsulating business logic.
-    - `execute(...rest: unknown[])`
+  - `execute(...rest: unknown[])`
 - **Where**: A class used to build 'Where' clauses. Used to build database queries within query builders.
 
 #### Helpful links:
@@ -139,46 +139,47 @@ The blockchain component is divided into data and domain layers. It contains the
 ### Data Layer
 
 - **RpcSource**: Abstraction for the RPC connection. It contains methods to retrieve table rows and contract stats.
-    - `getTableRows<RowType = unknown>(options: GetTableRowsOptions)`
-    - `getContractStats(account: string)`
-    - `getInfo()`
-    - `getHeadBlockNumber()`
-    - `getLastIrreversibleBlockNumber()`
+  - `getTableRows<RowType = unknown>(options: GetTableRowsOptions)`
+  - `getContractStats(account: string)`
+  - `getInfo()`
+  - `getHeadBlockNumber()`
+  - `getLastIrreversibleBlockNumber()`
+
 ### Domain Layer
 
 - Entities like **ContractAction**, **ContractDelta**, **ContractEncodedAbi** and **ContractUnknownData** to represent different blockchain transaction aspects.
 - **SmartContractService**: interface with one method getStats. The concrete service should implement methods to retrieve desired table rows of the contract.
-- **BlockchainService**: An abstraction of the service that is used to download blockchain data and statistics. 
-    - `getInfo()`
-    - `getHeadBlockNumber()`
-    - `getLastIrreversibleBlockNumber()`
-- **AbiService**: An abstract class that represents the ABI service. The purpose of the service is to download ABI(s) data from the web. 
-    - `fetchAbis(contract: string)`
+- **BlockchainService**: An abstraction of the service that is used to download blockchain data and statistics.
+  - `getInfo()`
+  - `getHeadBlockNumber()`
+  - `getLastIrreversibleBlockNumber()`
+- **AbiService**: An abstract class that represents the ABI service. The purpose of the service is to download ABI(s) data from the web.
+  - `fetchAbis(contract: string)`
 - **Serializer**: An abstraction of tools for serializing and deserializing blockchain content. The implementation depends on the type of blockchain.
-    - `getAbiFromHex(hex: string)`
-    - `getHexFromAbi(abi: AbiType)`
-    - `getTypesFromAbi(abi: UnknownObject)`
-    - `serialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
-    - `deserialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
-    - `deserializeActionData(contract: string, action: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
-    - `deserializeTableRow(row: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
-    - `deserializeTableRowData(table: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
-    - `deserializeTransaction(contract: string, data: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
-    - `deserializeBlock(data: DataType, abi?: string | UnknownObject, ...args: unknown[])`
-    - `hexToUint8Array(value: string)`
-    - `uint8ArrayToHex(value: Uint8Array)`
+  - `getAbiFromHex(hex: string)`
+  - `getHexFromAbi(abi: AbiType)`
+  - `getTypesFromAbi(abi: UnknownObject)`
+  - `serialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
+  - `deserialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
+  - `deserializeActionData(contract: string, action: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
+  - `deserializeTableRow(row: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
+  - `deserializeTableRowData(table: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
+  - `deserializeTransaction(contract: string, data: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
+  - `deserializeBlock(data: DataType, abi?: string | UnknownObject, ...args: unknown[])`
+  - `hexToUint8Array(value: string)`
+  - `uint8ArrayToHex(value: Uint8Array)`
 - Types related to the smart contract components.
 
 #### Helpful links:
 
 - [How to write your own blockchain components?](./tutorials/how-to-write-blockchain-components.md)
 
-
 ## Config
 
 The config module contains utilities for working with environment variables and `.env` files:
 
 - **ConfigVars**: Provides access to environment variables and values from a .env file.
+
 ```java
 const vars = new ConfigVars();
 const port = vars.getNumberEnv('PORT'); // PORT=8080
@@ -186,6 +187,7 @@ const secretKey = vars.getStringEnv('SECRET_KEY'); // SECRET_KEY=my_secret
 const isPrimary = vars.getBooleanEnv('IS_PRIMARY'); // IS_PRIMARY=true OR IS_PRIMARY=1
 const hosts = vars.getArrayEnv('HOSTS'); // HOSTS='url_1, url_2, url_3'
 ```
+
 - **readEnvFile**: Reads and parses the contents of an .env file and returns an object representing the key-value pairs.
 - **parseEnvFile**: Parses the contents of an .env file buffer or string and returns an object representing the key-value pairs.
 
@@ -194,16 +196,20 @@ const hosts = vars.getArrayEnv('HOSTS'); // HOSTS='url_1, url_2, url_3'
 The utility component provides a set of functions that assist in various tasks, including:
 
 - **wait**: Suspends execution of the current process for a given number of milliseconds.
+
 ```java
 await wait(5000);
 ```
+
 - **parseDateToMs**: Parses a date string into milliseconds.
+
 ```java
 const ms = parseDateToMs('...');
 ```
 
 - **removeUndefinedProperties**: Removes undefined properties and empty objects, useful for creating DTOs to send to a data source.
 - **parseToBigInt & parseUint8ArrayToBigInt**: Functions for parsing values into BigInt.
+
 ```java
 const blockNumber = parseToBigInt('1234567890');
 ```
@@ -215,4 +221,3 @@ We welcome contributions from the community. Before contributing, please read th
 ## License
 
 This project is licensed under the terms of the MIT license. For more information, refer to the [LICENSE](./LICENSE) file.
-

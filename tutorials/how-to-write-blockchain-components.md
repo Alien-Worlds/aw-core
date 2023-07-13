@@ -8,8 +8,4 @@ Depending on which Blockchain component you want to modify, create a new reposit
 
 - If the way of retrieving data from the blockchain needs to be changed, familiarize yourself with the [@alien-worlds/block-reader](https://github.com/Alien-Worlds/block-reader) package and its dependencies. Changes in this field are subject to the same rules as above.
 
-- If you want to implement basic components for some new contract which is not yet implemented (or won't be), you have two options. The first option is to write everything from scratch based on one of the available packages (e.g. [dao.worlds](https://github.com/Alien-Worlds/dao-worlds-common)) or use our CLI [AlienGen](https ://github.com/Alien-Worlds/aliengen). Just enter the ABI of your contract and the generator will create all the necessary components.
-
-
-
-
+- If you want to implement basic components for some new contract which is not yet implemented (or won't be), you have two options. The first option is to write everything from scratch based on one of the available packages (e.g. [dao.worlds](https://github.com/Alien-Worlds/dao-worlds-common)) or use our CLI [AlienGen](https://github.com/Alien-Worlds/aliengen). Just enter the ABI of your contract and the generator will create all the necessary components.
