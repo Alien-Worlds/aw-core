@@ -15,3 +15,5 @@ export * from './data/mapper';
 export * from './data/mapper-impl';
 export * from './data/query-builders';
 export * from './data/repository-impl';
+
+export * from './dependency-injector';

@@ -75,6 +75,9 @@ The architecture module, divided into data and domain layers, follows clean arch
 
 The clean architecture paradigm also promotes separation of concerns by dividing the code into layers. The use of this design pattern facilitates the ability to change one aspect of the system without affecting others. This is due to the decoupling of the software into independent layers, thereby reducing the complexity of the codebase, increasing readability, and improving overall code quality.
 
+#### Dependency Injector
+As `DependencyInjector` is an abstract class, it cannot be instantiated directly. Its purpose is to define a template for dependency injectors, making the dependency management more structured and maintainable.
+
 ### Data Layer
 
 The data layer contains base classes and types for data layer components such as:
