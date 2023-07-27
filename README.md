@@ -17,7 +17,7 @@ Alien Worlds API Core is a comprehensive TypeScript/Node.js package designed to 
 ## Installation
 
 ```sh
-yarn add @alien-worlds/api-core
+yarn add @alien-worlds/aw-core
 ```
 
 ## IoC (Inversion of Control)
