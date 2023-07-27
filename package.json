@@ -1,6 +1,6 @@
 {
   "name": "@alien-worlds/aw-core",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "packageManager": "yarn@3.2.3",
   "main": "build/index.js",
