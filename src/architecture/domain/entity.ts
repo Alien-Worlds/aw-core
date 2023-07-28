@@ -9,17 +9,6 @@ import { UnknownObject } from './types';
  */
 export abstract class Entity<JsonType = UnknownObject, RestType = UnknownObject> {
   /**
-   * Creates a new instance of the entity.
-   * @static
-   * @template EntityType - The type of the entity being created.
-   * @returns {EntityType} The created instance of the entity.
-   * @throws {Error} The static method create() is not implemented.
-   */
-  public static create<EntityType = Entity>(...args: unknown[]): EntityType {
-    throw new Error('Static method create() not implemented.');
-  }
-
-  /**
    * Returns the default instance of the entity.
    * @static
    * @template EntityType - The type of the entity.

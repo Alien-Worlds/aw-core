@@ -1,6 +1,6 @@
 import { Socket } from 'net';
 
-import { Result } from '../architecture';
+import { IO } from '../architecture';
 
 /**
  * Represents the response object returned by route handlers.
@@ -31,9 +31,9 @@ export interface Request<BodyType = unknown, ParamsType = object, QueryType = un
 /**
  * Represents the pre and post hooks for route handling.
  */
-export type RequestHooks = {
-  pre?: (...args: unknown[]) => unknown;
-  post?: (...args: unknown[]) => Response;
+export type RouteHooks = {
+  pre?: <T = Request>(request: T) => void;
+  post?: (output?: IO) => void;
 };
 
 /**
@@ -60,7 +60,7 @@ export type Validators = {
  * Represents the options for configuring a route.
  */
 export type RouteOptions = {
-  hooks?: RequestHooks;
+  hooks?: RouteHooks;
   validators?: Validators;
   authorization?: (request: Request) => boolean;
 };
@@ -68,4 +68,4 @@ export type RouteOptions = {
 /**
  * Represents the handler function for a route.
  */
-export type RouteHandler = (...args: unknown[]) => Result;
+export type RouteHandler = (input: IO) => IO;

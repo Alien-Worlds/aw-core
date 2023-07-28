@@ -3,6 +3,7 @@ export * from './domain/entity';
 export * from './domain/enums';
 export * from './domain/errors';
 export * from './domain/failure';
+export * from './domain/io';
 export * from './domain/repository';
 export * from './domain/result';
 export * from './domain/types';

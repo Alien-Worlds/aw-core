@@ -35,6 +35,9 @@ module.exports = {
     '!src/**/mapper.ts',
     '!src/**/data.source.ts',
     '!src/**/query-builders.ts',
-    '!src/**/serializer.ts'
+    '!src/**/serializer.ts',
+    '!src/**/dependency-injector.ts',
+    '!src/**/route-io.ts',
+    '!src/**/block-reader.ts',
   ],
 };

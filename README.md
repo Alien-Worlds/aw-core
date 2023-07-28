@@ -42,23 +42,62 @@ The `setupRouteHandler` function supports any web framework and can be used in c
 
 The `Route` class is a generic class that represents a route in your web application. It provides a flexible and modular approach to define routes and handle incoming requests. Developers can extend the `Route` class and use derived classes such as `GetRoute`, `PostRoute`, `PatchRoute`, `PutRoute`, and `DeleteRoute` to define routes for different HTTP methods.
 
-The `Route` class allows you to specify the HTTP method, path, handler function, and optional configuration options for each route. It supports the use of hooks, validators, and authorization functions to customize the request handling process. The class is designed to be compatible with any web framework you choose to use, making it a versatile choice for building APIs or handling server-side routes.
+The `Route` class allows you to specify the HTTP method, path, handler function, IO mapper and optional configuration options for each route. It supports the use of hooks, validators, and authorization functions to customize the request handling process. `RouteIO` is used to transform data from requests to unified input for the controller and from controller output to the response.
+The class is designed to be compatible with any web framework you choose to use, making it a versatile choice for building APIs or handling server-side routes.
 
-By leveraging the `Route` class and its derived classes, developers can create a clear and structured API for their web application, improving code organization and maintainability.
+Using the `Route` class and its derived classes, developers can create a clean and structured API for their web application, improving code organization and maintainability.
 
-```java
+```typescript
+
+// An example of the RouteIO class implementation
+
+export class ListPlanetsRouteIO implements RouteIO {
+  public toResponse(output: ListPlanetsOutput): Response {
+    const { result, ... } = output;
+
+    if (result.isFailure) {
+      const {
+        failure: { error },
+      } = result;
+      if (error) {
+        return {
+          status: 500,
+          body: [],
+        };
+      }
+    }
+
+    return {
+      status: 200,
+      body: result.content.map(planet => planet.toJSON()),
+    };
+  }
+
+  public fromRequest(request: Request): ListPlanetsInput {
+    const { params: { name } , ... } = request;
+    return ListPlanetsInput.create(name);
+  }
+}
+
 // An example of using the GetRoute class
+// Note: 'io' is optional, if you don't specify an instance, the 'DefaultRouteIO' will be used.
 
 export class ListPlanetsRoute extends GetRoute {
   public static create(handler: RouteHandler, config: PlanetsApiConfig) {
-    return new ListPlanetsRoute(handler, config);
+    return new ListPlanetsRoute(handler, config, new ListPlanetsRouteIO());
   }
 
-  private constructor(handler: RouteHandler, config: PlanetsApiConfig) {
+  private constructor(handler: RouteHandler, config: PlanetsApiConfig, io: IO) {
     super(`/${config.version}/planets/list`, handler, {
       hooks: {
-        pre: ListPlanetsInput.fromRequest,
-        post: (output: ListPlanetsOutput) => output.toResponse(),
+        pre: (request: Request) => {
+          // Any operations not related to logic but only to the presentation layer
+          // and which should be performed before creating input for the controller.
+        },
+        post: (output: ListPlanetsOutput) => {
+          // Any operations not related to logic but only to the presentation layer
+          // and which should be performed before sending the response.
+        },
       },
     });
   }

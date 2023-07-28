@@ -1,6 +1,8 @@
+import { IO } from '../architecture';
 import { log } from '../utils';
 import { RequestMethod } from './api.enums';
 import { RouteHandler, RouteOptions, Request } from './api.types';
+import { DefaultRouteIO, RouteIO } from './route-io';
 
 type BasicResponseType = {
   status(code: number | string): BasicResponseType;
@@ -63,20 +65,19 @@ export const setupRouteHandler =
     }
 
     try {
-      let args: unknown;
-
       if (hooks?.pre) {
-        args = hooks.pre(req);
+        hooks.pre(req);
       }
 
-      const result = await route.handler(args);
+      const io: IO = route.io.fromRequest(req);
+      const output = await route.handler(io);
 
       if (hooks?.post) {
-        const { status, body } = hooks.post(result);
-        (<BasicResponseType>res).status(status).send(body);
-      } else {
-        (<BasicResponseType>res).status(200).send(result);
+        hooks.post(output);
       }
+
+      const { body, status } = route.io.toResponse(output);
+      (<BasicResponseType>res).status(status).send(body);
     } catch (error) {
       log(error);
       (<BasicResponseType>res).status(500).send(error);
@@ -173,19 +174,31 @@ export class Route {
     return app;
   }
 
+  protected routeIO: RouteIO = new DefaultRouteIO();
+
   /**
    * Creates a new Route instance.
    * @param {RequestMethod} method - The HTTP request method of the route.
    * @param {string | string[]} path - The path or paths of the route.
    * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteIO} io - Input/Output (IO) contract for a route.
    * @param {RouteOptions} [options] - Optional route configuration options.
    */
   constructor(
     public readonly method: RequestMethod,
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
+    io?: RouteIO,
     public readonly options?: RouteOptions
-  ) {}
+  ) {
+    if (io) {
+      this.routeIO = io;
+    }
+  }
+
+  public get io(): RouteIO {
+    return this.routeIO;
+  }
 }
 
 /**
@@ -196,14 +209,16 @@ export class GetRoute extends Route {
    * Creates a new GetRoute instance.
    * @param {string | string[]} path - The path or paths of the route.
    * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteIO} io - Input/Output (IO) contract for a route.
    * @param {RouteOptions} [options] - Optional route configuration options.
    */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
+    io?: RouteIO,
     public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Get, path, handler, options);
+    super(RequestMethod.Get, path, handler, io, options);
   }
 }
 
@@ -215,14 +230,16 @@ export class PostRoute extends Route {
    * Creates a new PostRoute instance.
    * @param {string | string[]} path - The path or paths of the route.
    * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteIO} io - Input/Output (IO) contract for a route.
    * @param {RouteOptions} [options] - Optional route configuration options.
    */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
+    io?: RouteIO,
     public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Post, path, handler, options);
+    super(RequestMethod.Post, path, handler, io, options);
   }
 }
 
@@ -234,14 +251,16 @@ export class PatchRoute extends Route {
    * Creates a new PatchRoute instance.
    * @param {string | string[]} path - The path or paths of the route.
    * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteIO} io - Input/Output (IO) contract for a route.
    * @param {RouteOptions} [options] - Optional route configuration options.
    */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
+    io?: RouteIO,
     public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Patch, path, handler, options);
+    super(RequestMethod.Patch, path, handler, io, options);
   }
 }
 
@@ -253,14 +272,16 @@ export class PutRoute extends Route {
    * Creates a new PutRoute instance.
    * @param {string | string[]} path - The path or paths of the route.
    * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteIO} io - Input/Output (IO) contract for a route.
    * @param {RouteOptions} [options] - Optional route configuration options.
    */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
+    io?: RouteIO,
     public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Put, path, handler, options);
+    super(RequestMethod.Put, path, handler, io, options);
   }
 }
 
@@ -272,13 +293,15 @@ export class DeleteRoute extends Route {
    * Creates a new DeleteRoute instance.
    * @param {string | string[]} path - The path or paths of the route.
    * @param {RouteHandler} handler - The handler function for the route.
+   * @param {RouteIO} io - Input/Output (IO) contract for a route.
    * @param {RouteOptions} [options] - Optional route configuration options.
    */
   constructor(
     public readonly path: string | string[],
     public readonly handler: RouteHandler,
+    io?: RouteIO,
     public readonly options?: RouteOptions
   ) {
-    super(RequestMethod.Delete, path, handler, options);
+    super(RequestMethod.Delete, path, handler, io, options);
   }
 }
