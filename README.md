@@ -92,11 +92,12 @@ export class ListPlanetsRoute extends GetRoute {
       io: new ListPlanetsRouteIO(),
       /* ... OR ...
       io: {
-        fromRequest: () => ({
+        fromRequest: (request: Request) => ({
           toJSON(): () => ({ ... })
         }),
-        toResponse: () => ({
-          toJSON(): () => ({ ... })
+        toResponse: (output: ListPlanetsOutput) => ({
+          status: ...,
+          body: ... 
         })
       },
       */
