@@ -18,7 +18,7 @@ export abstract class RouteIO<InputType = unknown, OutputType = unknown> {
    * @param {OutputType} output - The output data to be converted into the HTTP response.
    * @returns {Response} The HTTP response object.
    */
-  public abstract toResponse(output: OutputType): Response;
+  public abstract toResponse?(output: OutputType): Response;
 
   /**
    * Extract and parse the input data from the HTTP request.
@@ -28,5 +28,5 @@ export abstract class RouteIO<InputType = unknown, OutputType = unknown> {
    * @param {Request | unknown} request - The HTTP request object containing the input data.
    * @returns {InputType} The parsed input data extracted from the request.
    */
-  public abstract fromRequest(request: Request | unknown, ...args: unknown[]): InputType;
+  public abstract fromRequest?(request: Request | unknown, ...args: unknown[]): InputType;
 }

@@ -72,7 +72,7 @@ export const setupRouteHandler =
       }
 
       if (io?.fromRequest) {
-        io.fromRequest(req, args);
+        input = io.fromRequest(req, args);
       }
 
       const output = await route.handler(input);
