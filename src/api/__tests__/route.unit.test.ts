@@ -7,12 +7,10 @@ import {
   PutRoute,
   DeleteRoute,
 } from '../route';
-import { DefaultRouteIO } from '../route-io';
 
 describe('setupRouteHandler', () => {
   it('should handle the route request and send a successful response', async () => {
     const route = {
-      io: new DefaultRouteIO(),
       options: {
         hooks: {
           pre: jest.fn(),
@@ -56,7 +54,6 @@ describe('setupRouteHandler', () => {
           post: jest.fn(),
         },
       },
-      io: new DefaultRouteIO(),
       handler: jest.fn(),
     } as any;
 

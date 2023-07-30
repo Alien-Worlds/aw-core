@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { EmptyInput, IO, UnknownObject } from '../architecture';
 import { Response, Request } from './api.types';
 
 /**
@@ -10,7 +9,7 @@ import { Response, Request } from './api.types';
  * @template InputType - The type representing the input data from the HTTP request.
  * @template OutputType - The type representing the output data to be sent in the HTTP response.
  */
-export abstract class RouteIO<InputType = IO, OutputType = IO> {
+export abstract class RouteIO<InputType = unknown, OutputType = unknown> {
   /**
    * Convert the output data to an HTTP response.
    *
@@ -29,18 +28,5 @@ export abstract class RouteIO<InputType = IO, OutputType = IO> {
    * @param {Request | unknown} request - The HTTP request object containing the input data.
    * @returns {InputType} The parsed input data extracted from the request.
    */
-  public abstract fromRequest(request: Request | unknown): InputType;
-}
-
-export class DefaultRouteIO implements RouteIO {
-  public toResponse(output: IO<UnknownObject>): Response {
-    return {
-      status: 200,
-      body: 'OK',
-    };
-  }
-
-  public fromRequest(request: unknown): IO<UnknownObject> {
-    return new EmptyInput();
-  }
+  public abstract fromRequest(request: Request | unknown, ...args: unknown[]): InputType;
 }
