@@ -30,5 +30,5 @@ export abstract class DependencyInjector {
    * @abstract
    * @return {Promise<void>} - Promise resolving when setup is complete.
    */
-  public abstract setup(): Promise<void>;
+  public abstract setup(...args: unknown[]): Promise<void>;
 }
