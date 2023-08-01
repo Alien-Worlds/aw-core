@@ -3,6 +3,7 @@
   "version": "0.0.8",
   "description": "",
   "packageManager": "yarn@3.2.3",
+  "repository": "https://github.com/Alien-Worlds/aw-core",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
