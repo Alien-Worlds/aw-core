@@ -1,82 +1,179 @@
-import { getParams, isQueryModel } from '../../storage';
 import { Failure } from '../domain/failure';
-import { QueryModel } from '../domain/query-model';
+import { QueryBuilder } from '../domain/queries/query-builder';
 import { Repository } from '../domain/repository';
-import { EntityNotFoundError } from '../domain/repository.errors';
 import { Result } from '../domain/result';
-import { CollectionSource } from './collection.source';
-import { UpdateStatus } from './collection.types';
+import { DataSource } from './data.source';
 import { Mapper } from './mapper';
+import { UpdateStats, RemoveStats, Query } from '../domain/types';
+import { AggregationParams } from '../domain/queries/params/aggregation-params';
+import { CountParams } from '../domain/queries/params/count-params';
+import { FindParams, RemoveParams, UpdateParams } from '../domain/queries';
+import { QueryBuilders } from './query-builders';
 
 /**
  * @class
+ * Represents a generic repository for managing database interactions.
+ *
+ * Note: This repository should be used when we do not want to provide methods to modify the contents of collections in the database.
  */
 export class RepositoryImpl<EntityType, DocumentType>
   implements Repository<EntityType, DocumentType>
 {
   /**
    * @constructor
-   * @param {MongoSource} source
+   * Creates a new RepositoryImpl instance.
+   *
+   * @param {DataSource<DocumentType>} source The DataSource used for database operations.
+   * @param {Mapper<EntityType, DocumentType>} mapper The Mapper used for entity-document transformations.
+   * @param {QueryBuilders} queryBuilders The QueryBuilders used for building query objects.
    */
   constructor(
-    protected source: CollectionSource<DocumentType>,
-    protected mapper: Mapper<EntityType, DocumentType>
+    protected source: DataSource<DocumentType>,
+    protected mapper: Mapper<EntityType, DocumentType>,
+    protected queryBuilders: QueryBuilders
   ) {}
 
   /**
+   * Executes an aggregation operation on the data source.
    *
-   * @param {EntityType} entity
-   * @param {QueryModel | DocumentType} model
-   * @returns {Promise<Result<UpdateStatus.Success | UpdateStatus.Failure, Error>>}
+   * @param {AggregationParams | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the aggregation operation.
+   * @param {Mapper<ResultType, AggregationType>?} mapper The Mapper used for ResultType-AggregationType transformations (optional).
+   *
+   * @returns {Promise<Result<ResultType, Error>>} The result of the aggregation operation.
+   */
+  public async aggregate<
+    ResultType = EntityType | EntityType[],
+    AggregationType = DocumentType
+  >(
+    paramsOrBuilder: AggregationParams | QueryBuilder,
+    mapper?: Mapper<ResultType, AggregationType>
+  ): Promise<Result<ResultType, Error>> {
+    try {
+      let query: Query;
+
+      if (paramsOrBuilder instanceof AggregationParams) {
+        query = this.queryBuilders.buildAggregationQuery(paramsOrBuilder);
+      } else {
+        query = paramsOrBuilder.build();
+      }
+
+      const aggregation = await this.source.aggregate(query);
+      const conversionMapper = mapper || this.mapper;
+
+      if (Array.isArray(aggregation)) {
+        return Result.withContent(
+          aggregation.map(document =>
+            conversionMapper.toEntity(<AggregationType & DocumentType>document)
+          ) as ResultType
+        );
+      }
+
+      return Result.withContent(conversionMapper.toEntity(aggregation) as ResultType);
+    } catch (error) {
+      return Result.withFailure(Failure.fromError(error));
+    }
+  }
+
+  /**
+   * Updates entities in the data source.
+   *
+   * @param {UpdateParams<Partial<EntityType>> | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the update operation.
+   *
+   * @returns {Promise<Result<UpdateStats, Error>>} The result of the update operation, containing the update statistics or an error.
    */
   public async update(
-    entity: EntityType,
-    model?: QueryModel | DocumentType
-  ): Promise<Result<UpdateStatus.Success | UpdateStatus.Failure>> {
+    paramsOrBuilder: UpdateParams<Partial<EntityType>> | QueryBuilder
+  ): Promise<Result<UpdateStats, Error>> {
     try {
-      const data = this.mapper.toDataObject(entity);
-      const params = getParams(model);
+      let query: Query;
 
-      const document = await this.source.update(data, params);
+      if (paramsOrBuilder instanceof UpdateParams) {
+        const { updates, where, methods } = paramsOrBuilder;
+        const documents = updates.map(update =>
+          this.mapper.fromEntity(update as EntityType)
+        );
 
-      return document
-        ? Result.withContent(UpdateStatus.Success)
-        : Result.withContent(UpdateStatus.Failure);
+        query = this.queryBuilders.buildUpdateQuery(documents, where, methods);
+      } else {
+        query = paramsOrBuilder.build();
+      }
+
+      const stats = await this.source.update(query);
+
+      return Result.withContent(stats);
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
     }
   }
+
   /**
+   * Adds entities to the data source.
    *
-   * @param {EntityType[]} entities
-   * @returns {Promise<Result<UpdateStatus>>}
+   * @param {EntityType[]} entities The entities to be added.
+   *
+   * @returns {Promise<Result<EntityType[], Error>>} The result of the add operation, containing the added entities or an error.
    */
-  public async updateMany(entities: EntityType[]): Promise<Result<UpdateStatus>> {
+  public async add(entities: EntityType[]): Promise<Result<EntityType[], Error>> {
     try {
-      const documents = entities.map(entity => this.mapper.toDataObject(entity));
-      const { modifiedCount, upsertedCount } = await this.source.updateMany(documents);
+      const documents = entities.map(entity => this.mapper.fromEntity(entity));
+      const inserted = await this.source.insert(documents);
+      const newEntities = inserted.map(document => this.mapper.toEntity(document));
 
-      const operationsCount = modifiedCount + upsertedCount;
-
-      return operationsCount === documents.length
-        ? Result.withContent(UpdateStatus.Success)
-        : operationsCount > 0 && operationsCount < documents.length
-        ? Result.withContent(UpdateStatus.Partial)
-        : Result.withContent(UpdateStatus.Failure);
+      return Result.withContent(newEntities);
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
     }
   }
 
   /**
-   * @async
-   * @param {QueryModel | DocumentType} model
-   * @returns {number}
+   * Removes entities from the data source.
+   *
+   * @param {RemoveParams | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the remove operation.
+   *
+   * @returns {Promise<Result<RemoveStats, Error>>} The result of the remove operation, containing the removal statistics or an error.
    */
-  public async count(model: QueryModel | DocumentType): Promise<Result<number>> {
+  public async remove(
+    paramsOrBuilder: RemoveParams | QueryBuilder
+  ): Promise<Result<RemoveStats, Error>> {
     try {
-      const params = getParams(model);
-      const count = await this.source.count(params);
+      let query: Query;
+
+      if (paramsOrBuilder instanceof RemoveParams) {
+        query = this.queryBuilders.buildRemoveQuery(paramsOrBuilder);
+      } else {
+        query = paramsOrBuilder.build();
+      }
+
+      const stats = await this.source.remove(query);
+
+      return Result.withContent(stats);
+    } catch (error) {
+      return Result.withFailure(Failure.fromError(error));
+    }
+  }
+
+  /**
+   * Counts the entities in the data source.
+   *
+   * @param {CountParams | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the count operation (optional).
+   *
+   * @returns {Promise<Result<number, Error>>} The result of the count operation, containing the number of entities or an error.
+   */
+  public async count(
+    paramsOrBuilder?: CountParams | QueryBuilder
+  ): Promise<Result<number, Error>> {
+    try {
+      let query: Query;
+
+      if (paramsOrBuilder instanceof CountParams) {
+        query = this.queryBuilders.buildCountQuery(paramsOrBuilder);
+      } else if (paramsOrBuilder?.build) {
+        query = paramsOrBuilder.build();
+      } else {
+        query = {};
+      }
+
+      const count = await this.source.count(query);
 
       return Result.withContent(count);
     } catch (error) {
@@ -85,153 +182,30 @@ export class RepositoryImpl<EntityType, DocumentType>
   }
 
   /**
+   * Finds entities in the data source.
    *
-   * @async
-   * @returns {Promise<Result<EntityType>}
+   * @param {FindParams | QueryBuilder} paramsOrBuilder The parameters or QueryBuilder for the find operation (optional).
+   *
+   * @returns {Promise<Result<EntityType[], Error>>} The result of the find operation, containing the found entities or an error.
    */
-  public async add(entity: EntityType): Promise<Result<EntityType>> {
+  public async find(
+    paramsOrBuilder?: FindParams | QueryBuilder
+  ): Promise<Result<EntityType[], Error>> {
     try {
-      const dto = this.mapper.toDataObject(entity);
-      const insertedDocument = await this.source.insert(dto);
-      return Result.withContent(this.mapper.toEntity(insertedDocument));
-    } catch (error) {
-      return Result.withFailure(Failure.fromError(error));
-    }
-  }
+      let query: Query;
+      if (paramsOrBuilder instanceof FindParams) {
+        query = this.queryBuilders.buildFindQuery(paramsOrBuilder);
+      } else if (paramsOrBuilder?.build) {
+        query = paramsOrBuilder.build();
+      } else {
+        query = {};
+      }
 
-  /**
-   *
-   * @async
-   * @returns {Promise<Result<EntityType>}
-   */
-  public async addMany(entities: EntityType[]): Promise<Result<EntityType[]>> {
-    try {
-      const insertedDocuments = await this.source.insertMany(
-        entities.map(entity => this.mapper.toDataObject(entity))
-      );
+      const documents = await this.source.find(query);
+
       return Result.withContent(
-        insertedDocuments.map(document => this.mapper.toEntity(document))
+        documents.map(document => this.mapper.toEntity(document))
       );
-    } catch (error) {
-      return Result.withFailure(Failure.fromError(error));
-    }
-  }
-
-  /**
-   * @async
-   * @param {EntityType} entity
-   */
-  public async addOnce(entity: EntityType): Promise<Result<EntityType>> {
-    try {
-      const dto = this.mapper.toDataObject(entity);
-      const result = await this.source.update(dto);
-
-      if (result) {
-        return Result.withContent(this.mapper.toEntity(result));
-      }
-    } catch (error) {
-      return Result.withFailure(Failure.fromError(error));
-    }
-  }
-
-  /**
-   *
-   * @param {QueryModel | DocumentType} model
-   * @returns {Promise<Result<EntityType[]>>}
-   */
-  public async find(model: QueryModel | DocumentType): Promise<Result<EntityType[]>> {
-    try {
-      const params = getParams(model);
-      const dtos = await this.source.find(params);
-
-      return dtos && dtos.length > 0
-        ? Result.withContent(dtos.map(dto => this.mapper.toEntity(dto)))
-        : Result.withFailure(
-            Failure.fromError(new EntityNotFoundError(this.source.collectionName))
-          );
-    } catch (error) {
-      return Result.withFailure(Failure.fromError(error));
-    }
-  }
-
-  /**
-   *
-   * @param {QueryModel | DocumentType} model
-   * @returns {Promise<Result<EntityType>>}
-   */
-  public async findOne(model: QueryModel | DocumentType): Promise<Result<EntityType>> {
-    try {
-      const params = getParams(model);
-      const dto = await this.source.findOne(params);
-
-      return dto
-        ? Result.withContent(this.mapper.toEntity(dto as DocumentType))
-        : Result.withFailure(
-            Failure.fromError(new EntityNotFoundError(this.source.collectionName))
-          );
-    } catch (error) {
-      return Result.withFailure(Failure.fromError(error));
-    }
-  }
-
-  /**
-   *
-   * @param {QueryModel | DocumentType} model
-   * @returns {Promise<Result<EntityType[]>>}
-   */
-  public async aggregate(
-    model: QueryModel | DocumentType
-  ): Promise<Result<EntityType[]>> {
-    try {
-      const params = getParams(model);
-      const dtos = await this.source.aggregate(params);
-
-      return dtos && dtos.length > 0
-        ? Result.withContent(dtos.map(dto => this.mapper.toEntity(dto)))
-        : Result.withFailure(
-            Failure.fromError(new EntityNotFoundError(this.source.collectionName))
-          );
-    } catch (error) {
-      return Result.withFailure(Failure.fromError(error));
-    }
-  }
-
-  /**
-   *
-   * @param {QueryModel | DocumentType} data
-   * @returns {Promise<Result<boolean>>}
-   */
-  public async remove(data: QueryModel | DocumentType): Promise<Result<boolean>> {
-    try {
-      let removed = false;
-
-      if (isQueryModel(data)) {
-        removed = await this.source.remove(data.toQueryParams());
-      } else {
-        removed = await this.source.remove(data);
-      }
-
-      return Result.withContent(removed);
-    } catch (error) {
-      return Result.withFailure(Failure.fromError(error));
-    }
-  }
-
-  /**
-   *
-   * @param {QueryModel | DocumentType[]} data
-   * @returns {Promise<Result<boolean>>}
-   */
-  public async removeMany(data: QueryModel | DocumentType[]): Promise<Result<boolean>> {
-    try {
-      let removed = false;
-      if (Array.isArray(data)) {
-        removed = await this.source.removeMany(data);
-      } else {
-        removed = await this.source.removeMany(data.toQueryParams());
-      }
-
-      return Result.withContent(removed);
     } catch (error) {
       return Result.withFailure(Failure.fromError(error));
     }

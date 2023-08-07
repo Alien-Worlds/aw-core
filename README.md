@@ -1,106 +1,277 @@
-# api-core
+# Alien Worlds API Core
 
-A set of classes, functions used in both API and history tools. Designed not to duplicate the same code in different projects if there is no need to do so.
+Alien Worlds API Core is a comprehensive TypeScript/Node.js package designed to provide a solid infrastructure for building APIs and history tools for the Alien Worlds project. The package is organized into several modules that include API building, a clean architectural structure, blockchain interactions, configuration management, and utility functions. Additionally, it employs Inversify for inversion of control (IoC) to facilitate efficient dependency management.
 
-## Components
+## Table of Contents
 
-### IOC
+- [Installation](#installation)
+- [IoC (Inversion of Control)](#ioc)
+- [API](#api)
+- [Architecture](#architecture)
+- [Blockchain](#blockchain)
+- [Config](#config)
+- [Utils](#utils)
+- [Contributing](#contributing)
+- [License](#license)
 
-Our packages use `inversify`, which is lightweight inversion of control container. To avoid conflicts, every package using `api-core` and IOC should use Inversfy. However, it is not necessary to import yet another dpenedency in your package because `api-core` exports **all** Inversify components.
-
-### API
-
-Contains elements (types, errors, enums and classes) used in the API. The most important are the `Route` classes which are used as the basis for creating specific routes in the API code.
-
-| Name            |    Type     |     Layer     | Description                                                                                     |
-| :-------------- | :---------: | :-----------: | ----------------------------------------------------------------------------------------------- |
-| `Route`         | **_class_** | _application_ | Base class used for specific types of routes `{ method, path, handler, options? }`              |
-| `GetRoute`      | **_class_** | _application_ | Route class with a defined type `GET`                                                           |
-| `PostRoute`     | **_class_** | _application_ | Route class with a defined type `POST`                                                          |
-| `PutRoute`      | **_class_** | _application_ | Route class with a defined type `PUT`                                                           |
-| `DeleteRoute`   | **_class_** | _application_ | Route class with a defined type `DELETE`                                                        |
-| `RequestMethod` | **_enum_**  | _application_ | `POST`, `PUT`, `GET`, `DELETE`                                                                  |
-| `RequestError`  | **_error_** | _application_ | Request error contains basic information about the failure (status, message and details object) |
-| `Request`       | **_type_**  | _application_ | Basic request type (independent of the selected web framework)                                  |
-| `Response`      | **_type_**  | _application_ | Basic response type (independent of the selected web framework)                                 |
-| `RouteOptions`  | **_type_**  | _application_ | Additional route options where hooks and validatorscan be specified                             |
-| `RequestHooks`  | **_type_**  | _application_ | Functions (`pre`, `post`) that run before and after the handler execution                       |
-| `Validators`    | **_type_**  | _application_ | Second route option which specifies validators for the request and response                     |
-| `RouteHandler`  | **_type_**  | _application_ | The function assigned to the endpoint that must return a `Result`                               |
-
-### Architecture
-
-| Name         |    Type     |     Layer     | Description                                                                                                                                                                              |
-| :----------- | :---------: | :-----------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `CollectionSource`    | **_class_** |   _data_    |                     |
-| `Mapper`    | **_class_** |   _data_    |                     |
-| `RepositoryImpl`    | **_class_** |   _data_    |                     |
-| `UpdateStatus`, `UpdateManyResult`    | **_type_** |   _data_    |                     |
-| `Repository`    | **_class_** |   _domain_    |                     |
-| `UseCase`    | **_class_** |   _domain_    | Use cases orchestrate the flow of data to and from the entities, and direct those entities to use their Critical Business Rules to achieve the goals of the use case.                    |
-| `Result`     | **_class_** |   _domain_    | Result represents a value of two possible data types. A result is either a defined content type or a Failure.                                                                            |
-| `Failure`    | **_class_** |   _domain_    | Failure represents one of the Result data types. Failure contains an error object                                                                                                        |
-| `QueryModel` | **_class_** | _domain/data_ | Defines a data model which is on top of the specific data base query. Contains `toQueryParams` method which returns the parameters needed to execute the query in the specified database |
-
-### RPC
-
-| Name                              |    Type     |  Layer   |
-| :-------------------------------- | :---------: | :------: |
-| `EosRpcSource`                    | **_class_** |  _data_  |
-| `EosJsRpcSource`                  | **_class_** |  _data_  |
-| `SmartContractDataNotFoundError`  | **_error_** | _domain_ |
-
-### Storage
-
-| Name                       |      Type      |  Layer   |
-| :------------------------- | :------------: | :------: |
-| `CollectionBigQuerySource` |  **_class_**   |  _data_  |
-| `CollectionMongoSource`    |  **_class_**   |  _data_  |
-| `MongoSource`              |  **_class_**   |  _data_  |
-| `MongoFindQueryParams`     |   **_type_**   | _domain_ |
-| `MongoAggregateParams`     |   **_type_**   | _domain_ |
-| `connectMongo`             | **_function_** |  _data_  |
-| `buildSqlQuery`            | **_function_** |  _data_  |
-| `DataSourceBulkWriteError` |  **_error_**   | _domain_ |
-| `DataSourceOperationError` |  **_error_**   | _domain_ |
-| `InsertManyError`          |  **_error_**   | _domain_ |
-| `InsertError`              |  **_error_**   | _domain_ |
-| `InsertOnceError`          |  **_error_**   | _domain_ |
-| `EntityAlreadyExistsError` |  **_error_**   | _domain_ |
-| `EntityNotFoundError`      |  **_error_**   | _domain_ |
-| `UpdateResult`             |   **_enum_**   | _domain_ |
-| `SqlQueryType`             |   **_enum_**   | _domain_ |
-
-## Usage
-
-To use these components in your code, add this package as a dependency using your Node package manager
-
-```
-npm add @alien-worlds/api-core
-```
-
-## Deployment
-
-If you want to release a new version of this package, just run `deploy.sh` from the main project folder.
+## Installation
 
 ```sh
-# patches version by default
-sh scripts/deploy.sh
-
-# Optionally, you can specify the version or what kind of update is (major|minor|patch)
-# e.g.
-sh scripts/deploy.sh 1.2.3
-# or
-sh scripts/deploy.sh major
-
+yarn add @alien-worlds/aw-core
 ```
 
-This script will:
+## IoC (Inversion of Control)
 
-- start the typeScript compiler
-- pull latest changes from the repository
-- bump the version in the `package.json` file
-- create a commit and push it to the repository
-- publish the new version to the registry (if all the previous steps have been completed successfully)
+Inversion of Control (IoC) is implemented using [InversifyJS](https://inversify.io/), a powerful and lightweight inversion of control container for JavaScript and Node.js apps powered by TypeScript. IoC promotes code modularity, making the system more flexible, maintainable, and scalable.
 
-**Before running the script, be sure that you have a clean situation and the latest changes from the repository so that there are no conflicts**
+#### Helpful links:
+
+- [About IoC](./tutorials/about-ioc.md)
+
+## API
+
+This module comprises the core components necessary for creating APIs. It consists of enumerations, error types, route class, and other types that allow efficient API design.
+
+### `setupRouteHandler(route)`
+
+This function sets up the route handler function for a given route. It takes a `route` object as input and returns a promise that resolves to the route handler function. The route handler function is responsible for handling incoming requests and generating appropriate responses based on the provided route configuration.
+
+The `setupRouteHandler` function supports any web framework and can be used in conjunction with the `Route` class to define routes. It provides flexibility and extensibility, allowing developers to customize the request handling logic by specifying hooks, validators, and authorization functions within the route configuration.
+
+### `Route` Class
+
+The `Route` class is a generic class that represents a route in your web application. It provides a flexible and modular approach to define routes and handle incoming requests. Developers can extend the `Route` class and use derived classes such as `GetRoute`, `PostRoute`, `PatchRoute`, `PutRoute`, and `DeleteRoute` to define routes for different HTTP methods.
+
+The `Route` class allows you to specify the HTTP method, path, handler function and configuration options for each route. It supports the use of hooks, validators, authorization an `io` functions to customize the request handling process. `RouteIO` is used to transform data from requests to unified input for the controller and from controller output to the response.
+The class is designed to be compatible with any web framework you choose to use, making it a versatile choice for building APIs or handling server-side routes.
+
+Using the `Route` class and its derived classes, developers can create a clean and structured API for their web application, improving code organization and maintainability.
+
+```typescript
+
+// An example of the RouteIO class implementation
+
+export class ListPlanetsRouteIO implements RouteIO {
+  public toResponse(output: ListPlanetsOutput): Response {
+    const { result, ... } = output;
+
+    if (result.isFailure) {
+      const {
+        failure: { error },
+      } = result;
+      if (error) {
+        return {
+          status: 500,
+          body: [],
+        };
+      }
+    }
+
+    return {
+      status: 200,
+      body: result.content.map(planet => planet.toJSON()),
+    };
+  }
+
+  public fromRequest(request: Request): ListPlanetsInput {
+    const { params: { name } , ... } = request;
+    return ListPlanetsInput.create(name);
+  }
+}
+
+// An example of using the GetRoute class
+// Note: 'io' is optional, if you don't specify an instance, default will be used.
+
+export class ListPlanetsRoute extends GetRoute {
+  public static create(handler: RouteHandler, config: PlanetsApiConfig) {
+    return new ListPlanetsRoute(handler, config);
+  }
+
+  private constructor(handler: RouteHandler, config: PlanetsApiConfig, io: IO) {
+    super(`/${config.version}/planets/list`, handler, {
+      io: new ListPlanetsRouteIO(),
+      /* ... OR ...
+      io: {
+        fromRequest: (request: Request) => ({
+          toJSON(): () => ({ ... })
+        }),
+        toResponse: (output: ListPlanetsOutput) => ({
+          status: ...,
+          body: ... 
+        })
+      },
+      */
+      hooks: {
+        pre: (request: Request) => {
+          // Any operations not related to logic but only to the presentation layer
+          // and which should be performed before creating input for the controller.
+        },
+        post: (output: ListPlanetsOutput) => {
+          // Any operations not related to logic but only to the presentation layer
+          // and which should be performed before sending the response.
+        },
+      },
+    });
+  }
+}
+```
+
+#### Helpful links:
+
+- [How to create a new API?](https://github.com/Alien-Worlds/api-starter-kit/blob/main/tutorials/how-to-create-api.md)
+
+## Architecture
+
+The architecture module, divided into data and domain layers, follows clean architecture principles. Adopting this approach enhances the code's flexibility, maintainability, and testability. It allows for independent and reusable code components, ensuring that code style remains consistent across different contributors.
+
+The clean architecture paradigm also promotes separation of concerns by dividing the code into layers. The use of this design pattern facilitates the ability to change one aspect of the system without affecting others. This is due to the decoupling of the software into independent layers, thereby reducing the complexity of the codebase, increasing readability, and improving overall code quality.
+
+#### Dependency Injector
+As `DependencyInjector` is an abstract class, it cannot be instantiated directly. Its purpose is to define a template for dependency injectors, making the dependency management more structured and maintainable.
+
+### Data Layer
+
+The data layer contains base classes and types for data layer components such as:
+
+- **DataSource**: Represents a general interface for the data sources in the application.
+  - `find(query?: Query)`
+  - `count(query?: Query)`
+  - `aggregate(query: Query)`
+  - `update(query: Query)`
+  - `insert(query: Query)`
+  - `remove(query: Query)`
+  - `startTransaction(options?: UnknownObject)`
+  - `commitTransaction()`
+  - `rollbackTransaction()`
+- **Mapper**: The interface of a class whose instance changes the entity to the model of a specific database and vice versa.
+  - `toEntity(model: ModelType)`
+  - `fromEntity(entity: EntityType)`
+  - `getEntityKeyMapping(key: string)`
+- **MapperImpl**: Basic mapper implementation that can be inherited and extended. It contains a basic fromEntity mechanism for extracting mapping functions assigned to entity parameters.
+- **QueryBuilders**: Collection of query builders for different types of operations (find, count, update, remove, and aggregate).
+  - `buildFindQuery(params: FindParams)`
+  - `buildCountQuery(params: CountParams)`
+  - `buildUpdateQuery(updates: UpdateType[], where: Where[], methods: UpdateMethod[])`
+  - `buildRemoveQuery(params: RemoveParams)`
+  - `buildAggregationQuery(params: AggregationParams)`
+- **RepositoryImpl**: A generic repository for managing database interactions.
+
+### Domain Layer
+
+The domain layer consists of basic components and types such as:
+
+- **Entity**: Core representation of an object in the system.
+  - `static create(...args: unknown[])`
+  - `static getDefault()`
+  - `toJSON()`
+- **QueryBuilder and QueryParams**: Abstract QueryBuilder class and parameters for various queries (FindParams, CountParams, AggregationParams, RemoveParams, UpdateParams).
+- **Failure**: Represents a failure as a result of an error in executing a use case or repository operation.
+  - `static fromError<T = Error>(error: T, throwable = false, reportable = false)`
+  - `static withMessage(message: string, throwable = false, reportable = false)`
+- **ReadOnlyRepository and Repository**: Abstract classes defining read-only and mutable repository methods.
+  - `count(paramsOrBuilder?: CountParams | QueryBuilder)`
+  - `find(paramsOrBuilder?: FindParams | QueryBuilder)`
+  - `update(paramsOrBuilder: UpdateParams | QueryBuilder)`
+  - `add(entities: EntityType[])`
+  - `remove(paramsOrBuilder: RemoveParams | QueryBuilder)`
+- **Result**: Represents the result of executing a use case or repository operation. It can return either a Failure object or the typed content.
+  - `static withContent<ContentType>(content: ContentType)`
+  - `static withoutContent()`
+  - `static withFailure<ErrorType>(failure: Failure<ErrorType>)`
+- **UseCase**: Abstract UseCase class for encapsulating business logic.
+  - `execute(...rest: unknown[])`
+- **Where**: A class used to build 'Where' clauses. Used to build database queries within query builders.
+
+#### Helpful links:
+
+- [Why clean Architecture?](./tutorials/why-clean-architecture.md)
+
+## Blockchain
+
+The blockchain component is divided into data and domain layers. It contains the necessary types and components to interact with the blockchain.
+
+### Data Layer
+
+- **RpcSource**: Abstraction for the RPC connection. It contains methods to retrieve table rows and contract stats.
+  - `getTableRows<RowType = unknown>(options: GetTableRowsOptions)`
+  - `getContractStats(account: string)`
+  - `getInfo()`
+  - `getHeadBlockNumber()`
+  - `getLastIrreversibleBlockNumber()`
+
+### Domain Layer
+
+- Entities like **ContractAction**, **ContractDelta**, **ContractEncodedAbi** and **ContractUnknownData** to represent different blockchain transaction aspects.
+- **SmartContractService**: interface with one method getStats. The concrete service should implement methods to retrieve desired table rows of the contract.
+- **BlockchainService**: An abstraction of the service that is used to download blockchain data and statistics.
+  - `getInfo()`
+  - `getHeadBlockNumber()`
+  - `getLastIrreversibleBlockNumber()`
+- **AbiService**: An abstract class that represents the ABI service. The purpose of the service is to download ABI(s) data from the web.
+  - `fetchAbis(contract: string)`
+- **Serializer**: An abstraction of tools for serializing and deserializing blockchain content. The implementation depends on the type of blockchain.
+  - `getAbiFromHex(hex: string)`
+  - `getHexFromAbi(abi: AbiType)`
+  - `getTypesFromAbi(abi: UnknownObject)`
+  - `serialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
+  - `deserialize(value: unknown, type?: string, types?: Map<string, unknown>, ...args: unknown[])`
+  - `deserializeActionData(contract: string, action: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
+  - `deserializeTableRow(row: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
+  - `deserializeTableRowData(table: string, data: Uint8Array, abi: string | UnknownObject, ...args: unknown[])`
+  - `deserializeTransaction(contract: string, data: Uint8Array, abi?: string | UnknownObject, ...args: unknown[])`
+  - `deserializeBlock(data: DataType, abi?: string | UnknownObject, ...args: unknown[])`
+  - `hexToUint8Array(value: string)`
+  - `uint8ArrayToHex(value: Uint8Array)`
+- Types related to the smart contract components.
+
+#### Helpful links:
+
+- [How to write your own blockchain components?](./tutorials/how-to-write-blockchain-components.md)
+
+## Config
+
+The config module contains utilities for working with environment variables and `.env` files:
+
+- **ConfigVars**: Provides access to environment variables and values from a .env file.
+
+```java
+const vars = new ConfigVars();
+const port = vars.getNumberEnv('PORT'); // PORT=8080
+const secretKey = vars.getStringEnv('SECRET_KEY'); // SECRET_KEY=my_secret
+const isPrimary = vars.getBooleanEnv('IS_PRIMARY'); // IS_PRIMARY=true OR IS_PRIMARY=1
+const hosts = vars.getArrayEnv('HOSTS'); // HOSTS='url_1, url_2, url_3'
+```
+
+- **readEnvFile**: Reads and parses the contents of an .env file and returns an object representing the key-value pairs.
+- **parseEnvFile**: Parses the contents of an .env file buffer or string and returns an object representing the key-value pairs.
+
+## Utils
+
+The utility component provides a set of functions that assist in various tasks, including:
+
+- **wait**: Suspends execution of the current process for a given number of milliseconds.
+
+```java
+await wait(5000);
+```
+
+- **parseDateToMs**: Parses a date string into milliseconds.
+
+```java
+const ms = parseDateToMs('...');
+```
+
+- **removeUndefinedProperties**: Removes undefined properties and empty objects, useful for creating DTOs to send to a data source.
+- **parseToBigInt & parseUint8ArrayToBigInt**: Functions for parsing values into BigInt.
+
+```java
+const blockNumber = parseToBigInt('1234567890');
+```
+
+## Contributing
+
+We welcome contributions from the community. Before contributing, please read through the existing issues on this repository to prevent duplicate submissions. New feature requests and bug reports can be submitted as an issue. If you would like to contribute code, please open a pull request.
+
+## License
+
+This project is licensed under the terms of the MIT license. For more information, refer to the [LICENSE](./LICENSE) file.

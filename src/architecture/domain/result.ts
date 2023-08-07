@@ -42,7 +42,9 @@ export class Result<ContentType = void, ErrorType = Error> {
    * @param {ContentType} content
    * @returns {Result<ContentType>}
    */
-  public static withContent<ContentType>(content: ContentType): Result<ContentType, null> {
+  public static withContent<ContentType>(
+    content: ContentType
+  ): Result<ContentType, null> {
     return new Result<ContentType, null>({ content });
   }
 
@@ -60,10 +62,24 @@ export class Result<ContentType = void, ErrorType = Error> {
    * Create instance of the Result class with the failure
    *
    * @static
-   * @param {Failure} failure
+   * @param {Failure | Error} failure
    * @returns
    */
-   public static withFailure<ErrorType>(failure: Failure<ErrorType>): Result<null, ErrorType> {
-    return new Result<null, ErrorType>({ failure });
+  public static withFailure<ErrorType = Error>(
+    failure: Failure<ErrorType> | Error | string
+  ): Result<null, ErrorType> {
+    if (failure instanceof Failure) {
+      return new Result<null, ErrorType>({ failure });
+    }
+
+    if (typeof failure === 'string') {
+      return new Result<null, ErrorType>({
+        failure: Failure.withMessage(failure) as Failure<ErrorType>,
+      });
+    }
+
+    return new Result<null, ErrorType>({
+      failure: Failure.fromError<ErrorType>(failure as ErrorType),
+    });
   }
 }

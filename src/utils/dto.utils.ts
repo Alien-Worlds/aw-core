@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Long } from 'mongodb';
 
 /**
  * Remove undefined properties and empty objects.
@@ -25,10 +24,7 @@ export const removeUndefinedProperties = <T>(input: unknown): T => {
 
     if (value.constructor.name === 'Object') {
       const cleared = removeUndefinedProperties(value);
-      // if the cleared object is empty then do not add it
-      if (Object.keys(cleared).length > 0) {
-        output[key] = cleared;
-      }
+      output[key] = cleared;
       continue;
     }
 
@@ -43,8 +39,9 @@ export const removeUndefinedProperties = <T>(input: unknown): T => {
  * @returns {bigint}
  */
 export const parseToBigInt = (value: unknown): bigint => {
-  if (value instanceof Long) {
-    return value.toBigInt();
+  // MongoDB.Long instance
+  if (value['toBigInt']) {
+    return value['toBigInt']();
   }
   return BigInt(value as string | number | bigint | boolean);
 };

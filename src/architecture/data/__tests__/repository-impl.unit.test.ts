@@ -1,385 +1,301 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Failure } from '../../domain/failure';
+import {
+  AggregationParams,
+  CountParams,
+  FindParams,
+  RemoveParams,
+  UpdateMethod,
+  UpdateParams,
+} from '../../domain/queries';
+import { Result } from '../../domain/result';
+import { Where } from '../../domain/where/where';
+import { DataSource } from '../data.source';
+import { Mapper } from '../mapper';
+import { QueryBuilders } from '../query-builders';
+import { RepositoryImpl } from '../repository-impl';
 
-import { Failure } from "../../domain/failure";
-import { QueryModel } from "../../domain/query-model";
-import { RepositoryImpl } from "../repository-impl";
-import { FakeDocument, FakeEntity } from "./fixtures/fake.entity";
-import { EntityNotFoundError } from "../../domain/repository.errors";
-import { UpdateStatus } from "../collection.types";
+describe('RepositoryImpl', () => {
+  let repository: RepositoryImpl<unknown, unknown>;
+  let mockDataSource: jest.Mocked<DataSource>;
+  let mockMapper: jest.Mocked<Mapper>;
+  let mockQueryBuilders: jest.Mocked<QueryBuilders>;
 
+  beforeEach(() => {
+    mockDataSource = {
+      aggregate: jest.fn(),
+      find: jest.fn(),
+      update: jest.fn(),
+      remove: jest.fn(),
+      insert: jest.fn(),
+      count: jest.fn(),
+      startTransaction: jest.fn(),
+      commitTransaction: jest.fn(),
+      rollbackTransaction: jest.fn(),
+    } as any;
+    mockMapper = {
+      toEntity: jest.fn(),
+      fromEntity: jest.fn(),
+      getEntityKeyMapping: jest.fn(),
+    } as any;
+    mockQueryBuilders = {
+      buildAggregationQuery: jest.fn(),
+      buildFindQuery: jest.fn(),
+      buildUpdateQuery: jest.fn(),
+      buildRemoveQuery: jest.fn(),
+      buildCountQuery: jest.fn(),
+    } as any;
 
-export class TestQueryModel
-  implements QueryModel
-{
-  toQueryParams() {
-    return {
-      filter: { account: 'foo' },
-    };
-  }
-}
-
-let repository: RepositoryImpl<FakeEntity, FakeDocument>;
-const source = {
-  count: jest.fn(),
-  update: jest.fn(),
-  updateMany: jest.fn(),
-  aggregate: jest.fn(),
-  find: jest.fn(),
-  findOne: jest.fn(),
-  insert: jest.fn(),
-  insertMany: jest.fn(),
-  removeMany: jest.fn(),
-  remove: jest.fn(),
-} as any;
-
-const mapper = {
-  toDataObject: (entity: FakeEntity) => jest.fn(),
-  toEntity: (document: FakeDocument) => jest.fn(),
-}
-
-const dto: { _id?: string, data?: string } = {
-  _id: '',
-  data: 'fake data',
-};
-
-const findModel = { toQueryParams: () => ({ filter: {}, options: {} }) } as any;
-const aggregateModel = {
-  toQueryParams: () => ({ pipeline: [], options: {} }),
-} as any;
-
-describe('RepositoryImpl unit tests', () => {
-
-  it('"count" should return failure when source throws error', async () => {
-    const findMock = jest
-      .spyOn(source, 'count')
-      .mockRejectedValue(new Error(''));
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.count(findModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(Error);
-
-    findMock.mockClear();
+    repository = new RepositoryImpl(mockDataSource, mockMapper, mockQueryBuilders);
   });
 
-  it('"count" should return number', async () => {
-    const findMock = jest.spyOn(source, 'count').mockResolvedValue(12);
-    repository = new RepositoryImpl(source, mapper as any);
+  describe('aggregate', () => {
+    it('should perform the aggregation and return a result', async () => {
+      const testParams = AggregationParams.create({
+        average: 'filed1',
+        count: 'filed2',
+        groupBy: ['filed3'],
+      });
+      const expectedQuery = { count: 'field1' };
+      const expected = [{ name: 'Foo' }];
 
-    const result = await repository.count(findModel);
-    expect(result.content).toEqual(12);
-    expect(result.failure).toBeUndefined();
+      mockQueryBuilders.buildAggregationQuery.mockReturnValue(expectedQuery);
+      mockDataSource.aggregate.mockResolvedValueOnce(expected);
+      mockMapper.toEntity.mockImplementation(x => x);
 
-    findMock.mockClear();
+      const result = await (repository as any).aggregate(testParams);
+
+      expect(result).toEqual(Result.withContent(expected));
+      expect(mockDataSource.aggregate).toHaveBeenCalledWith(expectedQuery);
+      expect(mockMapper.toEntity).toHaveBeenCalledWith(...expected);
+
+      mockMapper.toEntity.mockReset();
+      mockDataSource.aggregate.mockResolvedValueOnce([expected]);
+
+      await (repository as any).aggregate(testParams);
+
+      expect(mockMapper.toEntity).toBeCalledTimes(1);
+    });
+
+    it('should call the build method when a custom builder is given', async () => {
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+
+      await (repository as any).aggregate(mockQueryBuilder);
+      expect(mockQueryBuilder.build).toHaveBeenCalled();
+    });
+
+    it('should return Result.withFailure on error', async () => {
+      const mockError = new Error('Mocked error');
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+      mockDataSource.aggregate.mockRejectedValue(mockError);
+
+      const result = await (repository as any).aggregate(mockQueryBuilder);
+
+      expect(result).toEqual(Result.withFailure(Failure.fromError(mockError)));
+    });
   });
 
-  it('"addOnce" should return failure when source throws error', async () => {
-    const findMock = jest
-      .spyOn(source, 'update')
-      .mockRejectedValue(new Error(''));
-    repository = new RepositoryImpl(source, mapper as any);
+  describe('update', () => {
+    it('should perform the update and return a result', async () => {
+      const testParams = new UpdateParams(
+        [{ id: 1, name: 'Entity 1' }],
+        [Where.is({})],
+        [UpdateMethod.UpdateOne]
+      );
+      const expected = {
+        status: 'success',
+        modifiedCount: 1,
+        upsertedCount: 0,
+        upsertedIds: [],
+      };
+      const expectedQuery = { id: 1, name: 'Entity 1' };
+      mockQueryBuilders.buildUpdateQuery.mockReturnValue(expectedQuery);
+      mockDataSource.update.mockResolvedValueOnce(expected);
 
-    const result = await repository.addOnce(findModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(Error);
+      const result = await repository.update(testParams);
 
-    findMock.mockClear();
+      expect(result).toEqual(Result.withContent(expected));
+      expect(mockDataSource.update).toHaveBeenCalledWith(expectedQuery);
+    });
+
+    it('should call the build method when a custom builder is given', async () => {
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+
+      await repository.update(mockQueryBuilder);
+      expect(mockQueryBuilder.build).toHaveBeenCalled();
+    });
+
+    it('should return Result.withFailure on error', async () => {
+      const mockError = new Error('Mocked error');
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+      mockDataSource.update.mockRejectedValue(mockError);
+
+      const result = await repository.update(mockQueryBuilder);
+
+      expect(result).toEqual(Result.withFailure(Failure.fromError(mockError)));
+    });
   });
 
-  it('"find" should return failure when no documents were found', async () => {
-    const findMock = jest.spyOn(source, 'find').mockResolvedValue([]);
-    repository = new RepositoryImpl(source, mapper as any);
+  describe('remove', () => {
+    it('should perform the remove and return a result', async () => {
+      const testParams = new RemoveParams();
+      const expected = {
+        status: 'success',
+        deletedCount0: 1,
+      };
+      const expectedQuery = { where: { name: 'foo' } };
+      mockQueryBuilders.buildRemoveQuery.mockReturnValue(expectedQuery);
+      mockDataSource.remove.mockResolvedValueOnce(expected);
 
-    const result = await repository.find(findModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(EntityNotFoundError);
+      const result = await repository.remove(testParams);
 
-    findMock.mockClear();
+      expect(result).toEqual(Result.withContent(expected));
+      expect(mockDataSource.remove).toHaveBeenCalledWith(expectedQuery);
+    });
+
+    it('should call the build method when a custom builder is given', async () => {
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+
+      await repository.remove(mockQueryBuilder);
+      expect(mockQueryBuilder.build).toHaveBeenCalled();
+    });
+
+    it('should return Result.withFailure on error', async () => {
+      const mockError = new Error('Mocked error');
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+      mockDataSource.remove.mockRejectedValue(mockError);
+
+      const result = await repository.remove(mockQueryBuilder);
+
+      expect(result).toEqual(Result.withFailure(Failure.fromError(mockError)));
+    });
   });
 
-  it('"find" should return failure when source throws error', async () => {
-    const findMock = jest
-      .spyOn(source, 'find')
-      .mockRejectedValue(new Error(''));
-    repository = new RepositoryImpl(source, mapper as any);
+  describe('count', () => {
+    it('should perform the count and return a result', async () => {
+      const testParams = CountParams.create({
+        sort: { field1: 1 },
+        where: Where.is({ name: 'foo' }),
+      });
+      const expected = 1;
+      const expectedQuery = { sort: { filed1: 1 }, where: { name: 'foo' } };
 
-    const result = await repository.find(findModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(Error);
+      mockQueryBuilders.buildCountQuery.mockReturnValue(expectedQuery);
+      mockDataSource.count.mockResolvedValueOnce(expected);
 
-    findMock.mockClear();
+      const result = await repository.count(testParams);
+
+      expect(result).toEqual(Result.withContent(expected));
+      expect(mockDataSource.count).toHaveBeenCalledWith(expectedQuery);
+    });
+
+    it('should call the build method when a custom builder is given', async () => {
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+
+      await repository.count(mockQueryBuilder);
+      expect(mockQueryBuilder.build).toHaveBeenCalled();
+    });
+
+    it('should return Result.withFailure on error', async () => {
+      const mockError = new Error('Mocked error');
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+      mockDataSource.count.mockRejectedValue(mockError);
+
+      const result = await repository.count(mockQueryBuilder);
+
+      expect(result).toEqual(Result.withFailure(Failure.fromError(mockError)));
+    });
   });
 
-  it('"find" should return data object', async () => {
-    const findMock = jest.spyOn(source, 'find').mockResolvedValue([dto]);
-    repository = new RepositoryImpl(source, mapper as any);
+  describe('find', () => {
+    it('should perform the find and return a result', async () => {
+      const testParams = FindParams.create({ limit: 10, offset: 1 });
+      const expected = [{ id: 1, name: 'Entity 1' }];
+      const expectedQuery = { limit: 10, offset: 1 };
 
-    const result = await repository.find(findModel);
-    console.log(result.failure?.error)
-    expect(result.content).toBeInstanceOf(Array);
-    expect(result.failure).toBeUndefined();
+      mockQueryBuilders.buildFindQuery.mockReturnValue(expectedQuery);
+      mockDataSource.find.mockResolvedValueOnce(expected);
+      mockMapper.toEntity.mockImplementation(document => expected[0]);
+      const result = await repository.find(testParams);
 
-    findMock.mockClear();
+      expect(result).toEqual(Result.withContent(expected));
+      expect(mockDataSource.find).toHaveBeenCalledWith(expectedQuery);
+      expect(mockMapper.toEntity).toHaveBeenCalledTimes(expected.length);
+    });
+
+    it('should call the build method when a custom builder is given', async () => {
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+
+      await repository.find(mockQueryBuilder);
+      expect(mockQueryBuilder.build).toHaveBeenCalled();
+    });
+
+    it('should return Result.withFailure on error', async () => {
+      const mockError = new Error('Mocked error');
+      const mockQueryBuilder = {
+        with: jest.fn(),
+        build: jest.fn().mockReturnValue({ name: 'foo' }),
+      } as any;
+      mockDataSource.find.mockRejectedValue(mockError);
+
+      const result = await repository.find(mockQueryBuilder);
+
+      expect(result).toEqual(Result.withFailure(Failure.fromError(mockError)));
+    });
   });
 
-  //
-  it('"findOne" should return failure when no documents were found', async () => {
-    const findOneMock = jest.spyOn(source, 'findOne').mockResolvedValue(null);
-    repository = new RepositoryImpl(source, mapper as any);
+  describe('add', () => {
+    it('should add the entities and return a result', async () => {
+      const testEntities = [{ id: 1, name: 'Entity 1' }];
+      const testDocuments = [{ _id: 1, name: 'Entity 1' }];
+      const expected = [{ id: 1, name: 'Entity 1' }];
 
-    const result = await repository.findOne(findModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(EntityNotFoundError);
+      mockDataSource.insert.mockResolvedValueOnce(testDocuments);
+      mockMapper.toEntity.mockImplementation(document => testEntities[0]);
+      mockMapper.fromEntity.mockImplementation(entity => testDocuments[0]);
 
-    findOneMock.mockClear();
-  });
+      const result = await repository.add(testEntities);
 
-  it('"findOne" should return failure when source throws error', async () => {
-    const findOneMock = jest
-      .spyOn(source, 'findOne')
-      .mockRejectedValue(new Error(''));
-    repository = new RepositoryImpl(source, mapper as any);
+      expect(result).toEqual(Result.withContent(expected));
+      expect(mockDataSource.insert).toHaveBeenCalledWith(testDocuments);
+      expect(mockMapper.toEntity).toHaveBeenCalledTimes(testDocuments.length);
+    });
 
-    const result = await repository.findOne(findModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(Error);
+    it('should return Result.withFailure on error', async () => {
+      const mockError = new Error('Mocked error');
+      const testEntities = [{ id: 1, name: 'Entity 1' }];
 
-    findOneMock.mockClear();
-  });
+      mockDataSource.insert.mockRejectedValue(mockError);
 
-  it('"findOne" should return data object', async () => {
-    const findOneMock = jest.spyOn(source, 'findOne').mockResolvedValue(dto as any);
-    const createEntityMock = jest
-      .spyOn(mapper, 'toEntity')
-      .mockImplementation(() => FakeEntity.create('', dto.data) as any);
-    repository = new RepositoryImpl(source, mapper as any);
+      const result = await repository.add(testEntities);
 
-    const result = await repository.findOne(findModel);
-    expect(result.content).toBeInstanceOf(FakeEntity);
-    expect(result.failure).toBeUndefined();
-
-    findOneMock.mockClear();
-    createEntityMock.mockClear();
-  });
-
-  it('"aggregate" should return failure when no documents were found', async () => {
-    const aggregateMock = jest.spyOn(source, 'aggregate').mockResolvedValue([]);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.aggregate(aggregateModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(EntityNotFoundError);
-
-    aggregateMock.mockClear();
-  });
-
-  it('"aggregate" should return failure when source throws error', async () => {
-    const aggregateMock = jest
-      .spyOn(source, 'aggregate')
-      .mockRejectedValue(new Error(''));
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.aggregate(aggregateModel);
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(Error);
-
-    aggregateMock.mockClear();
-  });
-
-  it('"aggregate" should return data object', async () => {
-    const aggregateMock = jest
-      .spyOn(source, 'aggregate')
-      .mockResolvedValue([dto]);
-    const createEntityMock = jest
-      .spyOn(mapper, 'toEntity')
-      .mockImplementation(() => FakeEntity.create('', dto.data) as any);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.aggregate(aggregateModel);
-    expect(result.content).toBeInstanceOf(Array);
-    expect(result.content[0]).toEqual(FakeEntity.fromDocument(dto));
-    expect(result.failure).toBeUndefined();
-
-    aggregateMock.mockClear();
-    createEntityMock.mockClear();
-  });
-
-  it('"add" should return failure when source throws error', async () => {
-    const addMock = jest
-      .spyOn(source, 'insert')
-      .mockRejectedValue(new Error(''));
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.add(FakeEntity.fromDocument(dto));
-    expect(result.content).toBeUndefined();
-    expect(result.failure.error).toBeInstanceOf(Error);
-
-    addMock.mockClear();
-  });
-
-  it('"add" should return data object', async () => {
-    const fakeId = 'fake_id';
-    const addMock = jest.spyOn(source, 'insert').mockResolvedValue({});
-    const createEntityMock = jest.spyOn(mapper, 'toEntity')
-      .mockImplementation(() => FakeEntity.create(fakeId, dto.data) as any);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.add(FakeEntity.fromDocument(dto));
-    expect(result.content).toEqual(FakeEntity.create(fakeId, dto.data) as any);
-    expect(result.failure).toBeUndefined();
-
-    addMock.mockClear();
-    createEntityMock.mockClear();
-  });
-
-  it('"remove" should call remove and use dto data as a filter', async () => {
-    const removeMock = jest.spyOn(source, 'remove').mockResolvedValue(true);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.remove(new TestQueryModel());
-    expect(result.content).toEqual(true);
-    expect(result.failure).toBeUndefined();
-
-    removeMock.mockClear();
-  });
-
-  it('"remove" should remove element with given id', async () => {
-    const removeMock = jest.spyOn(source, 'remove').mockResolvedValue(true);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.remove({ _id: 'fake_id' });
-    expect(result.content).toEqual(true);
-    expect(result.failure).toBeUndefined();
-
-    removeMock.mockClear();
-  });
-
-  it('"remove" should return Failure when removing document fails', async () => {
-    const removeMock = jest.spyOn(source, 'remove').mockRejectedValue(new Error());
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.remove({ _id: 'fake_id' });
-    expect(result.failure).toBeInstanceOf(Failure);
-
-    removeMock.mockClear();
-  });
-
-  it('"removeMany" should call remove and use dto data as a filter', async () => {
-    const removeManyMock = jest.spyOn(source, 'removeMany').mockResolvedValue(true);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.removeMany(new TestQueryModel());
-    expect(result.content).toEqual(true);
-    expect(result.failure).toBeUndefined();
-
-    removeManyMock.mockClear();
-  });
-
-  it('"removeMany" should remove element with given id', async () => {
-    const removeManyMock = jest.spyOn(source, 'removeMany').mockResolvedValue(true);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.removeMany([{ _id: 'fake_id' }]);
-    expect(result.content).toEqual(true);
-    expect(result.failure).toBeUndefined();
-
-    removeManyMock.mockClear();
-  });
-
-  it('"removeMany" should return Failure when removing document fails', async () => {
-    const removeManyMock = jest.spyOn(source, 'removeMany').mockRejectedValue(new Error());
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.removeMany([{ _id: 'fake_id' }]);
-    expect(result.failure).toBeInstanceOf(Failure);
-
-    removeManyMock.mockClear();
-  });
-
-  it('"update" should return UpdateResult.Success when document has been updated', async () => {
-    const updateMock = jest.spyOn(source, 'update').mockResolvedValue({acknowledged: true, modifiedCount: 1, upsertedCount: 0} as any);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.update(FakeEntity.create('foo', 'bar'), new TestQueryModel());
-    expect(result.content).toEqual(UpdateStatus.Success);
-    expect(result.failure).toBeUndefined();
-
-    updateMock.mockClear();
-  });
-
-  it('"update" should return UpdateResult.Failure when document update failed', async () => {
-    const updateMock = jest.spyOn(source, 'update').mockResolvedValue(null);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.update(FakeEntity.create('foo', 'bar'), new TestQueryModel());
-    expect(result.content).toEqual(UpdateStatus.Failure);
-    expect(result.failure).toBeUndefined();
-
-    updateMock.mockClear();
-  });
-
-  it('"update" should update entity by id', async () => {
-    const updateMock = jest.spyOn(source, 'update').mockResolvedValue({acknowledged: true, modifiedCount: 1, upsertedCount: 0} as any);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.update(FakeEntity.create('foo', 'bar'));
-
-    expect(result.content).toEqual(UpdateStatus.Success);
-    expect(result.failure).toBeUndefined();
-
-    updateMock.mockClear();
-  });
-
-  it('"update" should return Failure when update failed', async () => {
-    const addMock = jest.spyOn(source, 'update').mockRejectedValue(new Error());
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.update(FakeEntity.create('foo', 'bar'));
-    expect(result.failure).toBeInstanceOf(Failure);
-
-    addMock.mockClear();
-  });
-
-  it('"updateMany" should return UpdateResult.Success when all documents have been updated', async () => {
-    const updateManyMock = jest.spyOn(source, 'updateMany').mockResolvedValue({ modifiedCount: 1, upsertedCount: 0 } as any);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.updateMany([FakeEntity.create('foo', 'bar')]);
-    expect(result.content).toEqual(UpdateStatus.Success);
-    expect(result.failure).toBeUndefined();
-
-    updateManyMock.mockClear();
-  });
-
-  it('"updateMany" should return UpdateResult.Partial when some of the documents have been updated', async () => {
-    const updateManyMock = jest.spyOn(source, 'updateMany').mockResolvedValue({ modifiedCount: 1, upsertedCount: 0 } as any);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.updateMany([FakeEntity.create('foo', 'bar'), FakeEntity.create('foo', 'bar')]);
-    expect(result.content).toEqual(UpdateStatus.Partial);
-    expect(result.failure).toBeUndefined();
-
-    updateManyMock.mockClear();
-  });
-
-  it('"updateMany" should return UpdateResult.Failure when none of the documents have been updated', async () => {
-    const updateManyMock = jest.spyOn(source, 'updateMany').mockResolvedValue({ modifiedCount: 0, upsertedCount: 0 } as any);
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.updateMany([FakeEntity.create('foo', 'bar'), FakeEntity.create('foo', 'bar')]);
-    expect(result.content).toEqual(UpdateStatus.Failure);
-    expect(result.failure).toBeUndefined();
-
-    updateManyMock.mockClear();
-  });
-
-  it('"updateMany" should return a Failure', async () => {
-    const updateManyMock = jest.spyOn(source, 'updateMany').mockRejectedValue(new Error());
-    repository = new RepositoryImpl(source, mapper as any);
-
-    const result = await repository.updateMany([]);
-    expect(result.failure).toBeInstanceOf(Failure);
-
-    updateManyMock.mockClear();
+      expect(result).toEqual(Result.withFailure(Failure.fromError(mockError)));
+    });
   });
 });

@@ -17,9 +17,21 @@ describe('Result instance Unit tests', () => {
   });
 
   it('"withFailure" should create instance of the Reult class containing the failure and undefined content', () => {
-    const result = Result.withFailure(Failure.withMessage('failure'));
+    let result;
+    result = Result.withFailure(Failure.withMessage('failure'));
 
     expect(result.failure).toBeInstanceOf(Failure);
+    expect(result.content).toBeUndefined();
+
+    result = Result.withFailure(new Error());
+
+    expect(result.failure).toBeInstanceOf(Failure);
+    expect(result.content).toBeUndefined();
+
+    result = Result.withFailure('ERROR!');
+
+    expect(result.failure).toBeInstanceOf(Failure);
+    expect(result.failure.error.message).toEqual('ERROR!');
     expect(result.content).toBeUndefined();
   });
 });
