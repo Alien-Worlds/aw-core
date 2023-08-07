@@ -26,7 +26,7 @@ Inversion of Control (IoC) is implemented using [InversifyJS](https://inversify.
 
 #### Helpful links:
 
-- [About IoC](./tutorials/about-ioc.md)
+- [About IoC](https://github.com/Alien-Worlds/aw-core/blob/main/tutorials/about-ioc.md)
 
 ## API
 
@@ -97,7 +97,7 @@ export class ListPlanetsRoute extends GetRoute {
         }),
         toResponse: (output: ListPlanetsOutput) => ({
           status: ...,
-          body: ... 
+          body: ...
         })
       },
       */
@@ -127,6 +127,7 @@ The architecture module, divided into data and domain layers, follows clean arch
 The clean architecture paradigm also promotes separation of concerns by dividing the code into layers. The use of this design pattern facilitates the ability to change one aspect of the system without affecting others. This is due to the decoupling of the software into independent layers, thereby reducing the complexity of the codebase, increasing readability, and improving overall code quality.
 
 #### Dependency Injector
+
 As `DependencyInjector` is an abstract class, it cannot be instantiated directly. Its purpose is to define a template for dependency injectors, making the dependency management more structured and maintainable.
 
 ### Data Layer
@@ -184,7 +185,7 @@ The domain layer consists of basic components and types such as:
 
 #### Helpful links:
 
-- [Why clean Architecture?](./tutorials/why-clean-architecture.md)
+- [Why Clean Architecture?](https://github.com/Alien-Worlds/aw-core/blob/main/tutorials/why-clean-architecture.md)
 
 ## Blockchain
 
@@ -226,7 +227,7 @@ The blockchain component is divided into data and domain layers. It contains the
 
 #### Helpful links:
 
-- [How to write your own blockchain components?](./tutorials/how-to-write-blockchain-components.md)
+- [How to write your own blockchain components?](https://github.com/Alien-Worlds/aw-core/blob/main/tutorials/how-to-write-blockchain-components.md)
 
 ## Config
 
