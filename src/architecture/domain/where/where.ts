@@ -119,13 +119,13 @@ export class Where<Type = UnknownObject> {
   }
 
   /**
-   * Retrieves records based on the provided keys.
+   * Performs an operation on records based on the provided keys.
    *
    * @public
-   * @param {string[]} keys - An array of keys used to retrieve the records.
+   * @param {string[]} list - An array of keys to specify the records.
    */
-  public get(keys: string[]) {
-    this.setClause(Where.KEYS, NaN, keys);
+  public keys(list: string[]) {
+    this.setClause(Where.KEYS, NaN, list);
   }
 
   /**
