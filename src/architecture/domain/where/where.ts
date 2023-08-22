@@ -31,9 +31,9 @@ export class Where<Type = UnknownObject> {
    *
    * @static
    * @type {string}
-   * @default 'keys'
+   * @default '__get_by_keys__'
    */
-  public static KEYS = 'keys';
+  public static KEYS = '__get_by_keys__';
 
   /**
    * Creates a new Where instance with the provided raw object.
@@ -125,7 +125,7 @@ export class Where<Type = UnknownObject> {
    * @param {string[]} keys - An array of keys used to retrieve the records.
    */
   public get(keys: string[]) {
-    this.setClause(Where.KEYS, WhereOperator.getByKeys, keys);
+    this.setClause(Where.KEYS, NaN, keys);
   }
 
   /**
