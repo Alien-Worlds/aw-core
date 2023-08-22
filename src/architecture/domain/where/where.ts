@@ -26,6 +26,16 @@ function asPropertyChecker<T>(input: unknown): asserts input is PropertyChecker<
  */
 export class Where<Type = UnknownObject> {
   /**
+   * Represents the key identifier used for retrieving records based on keys.
+   * Primarily used in WHERE clauses or equivalent constructs in various Where parsers.
+   *
+   * @static
+   * @type {string}
+   * @default 'keys'
+   */
+  public static KEYS = 'keys';
+
+  /**
    * Creates a new Where instance with the provided raw object.
    * @static
    * @param {UnknownObject} raw - The raw (data source related) conditions object to initialize the Where instance.
@@ -104,8 +114,18 @@ export class Where<Type = UnknownObject> {
    * Provides access to the keys of the bound type.
    * @returns {PropertyChecker<Type>} The keys of the bound type.
    */
-  public props(): PropertyChecker<Type> {
+  public prototype(): PropertyChecker<Type> {
     return this.proxyObject;
+  }
+
+  /**
+   * Retrieves records based on the provided keys.
+   *
+   * @public
+   * @param {string[]} keys - An array of keys used to retrieve the records.
+   */
+  public get(keys: string[]) {
+    this.setClause(Where.KEYS, WhereOperator.getByKeys, keys);
   }
 
   /**

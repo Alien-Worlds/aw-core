@@ -26,4 +26,5 @@ export enum WhereOperator {
   and,
   or,
   isBetween,
+  getByKeys,
 }
