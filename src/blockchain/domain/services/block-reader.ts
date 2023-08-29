@@ -10,6 +10,14 @@ export type BlockReaderOptions = {
 };
 
 /**
+ * A callback that is used for async operations.
+ *
+ * @callback AsyncCallback
+ * @returns {Promise<void>}
+ */
+export type AsyncCallback = (...args: unknown[]) => Promise<void>;
+
+/**
  * Configuration options for the Block Reader.
  * @typedef {Object} BlockReaderConfig
  * @property {string[]} endpoints - An array of endpoint URLs to connect to.
@@ -35,6 +43,8 @@ export abstract class BlockReader {
     startBlock: bigint,
     endBlock: bigint
   ) => Promise<void>;
+  protected connectedCallback: AsyncCallback;
+  protected disconnectedCallback: AsyncCallback;
 
   /**
    * Establishes a connection to the block reader service.
@@ -119,5 +129,25 @@ export abstract class BlockReader {
    */
   public onWarning(handler: (...args: unknown[]) => void) {
     this.warningHandler = handler;
+  }
+
+  /**
+   * Registers a callback to be invoked when a connection is established.
+   *
+   * @param {AsyncCallback} callback - The callback to be invoked on connection.
+   * @returns {void}
+   */
+  public onConnected(callback: AsyncCallback): void {
+    this.connectedCallback = callback;
+  }
+
+  /**
+   * Registers a callback to be invoked when a connection is terminated.
+   *
+   * @param {AsyncCallback} callback - The callback to be invoked on disconnection.
+   * @returns {void}
+   */
+  public onDisconnected(callback: AsyncCallback): void {
+    this.disconnectedCallback = callback;
   }
 }
