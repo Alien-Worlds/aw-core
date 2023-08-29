@@ -45,6 +45,22 @@ export abstract class BlockReader {
   ) => Promise<void>;
   protected connectedCallback: AsyncCallback;
   protected disconnectedCallback: AsyncCallback;
+  protected _isConnected: boolean;
+  protected _isPaused: boolean;
+
+  /**
+   * Checks if currently connected.
+   *
+   * @returns {boolean} - True if connected, otherwise false.
+   */
+  public abstract isConnected(): boolean;
+
+  /**
+   * Checks if currently paused.
+   *
+   * @returns {boolean} - True if paused, otherwise false.
+   */
+  public abstract isPaused(): boolean;
 
   /**
    * Establishes a connection to the block reader service.
