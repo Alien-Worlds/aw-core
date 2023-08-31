@@ -14,8 +14,10 @@ export enum OperationErrorType {
  *
  * @type DuplicateErrorAdditionalData
  */
-export type DuplicateErrorAdditionalData = {
-  duplicatedIds: string[];
+export type DuplicateErrorAdditionalData<DocumentType = unknown> = {
+  duplicatedIds?: string[];
+  insertedDocuments?: DocumentType[];
+  failedDocuments?: DocumentType[];
 };
 
 /**
@@ -34,16 +36,26 @@ export class DataSourceError<AdditionalDataType = unknown> extends Error {
    * @param {{ message?: string, data?: string[] }} options Options for the error (optional).
    * @returns {DataSourceError<AdditionalDataType>} The DataSourceError instance.
    */
-  public static createDuplicateError(
+  public static createDuplicateError<DocumentType = unknown>(
     error: Error,
-    options?: { message?: string; data?: string[] }
+    options?: {
+      message?: string;
+      duplicatedIds?: string[];
+      insertedDocuments?: DocumentType[];
+      failedDocuments?: DocumentType[];
+    }
   ): DataSourceError {
-    const { message, data } = options || {};
+    const { message, duplicatedIds, insertedDocuments, failedDocuments } = options || {};
+
     return new DataSourceError<DuplicateErrorAdditionalData>(
       error,
       message || error.message,
       OperationErrorType.Duplicate,
-      { duplicatedIds: data || [] }
+      {
+        duplicatedIds: duplicatedIds || [],
+        insertedDocuments: insertedDocuments || [],
+        failedDocuments: failedDocuments || [],
+      }
     );
   }
 
@@ -55,16 +67,25 @@ export class DataSourceError<AdditionalDataType = unknown> extends Error {
    * @param {{ message?: string, data?: unknown }} options Options for the error (optional).
    * @returns {DataSourceError<AdditionalDataType>} The DataSourceError instance.
    */
-  public static createInvalidDataError(
+  public static createInvalidDataError<DocumentType = unknown>(
     error: Error,
-    options?: { message?: string; data?: unknown }
+    options?: {
+      message?: string;
+      data?: unknown;
+      insertedDocuments?: DocumentType[];
+      failedDocuments?: DocumentType[];
+    }
   ): DataSourceError {
-    const { message, data } = options || {};
+    const { message, data, insertedDocuments, failedDocuments } = options || {};
     return new DataSourceError(
       error,
       message || error.message,
       OperationErrorType.InvalidData,
-      data
+      {
+        data,
+        insertedDocuments: insertedDocuments || [],
+        failedDocuments: failedDocuments || [],
+      }
     );
   }
 

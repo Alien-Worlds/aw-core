@@ -25,7 +25,7 @@ describe('DataSourceError', () => {
         duplicatedIds: ['1', '2', '3'],
       };
       const dataSourceError = DataSourceError.createDuplicateError(originalError, {
-        data: additionalData.duplicatedIds,
+        duplicatedIds: additionalData.duplicatedIds,
       });
 
       expect(dataSourceError.additionalData).toEqual(additionalData);
