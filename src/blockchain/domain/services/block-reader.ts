@@ -29,6 +29,7 @@ export type AsyncCallback = (...args: unknown[]) => Promise<void>;
 export type BlockReaderConfig = BlockReaderOptions & {
   endpoints: string[];
   reconnectInterval?: number;
+  autoReconnect?: boolean;
   [key: string]: unknown;
 };
 
@@ -45,8 +46,6 @@ export abstract class BlockReader {
   ) => Promise<void>;
   protected connectedCallback: AsyncCallback;
   protected disconnectedCallback: AsyncCallback;
-  protected _isConnected: boolean;
-  protected _isPaused: boolean;
 
   /**
    * Checks if currently connected.
