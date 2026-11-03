@@ -2,10 +2,12 @@
 #
 # Release this package to npm.
 #
-#   scripts/deploy.sh [patch|minor|major|x.y.z] [--dry-run]
+#   scripts/deploy.sh [patch|minor|major|pre|x.y.z] [--dry-run]
 #
 # Run from a clean, up-to-date `main`, logged in to npm (`npm login`) with
-# publish rights to the package's scope. The default bump is patch.
+# publish rights to the package's scope. The default bump is patch. `pre` makes a
+# prerelease (prepatch) and publishes it under the `next` dist-tag, so it never
+# becomes `latest`.
 #
 #   --dry-run     run every check, build and `npm publish --dry-run`; make no
 #                 commit, tag, push or publish
@@ -21,6 +23,7 @@ set -euo pipefail
 BRANCH=main
 TYPE=patch
 DRY_RUN=0
+PUBLISH_ARGS=()
 
 error_exit() {
   echo "Error: $1" >&2
@@ -31,15 +34,18 @@ for arg in "$@"; do
   case "$arg" in
     --dry-run) DRY_RUN=1 ;;
     major | minor | patch) TYPE=$arg ;;
+    pre) TYPE=prepatch ;;
     *)
       if [[ $arg =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         TYPE=$arg
       else
-        error_exit "Unknown argument \"$arg\". Use major | minor | patch | x.y.z, optionally with --dry-run."
+        error_exit "Unknown argument \"$arg\". Use major | minor | patch | pre | x.y.z, optionally with --dry-run."
       fi
       ;;
   esac
 done
+
+[[ "$TYPE" == "prepatch" ]] && PUBLISH_ARGS=(--tag next)
 
 cd "$(git rev-parse --show-toplevel)"
 
@@ -60,7 +66,7 @@ fi
 yarn prepublish || error_exit "Build failed"
 
 if [[ $DRY_RUN == 1 ]]; then
-  npm publish --access public --dry-run || error_exit "Dry-run publish failed"
+  npm publish --access public ${PUBLISH_ARGS[@]+"${PUBLISH_ARGS[@]}"} --dry-run || error_exit "Dry-run publish failed"
   echo "Dry run complete. Nothing was versioned, tagged, pushed or published."
   exit 0
 fi
@@ -69,7 +75,7 @@ fi
 npm version "$TYPE" || error_exit "Failed to set a new version of the package"
 VERSION=$(node -p "require('./package.json').version")
 
-if ! npm publish --access public; then
+if ! npm publish --access public ${PUBLISH_ARGS[@]+"${PUBLISH_ARGS[@]}"}; then
   echo "Error: publish failed. The local commit and tag v$VERSION were not pushed." >&2
   echo "To undo them: git tag -d v$VERSION && git reset --hard HEAD~1" >&2
   exit 1
