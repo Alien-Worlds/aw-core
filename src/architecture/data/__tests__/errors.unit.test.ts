@@ -16,7 +16,11 @@ describe('DataSourceError', () => {
       expect(dataSourceError.type).toBe(OperationErrorType.Duplicate);
       expect(dataSourceError.isDuplicateError).toBe(true);
       expect(dataSourceError.isInvalidDataError).toBe(false);
-      expect(dataSourceError.additionalData).toEqual({ duplicatedIds: [] });
+      expect(dataSourceError.additionalData).toEqual({
+        duplicatedIds: [],
+        insertedDocuments: [],
+        failedDocuments: [],
+      });
     });
 
     it('should create a DataSourceError instance for duplicate data error with provided additional data', () => {
@@ -28,7 +32,11 @@ describe('DataSourceError', () => {
         duplicatedIds: additionalData.duplicatedIds,
       });
 
-      expect(dataSourceError.additionalData).toEqual(additionalData);
+      expect(dataSourceError.additionalData).toEqual({
+        ...additionalData,
+        insertedDocuments: [],
+        failedDocuments: [],
+      });
     });
 
     it('should create a DataSourceError instance for duplicate data error with a custom error message', () => {
@@ -53,7 +61,11 @@ describe('DataSourceError', () => {
       expect(dataSourceError.type).toBe(OperationErrorType.InvalidData);
       expect(dataSourceError.isDuplicateError).toBe(false);
       expect(dataSourceError.isInvalidDataError).toBe(true);
-      expect(dataSourceError.additionalData).toBeUndefined();
+      expect(dataSourceError.additionalData).toEqual({
+        data: undefined,
+        insertedDocuments: [],
+        failedDocuments: [],
+      });
     });
 
     it('should create a DataSourceError instance for invalid data error with provided additional data', () => {
@@ -63,7 +75,11 @@ describe('DataSourceError', () => {
         data: additionalData,
       });
 
-      expect(dataSourceError.additionalData).toEqual(additionalData);
+      expect(dataSourceError.additionalData).toEqual({
+        data: additionalData,
+        insertedDocuments: [],
+        failedDocuments: [],
+      });
     });
 
     it('should create a DataSourceError instance for invalid data error with a custom error message', () => {
