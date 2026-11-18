@@ -1,6 +1,6 @@
 {
   "name": "@alien-worlds/aw-core",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "",
   "packageManager": "yarn@1.22.22",
   "repository": "https://github.com/Alien-Worlds/aw-core",
